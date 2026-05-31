@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circadian Alignment — build.inside</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ede8de;
+    --card: #ffffff;
+    --border: #d8d0c0;
+    --border-strong: #b8aa90;
+    --accent: #1a3a2a;
+    --accent-mid: #2d5a40;
+    --accent-light: #4a8a5a;
+    --text: #1a1a16;
+    --text-dim: #5a5a4a;
+    --text-faint: #9a9880;
+    --danger: #b84030;
+    --warn: #b87020;
+    --ok: #2a7a3a;
+    --tag-bg: #1a3a2a;
+    --tag-text: #e8f0e0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  .shell { max-width: 900px; margin: 0 auto; padding: 0 28px 80px; }
+
+  /* HEADER */
+  header {
+    padding: 32px 0 28px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .brand-group { display: flex; align-items: baseline; gap: 14px; }
+  .brand {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .module-tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .module-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 13px;
+    color: var(--text-faint);
+  }
+
+  /* INTRO */
+  .intro {
+    padding: 52px 0 44px;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 48px;
+    align-items: start;
+  }
+  .intro h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .intro h1 em { font-style: italic; color: var(--accent-mid); }
+  .intro-kicker {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 18px;
+  }
+  .intro-body p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 14px;
+  }
+  .intro-body p strong { color: var(--text); font-weight: 600; }
+  .intro-sidebar {
+    background: var(--accent);
+    border-radius: 4px;
+    padding: 28px 24px;
+    color: var(--tag-text);
+  }
+  .sidebar-title {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    opacity: 0.7;
+  }
+  .sidebar-stat {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .sidebar-stat:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .sidebar-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+  .sidebar-lbl { font-size: 11px; opacity: 0.7; line-height: 1.4; }
+  .divider { height: 1px; background: var(--border); margin: 8px 0 40px; }
+
+  /* TABS */
+  .tab-nav {
+    display: flex;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 36px;
+    gap: 0;
+  }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s;
+  }
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.15s;
+  }
+  .tab-btn.active { color: var(--accent); }
+  .tab-btn.active::after { transform: scaleX(1); }
+  .tab-btn:hover:not(.active) { color: var(--text-dim); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* SECTION LABELS */
+  .section-kicker {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 6px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  /* QUESTION BLOCKS */
+  .q-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 26px;
+    margin-bottom: 14px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .q-block:focus-within {
+    border-color: var(--accent-light);
+    box-shadow: 0 2px 12px rgba(26,58,42,0.06);
+  }
+  .q-num {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .q-text { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .q-hint { font-size: 12px; color: var(--text-faint); margin-bottom: 16px; line-height: 1.5; }
+
+  /* Time input */
+  input[type=time] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 8px 14px;
+    width: 140px;
+  }
+  input[type=time]:focus { outline: none; border-color: var(--accent-light); }
+
+  select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    padding: 9px 14px;
+    width: 100%;
+    max-width: 380px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9880'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  select:focus { outline: none; border-color: var(--accent-light); }
+
+  /* Scale */
+  .scale-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .scale-opt { display: none; }
+  .scale-opt + label {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: var(--surface);
+    transition: all 0.12s;
+  }
+  .scale-opt:checked + label {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .scale-opt + label:hover { border-color: var(--accent-mid); }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-faint); margin-top: 6px; }
+
+  /* Radio cards */
+  .radio-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .radio-card input { display: none; }
+  .radio-card label {
+    display: block;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .radio-card input:checked + label {
+    border-color: var(--accent);
+    background: rgba(26,58,42,0.05);
+  }
+  .radio-card label:hover { border-color: var(--border-strong); }
+  .rc-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .rc-sub { font-size: 11px; color: var(--text-faint); line-height: 1.4; }
+
+  /* Checkbox */
+  .check-group { display: flex; flex-direction: column; gap: 9px; }
+  .check-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .check-item input { display: none; }
+  .check-box {
+    width: 17px; height: 17px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+  .check-item input:checked ~ .check-box { background: var(--accent); border-color: var(--accent); }
+  .check-item input:checked ~ .check-box::after { content: '✓'; font-size: 10px; color: white; font-weight: 700; }
+  .check-label { font-size: 13px; color: var(--text-dim); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 13px 30px;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--accent-mid); }
+
+  /* RESULT */
+  #result-panel { display: none; margin-top: 32px; }
+  .result-grid { display: grid; grid-template-columns: 1fr 180px; gap: 20px; margin-bottom: 20px; }
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+  }
+  .result-score-card {
+    background: var(--accent);
+    border-radius: 6px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+  }
+  .result-score {
+    font-family: 'DM Serif Display', serif;
+    font-size: 72px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .result-score-max { font-size: 12px; opacity: 0.6; }
+  .result-tier {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .result-desc { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+  .chrono-display {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+    margin-top: 16px;
+  }
+  .chrono-lbl { font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+  .chrono-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .chrono-time {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--accent);
+    min-width: 70px;
+  }
+  .chrono-event { font-size: 12px; color: var(--text-dim); }
+  .chrono-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-top: 4px;
+  }
+
+  .flag-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .flag {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+  }
+  .flag.red { border-left-color: var(--danger); }
+  .flag.yellow { border-left-color: var(--warn); }
+  .flag.green { border-left-color: var(--ok); }
+  .flag-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .flag-text { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+  .flag-text strong { color: var(--text); font-weight: 600; }
+
+  .callout {
+    background: rgba(26,58,42,0.06);
+    border: 1px solid var(--accent-mid);
+    border-radius: 6px;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-top: 20px;
+  }
+  .callout strong { color: var(--accent); font-weight: 600; }
+
+  /* TRAINING */
+  .protocol-grid { display: grid; grid-template-columns: 200px 1fr; gap: 28px; align-items: start; }
+  .proto-nav { display: flex; flex-direction: column; gap: 6px; }
+  .proto-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-dim);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 12px 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.12s;
+    line-height: 1.3;
+  }
+  .proto-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .proto-btn:hover:not(.active) { border-color: var(--border-strong); color: var(--text); }
+  .proto-panel { display: none; }
+  .proto-panel.active { display: block; }
+
+  .proto-header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .proto-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+  }
+  .proto-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text); margin-bottom: 6px; }
+  .proto-desc { font-size: 12px; color: var(--text-dim); line-height: 1.7; }
+
+  .step-list { display: flex; flex-direction: column; gap: 10px; }
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 22px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+  }
+  .step-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 1px;
+  }
+  .step-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+  .step-body { font-size: 12px; color: var(--text-dim); line-height: 1.7; }
+  .step-body strong { color: var(--text); font-weight: 600; }
+  .step-tag {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-mid);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  /* PROGRESS */
+  .log-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 26px;
+    margin-bottom: 24px;
+  }
+  .log-title { font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 16px; }
+  .log-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .log-field label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
+  .log-field input, .log-field select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    width: 100%;
+  }
+  .log-field input:focus, .log-field select:focus { outline: none; border-color: var(--accent-light); }
+  .log-field input[type=range] {
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--border);
+    border: none;
+    border-radius: 2px;
+    padding: 0;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  .log-field input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .range-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--accent); text-align: right; }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .btn-secondary:hover { border-color: var(--accent-mid); color: var(--text); }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 18px; text-align: center; }
+  .stat-val { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+  .stat-lbl { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint); }
+
+  .chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 22px 24px; margin-bottom: 14px; }
+  .chart-title { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 16px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-date { font-size: 10px; color: var(--text-faint); width: 70px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 8px; background: var(--surface); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .bar-score { font-size: 11px; font-weight: 600; color: var(--text-dim); width: 24px; text-align: right; flex-shrink: 0; }
+
+  .empty-state { text-align: center; padding: 48px; color: var(--text-faint); font-size: 13px; border: 1.5px dashed var(--border); border-radius: 6px; }
+  .empty-state p { margin-bottom: 6px; }
+
+  /* Clock visualization */
+  .clock-widget {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .clock-title { font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 16px; }
+  .clock-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .clock-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .clock-event { font-size: 13px; color: var(--text); flex: 1; }
+  .clock-time { font-size: 12px; color: var(--text-faint); font-weight: 500; }
+  .clock-window { font-size: 11px; color: var(--text-faint); margin-left: 22px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand-group">
+      <span class="brand">build.inside</span>
+      <span class="module-tag">Physical Optimization — Module 02</span>
+    </div>
+    <span class="module-num">02 / 03</span>
+  </header>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <div class="intro-body">
+      <p class="intro-kicker">Circadian Alignment</p>
+      <h1>Your body runs on a<br><em>biological clock.</em><br>Yours might be broken.</h1>
+      <p>Inside every cell in your body is a molecular clock. It regulates when cortisol peaks, when body temperature rises, when reaction time is fastest, when deep work is possible. <strong>Ignore it and you are working against yourself, at a genetic level, every single day.</strong></p>
+      <p>Circadian misalignment — the gap between your internal clock and your lived schedule — is one of the most pervasive and least diagnosed performance problems in founders. It doesn't feel like a problem. It just feels like Monday.</p>
+      <p>Light exposure, feeding timing, social schedules, chronotype — each one is a lever. Most founders have never touched any of them deliberately. <strong>This module identifies exactly where your clock is misaligned and gives you a protocol to fix it.</strong> The changes are behavioral, not supplemental. They work within 3–7 days. And unlike hacks, they compound.</p>
+      <p><strong>This is not about becoming a morning person.</strong> It's about matching your peak cognitive windows to your most important work — wherever those windows naturally fall.</p>
+    </div>
+    <div class="intro-sidebar">
+      <p class="sidebar-title">The science baseline</p>
+      <div class="sidebar-stat">
+        <div class="sidebar-num">~24h</div>
+        <div class="sidebar-lbl">Natural circadian period — runs slightly long without light correction</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-num">±2h</div>
+        <div class="sidebar-lbl">Chronotype range across population — neither good nor bad</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-num">30min</div>
+        <div class="sidebar-lbl">Morning light window for clock entrainment — non-negotiable</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-num">3–7d</div>
+        <div class="sidebar-lbl">Days to see measurable shift from consistent light/schedule protocol</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('assess')">01 — Assess</button>
+    <button class="tab-btn" onclick="switchTab('train')">02 — Train</button>
+    <button class="tab-btn" onclick="switchTab('progress')">03 — Progress</button>
+  </div>
+
+  <!-- ═══ ASSESS ═══ -->
+  <div id="tab-assess" class="tab-panel active">
+    <p class="section-kicker">Baseline Assessment</p>
+    <p class="section-title">Circadian Alignment Profile</p>
+
+    <div class="q-block">
+      <p class="q-num">Question 01</p>
+      <p class="q-text">If you could set your own schedule freely, when would you naturally wake up?</p>
+      <p class="q-hint">This is your chronotype anchor — your biological preference absent any external obligation.</p>
+      <input type="time" id="q1_time" value="07:00">
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 02</p>
+      <p class="q-text">When do you actually wake up on workdays?</p>
+      <p class="q-hint">The gap between these two is your social jet lag score.</p>
+      <input type="time" id="q2_time" value="07:00">
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 03</p>
+      <p class="q-text">When is your mind sharpest — best focus, clearest thinking, fastest decisions?</p>
+      <p class="q-hint">Not when you think it should be. When it actually is.</p>
+      <div class="radio-cards">
+        <div class="radio-card"><input type="radio" name="q3" id="q3a" value="early"><label for="q3a"><div class="rc-title">Early morning</div><div class="rc-sub">6:00 – 9:00 am</div></label></div>
+        <div class="radio-card"><input type="radio" name="q3" id="q3b" value="morning"><label for="q3b"><div class="rc-title">Mid-morning</div><div class="rc-sub">9:00 am – 12:00 pm</div></label></div>
+        <div class="radio-card"><input type="radio" name="q3" id="q3c" value="afternoon"><label for="q3c"><div class="rc-title">Afternoon</div><div class="rc-sub">12:00 – 4:00 pm</div></label></div>
+        <div class="radio-card"><input type="radio" name="q3" id="q3d" value="evening"><label for="q3d"><div class="rc-title">Evening</div><div class="rc-sub">After 6:00 pm</div></label></div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 04</p>
+      <p class="q-text">When do you schedule your most demanding cognitive work (deep work, key decisions)?</p>
+      <p class="q-hint">This reveals the alignment gap — or mismatch — between your peak window and your work schedule.</p>
+      <div class="radio-cards">
+        <div class="radio-card"><input type="radio" name="q4" id="q4a" value="early"><label for="q4a"><div class="rc-title">Early morning</div><div class="rc-sub">6:00 – 9:00 am</div></label></div>
+        <div class="radio-card"><input type="radio" name="q4" id="q4b" value="morning"><label for="q4b"><div class="rc-title">Mid-morning</div><div class="rc-sub">9:00 am – 12:00 pm</div></label></div>
+        <div class="radio-card"><input type="radio" name="q4" id="q4c" value="afternoon"><label for="q4c"><div class="rc-title">Afternoon</div><div class="rc-sub">12:00 – 4:00 pm</div></label></div>
+        <div class="radio-card"><input type="radio" name="q4" id="q4d" value="reactive"><label for="q4d"><div class="rc-title">Reactive / no structure</div><div class="rc-sub">Whatever happens</div></label></div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 05</p>
+      <p class="q-text">How do you feel on Monday mornings specifically?</p>
+      <p class="q-hint">Monday fatigue is the primary symptom of weekend social jet lag — circadian drift from irregular weekends.</p>
+      <select id="q5">
+        <option value="">— Select —</option>
+        <option value="5">Fine — same as any other day</option>
+        <option value="4">Slightly sluggish for an hour or two</option>
+        <option value="3">Noticeably worse than Tue–Thu</option>
+        <option value="2">Significantly impaired — takes half the day to recover</option>
+        <option value="1">Monday is my worst cognitive day every week</option>
+      </select>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 06</p>
+      <p class="q-text">Do you get bright light exposure within 30 minutes of waking?</p>
+      <p class="q-hint">Morning light is the primary clock-setting signal. Without it, your clock drifts daily.</p>
+      <select id="q6">
+        <option value="">— Select —</option>
+        <option value="5">Yes — outdoors or light therapy box, consistently</option>
+        <option value="4">Usually — most days, outdoor light</option>
+        <option value="3">Sometimes — inconsistent</option>
+        <option value="2">Rarely — usually stay indoors in the morning</option>
+        <option value="1">Never — dark apartment or immediate screen use</option>
+      </select>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 07</p>
+      <p class="q-text">How consistent is your eating schedule? (first meal time)</p>
+      <p class="q-hint">Meal timing is a secondary circadian signal — irregular eating reinforces clock misalignment.</p>
+      <select id="q7">
+        <option value="">— Select —</option>
+        <option value="5">Within 30 min same time every day</option>
+        <option value="4">Within 1 hour most days</option>
+        <option value="3">Varies by 1–2 hours</option>
+        <option value="2">Irregular — no consistent pattern</option>
+        <option value="1">Skip meals frequently or eat very late</option>
+      </select>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 08</p>
+      <p class="q-text">Which of the following apply to you? (select all)</p>
+      <div class="check-group">
+        <label class="check-item"><input type="checkbox" id="c1"><span class="check-box"></span><span class="check-label">I use screens in bed or immediately on waking</span></label>
+        <label class="check-item"><input type="checkbox" id="c2"><span class="check-box"></span><span class="check-label">I frequently travel across time zones</span></label>
+        <label class="check-item"><input type="checkbox" id="c3"><span class="check-box"></span><span class="check-label">I sleep 2+ hours later on weekends vs weekdays</span></label>
+        <label class="check-item"><input type="checkbox" id="c4"><span class="check-box"></span><span class="check-label">I often eat my largest meal after 8pm</span></label>
+        <label class="check-item"><input type="checkbox" id="c5"><span class="check-box"></span><span class="check-label">I feel most creative / alive after 10pm</span></label>
+        <label class="check-item"><input type="checkbox" id="c6"><span class="check-box"></span><span class="check-label">I rarely see natural daylight before noon</span></label>
+        <label class="check-item"><input type="checkbox" id="c7"><span class="check-box"></span><span class="check-label">None of the above</span></label>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="runAssessment()">Generate Circadian Profile →</button>
+
+    <div id="result-panel">
+      <div style="height:28px"></div>
+      <div class="result-grid">
+        <div class="result-card">
+          <p style="font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Alignment Profile</p>
+          <p class="result-tier" id="result-tier">—</p>
+          <p class="result-desc" id="result-desc">—</p>
+          <div class="chrono-display" id="chrono-display" style="display:none">
+            <p class="chrono-lbl">Your estimated optimal schedule</p>
+            <div id="chrono-rows"></div>
+          </div>
+        </div>
+        <div class="result-score-card">
+          <div class="result-score" id="result-score">—</div>
+          <div class="result-score-max">/ 100</div>
+          <div style="margin-top:12px;font-size:10px;opacity:0.6;letter-spacing:0.1em;text-transform:uppercase">Alignment Score</div>
+        </div>
+      </div>
+      <div class="flag-list" id="flag-list"></div>
+      <div class="callout">
+        <strong>Next step:</strong> Move to the <strong>Train</strong> tab and select the protocol that matches your primary misalignment. Reassess after <strong>14 days</strong> of consistent application.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TRAIN ═══ -->
+  <div id="tab-train" class="tab-panel">
+    <p class="section-kicker">Training Protocols</p>
+    <p class="section-title">Circadian Repair & Optimization</p>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:28px;line-height:1.7">Select the protocol that matches your primary misalignment type. Each is a step-by-step behavioral intervention. No supplements required to start.</p>
+
+    <div class="protocol-grid">
+      <div class="proto-nav">
+        <button class="proto-btn active" onclick="switchProto('p1')">Light Anchoring Protocol</button>
+        <button class="proto-btn" onclick="switchProto('p2')">Social Jet Lag Repair</button>
+        <button class="proto-btn" onclick="switchProto('p3')">Peak Window Scheduling</button>
+        <button class="proto-btn" onclick="switchProto('p4')">Evening Chronotype Shift</button>
+        <button class="proto-btn" onclick="switchProto('p5')">Travel & Jet Lag Protocol</button>
+      </div>
+      <div>
+
+        <!-- P1 -->
+        <div id="p1" class="proto-panel active">
+          <div class="proto-header">
+            <div class="proto-badge">Protocol A</div>
+            <p class="proto-title">Light Anchoring Protocol</p>
+            <p class="proto-desc">Primary intervention for anyone who gets insufficient morning light or uses screens as their first visual input. Effective within 3–5 days. This is the foundational protocol — run it alongside any other.</p>
+          </div>
+          <div class="step-list">
+            <div class="step"><div class="step-num">1</div><div>
+              <p class="step-title">10,000 lux morning light within 30 min of waking</p>
+              <p class="step-body">Outdoor natural light is ideal. If living in a low-light context (winter in Seoul, north-facing apartment): use a <strong>10,000 lux light therapy box (e.g. Lumie Vitamin L, Verilux HappyLight)</strong>. Sit 30–40cm from the box for 10–15 minutes while doing something stationary — eating, reading, planning. Do not stare directly into it. This single action, done consistently, shifts your circadian phase faster than anything else available without medication.</p>
+              <span class="step-tag">Daily — within 30 min of waking</span>
+            </div></div>
+            <div class="step"><div class="step-num">2</div><div>
+              <p class="step-title">Phone off for the first 30 minutes</p>
+              <p class="step-body">Screen light in the morning has two problems: the light signal disrupts natural cortisol rise, and <strong>the cognitive content immediately activates your problem-solving mode before your brain has completed its morning reset</strong>. No email, no Slack, no news within the first 30 min. Replace with light box + physical activity + a brief anchoring practice (even 3 minutes). This is often the highest-friction item on this list — and the most impactful.</p>
+              <span class="step-tag">Daily — morning 30 min window</span>
+            </div></div>
+            <div class="step"><div class="step-num">3</div><div>
+              <p class="step-title">Brief outdoor movement in morning light</p>
+              <p class="step-body"><strong>10–15 min of outdoor walking within 60 min of waking</strong> — even overcast sky delivers 10,000–50,000 lux, far more than any indoor light. This stacks circadian reset, adenosine clearance, and movement-triggered BDNF. In winter: wear a coat, go outside anyway. The light comes through cloud cover.</p>
+              <span class="step-tag">Daily — within 60 min of waking</span>
+            </div></div>
+            <div class="step"><div class="step-num">4</div><div>
+              <p class="step-title">Eliminate bright overhead light after 9pm</p>
+              <p class="step-body">The morning light sets the clock forward. Evening bright light delays it. <strong>After 9pm: dim, warm-toned light sources only.</strong> Use floor lamps, candles, salt lamps. Avoid overhead LED lighting. If you use a computer after 9pm, use blue-light-blocking glasses (physical glasses, not software mode — the evidence for software modes is weak). This preserves your natural melatonin rise and speeds sleep onset.</p>
+              <span class="step-tag">Daily — after 9pm</span>
+            </div></div>
+          </div>
+        </div>
+
+        <!-- P2 -->
+        <div id="p2" class="proto-panel">
+          <div class="proto-header">
+            <div class="proto-badge">Protocol B</div>
+            <p class="proto-title">Social Jet Lag Repair</p>
+            <p class="proto-desc">For founders with large weekday/weekend sleep timing gaps. If Monday feels like jet lag, this is why. Duration: 21 days to stabilize.</p>
+          </div>
+          <div class="step-list">
+            <div class="step"><div class="step-num">1</div><div>
+              <p class="step-title">Weekend wake time within 1 hour of weekday wake time</p>
+              <p class="step-body"><strong>This is the primary rule. Non-negotiable.</strong> Sleeping 2+ hours later on weekends shifts your circadian clock backward — exactly like flying 2 time zones west every Friday. Monday morning is your recovery. If you need more sleep on weekends, go to bed earlier. Do not change your wake time. Use the morning light protocol on weekends exactly as on weekdays.</p>
+              <span class="step-tag">Weekly rule — weekends</span>
+            </div></div>
+            <div class="step"><div class="step-num">2</div><div>
+              <p class="step-title">Alcohol management on weekends</p>
+              <p class="step-body">Weekend late-night alcohol compounds social jet lag: it both delays sleep timing and degrades quality. <strong>If drinking socially, finish 3+ hours before bed and hydrate deliberately (500ml water before sleep).</strong> This does not eliminate the performance cost but significantly reduces the Sunday-night sleep disruption that drives Monday impairment.</p>
+              <span class="step-tag">Weekend evenings</span>
+            </div></div>
+            <div class="step"><div class="step-num">3</div><div>
+              <p class="step-title">Sunday evening pre-set</p>
+              <p class="step-body"><strong>Sunday night is not the last day of the weekend — it's the setup day for the week.</strong> Sunday evening: same wind-down routine as weekdays, same light dimming, same sleep time as Thursday night. The founder who protects Sunday evening adds approximately 30% more effective cognitive hours to Monday and Tuesday. This is one of the highest-leverage schedule decisions available.</p>
+              <span class="step-tag">Weekly — Sunday evening</span>
+            </div></div>
+          </div>
+        </div>
+
+        <!-- P3 -->
+        <div id="p3" class="proto-panel">
+          <div class="proto-header">
+            <div class="proto-badge">Protocol C</div>
+            <p class="proto-title">Peak Window Scheduling</p>
+            <p class="proto-desc">For founders whose deep work doesn't align with their actual peak cognitive window. This is a scheduling intervention, not a biological one. Results are immediate.</p>
+          </div>
+          <div class="step-list">
+            <div class="step"><div class="step-num">1</div><div>
+              <p class="step-title">Identify your peak window precisely</p>
+              <p class="step-body">For 5 days, rate your focus and cognitive sharpness every hour from 7am to 9pm on a simple 1–5 scale. Do this in a notes app or paper. <strong>At the end of 5 days, you will have a clear picture of your daily performance curve.</strong> Most people have 1–2 genuine peak windows of 2–3 hours each. Everything else is maintenance work.</p>
+              <span class="step-tag">5-day diagnostic</span>
+            </div></div>
+            <div class="step"><div class="step-num">2</div><div>
+              <p class="step-title">Block your peak window for deep work only — no exceptions</p>
+              <p class="step-body"><strong>Block your peak 2–3 hours in your calendar as non-negotiable deep work time. Zero meetings. Zero calls. Zero Slack.</strong> This window is for strategy, critical thinking, product decisions, investor materials — whatever requires your best cognitive state. If stakeholders need access to you during this window: create a policy. "I'm unavailable 9–12am; I have a standing rule." Protect it like a surgery slot.</p>
+              <span class="step-tag">Calendar restructure — immediate</span>
+            </div></div>
+            <div class="step"><div class="step-num">3</div><div>
+              <p class="step-title">Schedule low-cognitive tasks in post-peak windows</p>
+              <p class="step-body">Email, admin, short calls, routine decisions — <strong>these go in your low-performance windows, typically mid-afternoon.</strong> This is not procrastination; it is cognitive resource allocation. You are not saving your best mental state for tasks that don't need it. Most founders do this exactly backwards: they check email in the morning peak and do strategy in the afternoon trough.</p>
+              <span class="step-tag">Daily scheduling principle</span>
+            </div></div>
+            <div class="step"><div class="step-num">4</div><div>
+              <p class="step-title">Strategic nap (optional) — 90-min or 20-min only</p>
+              <p class="step-body">If you have a significant afternoon trough: a <strong>20-min nap (before 3pm) or a full 90-min sleep cycle nap</strong> can restore afternoon cognitive performance significantly. The 20-min version uses light sleep without entering slow-wave (avoids grogginess). The 90-min version completes a full cycle. Nothing in between — 30–60 min creates sleep inertia without full recovery. Elite performers across sports, military, and medicine use strategic napping deliberately.</p>
+              <span class="step-tag">As needed — before 3pm</span>
+            </div></div>
+          </div>
+        </div>
+
+        <!-- P4 -->
+        <div id="p4" class="proto-panel">
+          <div class="proto-header">
+            <div class="proto-badge">Protocol D</div>
+            <p class="proto-title">Evening Chronotype Shift</p>
+            <p class="proto-desc">For evening-type founders who need to shift their clock earlier for external obligations. A deliberate, systematic approach — not willpower. Duration: 2–3 weeks for a meaningful shift.</p>
+          </div>
+          <div class="step-list">
+            <div class="step"><div class="step-num">1</div><div>
+              <p class="step-title">Shift gradually — 15 min earlier every 3 days</p>
+              <p class="step-body"><strong>Attempting a 2-hour wake-time shift overnight fails.</strong> The circadian clock shifts at a maximum of about 15–30 min per day. Move your wake time 15 min earlier every 3 days, using morning light exposure to lock in each shift. This takes 2–3 weeks for a 1.5-hour total shift. Slow feels frustrating but is the only approach that works without significant performance degradation during the transition.</p>
+              <span class="step-tag">Gradual — 15 min per 3 days</span>
+            </div></div>
+            <div class="step"><div class="step-num">2</div><div>
+              <p class="step-title">Bright light immediately on waking at new target time</p>
+              <p class="step-body">During the shift period, <strong>use a light therapy box at maximum intensity immediately on waking</strong> — even before your body wants to be awake. The light signal overrides the internal clock signal and anchors the new wake time. This is the mechanism that makes the gradual shift actually work. Without morning light, the shift fails.</p>
+              <span class="step-tag">Daily during shift period</span>
+            </div></div>
+            <div class="step"><div class="step-num">3</div><div>
+              <p class="step-title">Eliminate evening bright light and screens aggressively</p>
+              <p class="step-body">Shifting earlier requires simultaneously pulling the evening anchor point forward. <strong>Implement strict light dimming after 8pm and a hard screen cutoff.</strong> The evening type's primary problem is often excessive bright/blue light in the evening that continuously re-delays their clock. Removing it is as important as adding morning light. Both levers need to move together.</p>
+              <span class="step-tag">Daily — after 8pm</span>
+            </div></div>
+            <div class="step"><div class="step-num">4</div><div>
+              <p class="step-title">Consider low-dose melatonin in the transition</p>
+              <p class="step-body"><strong>0.5mg melatonin (not the common 5–10mg doses, which are overdoses) taken 5 hours before your new target sleep time</strong> can accelerate the phase advance. This is the evidence-based use of melatonin — as a clock-shifting signal, not a sedative. Low dose only: higher doses create dependence and actually blunt the clock-shifting effect. Consult a physician if you have any concerns. Discontinue once the new schedule is stable.</p>
+              <span class="step-tag">Optional — during transition period</span>
+            </div></div>
+          </div>
+        </div>
+
+        <!-- P5 -->
+        <div id="p5" class="proto-panel">
+          <div class="proto-header">
+            <div class="proto-badge">Protocol E</div>
+            <p class="proto-title">Travel & Jet Lag Protocol</p>
+            <p class="proto-desc">For founders who travel frequently across time zones. Each zone crossed = one day of cognitive impairment if unmanaged. This protocol cuts that to hours.</p>
+          </div>
+          <div class="step-list">
+            <div class="step"><div class="step-num">1</div><div>
+              <p class="step-title">Begin shifting your schedule 2–3 days before departure</p>
+              <p class="step-body"><strong>For eastward travel: sleep and wake 1 hour earlier per day for 2–3 days before the flight.</strong> For westward: shift 1 hour later. This pre-loads the shift so your body is partially adapted before you land. The traveler who does nothing is fully jet-lagged on arrival. The traveler who pre-shifts by 2 hours lands at 50% adaptation and recovers in half the time.</p>
+              <span class="step-tag">Pre-travel — 2–3 days before</span>
+            </div></div>
+            <div class="step"><div class="step-num">2</div><div>
+              <p class="step-title">Immediate light and schedule adoption on arrival</p>
+              <p class="step-body"><strong>On landing, immediately adopt local time. Do not nap if it is daytime at destination.</strong> Use bright light exposure immediately. Eat your first meal at local meal time. This aggressive immediate adoption accelerates adaptation. The traveler who "just rests" on arrival delays adaptation by 24–48 hours. If you need to perform within 24 hours of landing: stay awake at all costs until local bedtime, use light, eat at local times.</p>
+              <span class="step-tag">On arrival — immediate</span>
+            </div></div>
+            <div class="step"><div class="step-num">3</div><div>
+              <p class="step-title">Fasting strategy in-flight</p>
+              <p class="step-body">Food is a circadian signal. <strong>Fasting during a long-haul flight and eating your first meal at local breakfast time at the destination</strong> significantly accelerates adaptation. This works because the food signal strongly resets the peripheral clock (gut, liver) even when the master brain clock is still on home time. Practical: skip airline meals, drink water only, eat a real meal when you land (if morning) or at the first local meal time that matches.</p>
+              <span class="step-tag">In-flight and on arrival</span>
+            </div></div>
+            <div class="step"><div class="step-num">4</div><div>
+              <p class="step-title">Use melatonin at destination bedtime only</p>
+              <p class="step-body"><strong>0.5mg melatonin at local bedtime for the first 2–3 nights at the destination.</strong> Not as a sedative — as a clock signal. The timing matters more than the dose. Taking it at 10pm local time tells your clock it is nighttime now, regardless of what your home-time clock says. Combined with light exposure and meal timing, this is the most complete jet lag intervention stack available.</p>
+              <span class="step-tag">First 2–3 nights at destination</span>
+            </div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROGRESS ═══ -->
+  <div id="tab-progress" class="tab-panel">
+    <p class="section-kicker">Progress Tracking</p>
+    <p class="section-title">Circadian Alignment Trend</p>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:24px;line-height:1.7">Log your daily alignment score. Track for 14 days minimum. The first 3–5 days may show no improvement or slight dip — this is normal during schedule adjustment.</p>
+
+    <div class="log-card">
+      <p class="log-title">Daily Log Entry</p>
+      <div class="log-grid">
+        <div class="log-field">
+          <label>Date</label>
+          <input type="date" id="log-date">
+        </div>
+        <div class="log-field">
+          <label>Actual wake time</label>
+          <input type="time" id="log-wake">
+        </div>
+        <div class="log-field">
+          <label>Morning light? (Y/N)</label>
+          <select id="log-light">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+        <div class="log-field">
+          <label>Peak window used well? <span class="range-val" id="rv1">5</span></label>
+          <input type="range" min="1" max="10" value="5" id="log-peak" oninput="document.getElementById('rv1').textContent=this.value">
+        </div>
+        <div class="log-field">
+          <label>Overall alignment feel: <span class="range-val" id="rv2">5</span></label>
+          <input type="range" min="1" max="10" value="5" id="log-align" oninput="document.getElementById('rv2').textContent=this.value">
+        </div>
+        <div class="log-field">
+          <label>Monday jet lag? (Mon only)</label>
+          <select id="log-monday">
+            <option value="0">N/A / not Monday</option>
+            <option value="1">Yes — noticeable</option>
+            <option value="2">Minimal</option>
+            <option value="3">None</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="logEntry()">+ Log Entry</button>
+    </div>
+
+    <div id="progress-empty" class="empty-state">
+      <p>No entries logged yet.</p>
+      <p>Log your first day to begin tracking your circadian alignment trend.</p>
+    </div>
+    <div id="progress-data" style="display:none">
+      <div class="stats-row" id="stats-row"></div>
+      <div class="chart-wrap">
+        <p class="chart-title">Alignment Feel — Daily Trend</p>
+        <div id="align-chart"></div>
+      </div>
+      <div class="chart-wrap">
+        <p class="chart-title">Peak Window Utilization — Daily Trend</p>
+        <div id="peak-chart"></div>
+      </div>
+      <button class="btn-secondary" onclick="clearLog()" style="margin-top:8px">Clear all entries</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+function switchProto(name) {
+  document.querySelectorAll('.proto-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.proto-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function getRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : null;
+}
+
+function timeToMinutes(t) {
+  if (!t) return null;
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+function minutesToTime(m) {
+  const h = Math.floor(m/60)%24;
+  const mn = m%60;
+  return `${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
+}
+
+function runAssessment() {
+  const nat = timeToMinutes(document.getElementById('q1_time').value);
+  const actual = timeToMinutes(document.getElementById('q2_time').value);
+  const q3 = getRadio('q3');
+  const q4 = getRadio('q4');
+  const q5 = parseInt(document.getElementById('q5').value)||null;
+  const q6 = parseInt(document.getElementById('q6').value)||null;
+  const q7 = parseInt(document.getElementById('q7').value)||null;
+
+  if (!nat||!actual||!q3||!q4||!q5||!q6||!q7) {
+    alert('Please complete all questions.'); return;
+  }
+
+  const jetLagGap = Math.abs(actual - nat);
+  const jetLagScore = jetLagGap <= 30 ? 30 : jetLagGap <= 60 ? 24 : jetLagGap <= 90 ? 16 : 8;
+  const peakMatch = q3 === q4 ? 20 : (q4 === 'reactive' ? 6 : 12);
+  const mondayScore = q5 * 3;
+  const lightScore = q6 * 3;
+  const eatScore = q7 * 2;
+  const total = Math.min(100, jetLagScore + peakMatch + mondayScore + lightScore + eatScore + 2);
+
+  let tier, desc;
+  if (total >= 78) { tier = 'Well-Aligned'; desc = 'Your biological clock and your lifestyle are largely synchronized. Focus training on protecting this alignment during high-stress periods and travel, and on precisely mapping your peak cognitive windows for maximum scheduling precision.'; }
+  else if (total >= 55) { tier = 'Partial Misalignment'; desc = 'You have functional circadian alignment in some areas and gaps in others. Targeted intervention in 1–2 specific areas will produce visible improvement in cognitive sharpness and Monday performance within 1–2 weeks.'; }
+  else { tier = 'Significant Misalignment'; desc = 'Your circadian system is operating with chronic misalignment. This is a structural drag on cognitive performance, mood stability, and recovery quality — it compounds daily. The light anchoring protocol is your immediate starting point.'; }
+
+  document.getElementById('result-score').textContent = total;
+  document.getElementById('result-tier').textContent = tier;
+  document.getElementById('result-desc').textContent = desc;
+
+  // Chrono display
+  const wakeT = actual;
+  const peakStart = wakeT + 120;
+  const peakEnd = peakStart + 150;
+  const chronoRows = [
+    {time: minutesToTime(wakeT), event: 'Wake + light exposure', color: '#f0a030'},
+    {time: minutesToTime(wakeT + 30), event: 'First coffee (not before!)', color: '#7a5a30'},
+    {time: minutesToTime(peakStart), event: '▶ PEAK DEEP WORK begins', color: '#2a7a3a'},
+    {time: minutesToTime(peakEnd), event: '■ Peak window closes', color: '#2a7a3a'},
+    {time: minutesToTime(peakEnd + 60), event: 'Admin / email / calls', color: '#5a7a9a'},
+    {time: minutesToTime(wakeT + 480), event: 'Optional: strategic nap (20 min max)', color: '#9a7a5a'},
+  ];
+  document.getElementById('chrono-rows').innerHTML = chronoRows.map(r =>
+    `<div class="chrono-row"><div class="clock-dot" style="background:${r.color}"></div><div class="clock-event">${r.event}</div><div class="clock-time">${r.time}</div></div>`
+  ).join('');
+  document.getElementById('chrono-display').style.display = 'block';
+
+  const flags = [];
+  if (jetLagGap > 60) flags.push({cls:'red',icon:'⚠',title:'Social jet lag detected',body:`Your natural wake time and actual wake time differ by ${Math.round(jetLagGap/60*10)/10}h. This is equivalent to weekly transatlantic jet lag. Protocol B (Social Jet Lag Repair) addresses this directly.`});
+  if (q3 !== q4 && q4 !== 'reactive') flags.push({cls:'yellow',icon:'△',title:'Peak-task mismatch',body:'Your best cognitive window and your deep work scheduling are not aligned. Protocol C (Peak Window Scheduling) — the changes are immediate and purely behavioral.'});
+  if (q4 === 'reactive') flags.push({cls:'red',icon:'⚠',title:'No deep work structure',body:'Working reactively means your peak cognitive windows are systematically wasted on low-value tasks. Protocol C is urgent — this is one of the highest-leverage changes available to any founder.'});
+  if (q6 <= 2) flags.push({cls:'red',icon:'⚠',title:'Insufficient morning light',body:'Without consistent morning light, your clock drifts every day. Protocol A (Light Anchoring) is your first action. A light therapy box is a direct performance investment — not a wellness item.'});
+  if (q5 <= 2) flags.push({cls:'yellow',icon:'△',title:'Monday jet lag pattern',body:'Consistent Monday impairment signals weekend circadian drift. Protocol B (Social Jet Lag Repair) — the primary fix is wake time consistency, not more sleep.'});
+  if (document.getElementById('c3').checked) flags.push({cls:'yellow',icon:'△',title:'Weekend sleep timing variance',body:'Sleeping 2+ hours later on weekends is creating weekly circadian disruption. This single behavior change — maintaining consistent wake time — has one of the highest ROIs in this entire framework.'});
+  if (document.getElementById('c2').checked) flags.push({cls:'yellow',icon:'△',title:'Frequent time zone travel',body:'Protocol E (Travel & Jet Lag) — if you are crossing zones 4+ times a year, managing jet lag proactively rather than reactively gives you back significant cognitive hours annually.'});
+  if (flags.length === 0) flags.push({cls:'green',icon:'✓',title:'Strong circadian alignment — protect it',body:'Your current habits are well-designed. Focus on protecting this alignment during high-pressure phases, travel, and fundraising periods when routines typically break down.'});
+
+  document.getElementById('flag-list').innerHTML = flags.map(f =>
+    `<div class="flag ${f.cls}"><span class="flag-icon">${f.icon}</span><p class="flag-text"><strong>${f.title}</strong><br>${f.body}</p></div>`
+  ).join('');
+  document.getElementById('result-panel').style.display = 'block';
+  document.getElementById('result-panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// Progress
+let logData = JSON.parse(localStorage.getItem('bi_circadian_log')||'[]');
+function saveLog(){localStorage.setItem('bi_circadian_log',JSON.stringify(logData));}
+function logEntry(){
+  const date=document.getElementById('log-date').value;
+  if(!date){alert('Select a date.');return;}
+  const entry={
+    date,
+    wake:document.getElementById('log-wake').value,
+    light:parseInt(document.getElementById('log-light').value),
+    peak:parseInt(document.getElementById('log-peak').value),
+    align:parseInt(document.getElementById('log-align').value)
+  };
+  const idx=logData.findIndex(e=>e.date===date);
+  if(idx>=0)logData[idx]=entry; else logData.push(entry);
+  logData.sort((a,b)=>a.date.localeCompare(b.date));
+  saveLog();renderProgress();
+}
+function clearLog(){if(confirm('Clear all entries?')){logData=[];saveLog();renderProgress();}}
+function renderProgress(){
+  const empty=document.getElementById('progress-empty');
+  const data=document.getElementById('progress-data');
+  if(logData.length===0){empty.style.display='block';data.style.display='none';return;}
+  empty.style.display='none';data.style.display='block';
+  const avg=arr=>(arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1);
+  const aligns=logData.map(e=>e.align),peaks=logData.map(e=>e.peak);
+  const lightPct=Math.round(logData.filter(e=>e.light===1).length/logData.length*100);
+  const trend=aligns.length>=2?(aligns[aligns.length-1]-aligns[0]>0?'↑':(aligns[aligns.length-1]-aligns[0]<0?'↓':'→')):'—';
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-box"><div class="stat-val">${logData.length}</div><div class="stat-lbl">Days Logged</div></div>
+    <div class="stat-box"><div class="stat-val">${avg(aligns)}</div><div class="stat-lbl">Avg Alignment</div></div>
+    <div class="stat-box"><div class="stat-val">${lightPct}%</div><div class="stat-lbl">Light Adherence</div></div>
+    <div class="stat-box"><div class="stat-val">${trend}</div><div class="stat-lbl">Trend</div></div>`;
+  const makeChart=(id,key)=>{
+    const last14=logData.slice(-14);
+    document.getElementById(id).innerHTML=last14.map(e=>{
+      const v=e[key],pct=(v/10)*100;
+      const col=v>=7?'var(--ok)':v>=5?'var(--warn)':'var(--danger)';
+      return `<div class="bar-row"><span class="bar-date">${e.date.slice(5)}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><span class="bar-score">${v}</span></div>`;
+    }).join('');
+  };
+  makeChart('align-chart','align');
+  makeChart('peak-chart','peak');
+}
+document.getElementById('log-date').value=new Date().toISOString().split('T')[0];
+renderProgress();
+</script>
+</body>
+</html>

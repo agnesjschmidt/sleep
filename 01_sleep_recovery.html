@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep Recovery Quality — build.inside</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0e;
+    --surface: #141416;
+    --card: #1a1a1d;
+    --border: #2a2a2e;
+    --accent: #c8a96e;
+    --accent-dim: #8a7048;
+    --text: #e8e4dc;
+    --text-dim: #8a8680;
+    --text-faint: #4a4845;
+    --danger: #c06050;
+    --ok: #6a9e7a;
+    --warn: #c8a040;
+    --score-low: #c06050;
+    --score-mid: #c8a040;
+    --score-high: #6a9e7a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── LAYOUT ── */
+  .shell {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0 28px;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+  }
+  .brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .brand-sep { color: var(--text-faint); }
+  .module-tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+
+  /* ── INTRO ── */
+  .intro {
+    padding: 48px 0 40px;
+    max-width: 660px;
+  }
+  .intro h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .intro h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .intro-sub {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .intro p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 14px;
+  }
+  .intro p strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  /* ── TABS ── */
+  .tab-nav {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 36px;
+    width: fit-content;
+  }
+  .tab-btn {
+    background: var(--surface);
+    border: none;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .tab-btn:last-child { border-right: none; }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #0d0d0e;
+    font-weight: 500;
+  }
+  .tab-btn:hover:not(.active) {
+    background: var(--card);
+    color: var(--text);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── ASSESSMENT FORM ── */
+  .q-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    transition: border-color 0.15s;
+  }
+  .q-block:focus-within { border-color: var(--accent-dim); }
+  .q-num {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+  .q-hint {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  /* Scale */
+  .scale-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .scale-opt { display: none; }
+  .scale-opt + label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-dim);
+    transition: all 0.12s;
+    background: var(--surface);
+  }
+  .scale-opt:checked + label {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0d0d0e;
+    font-weight: 600;
+  }
+  .scale-opt + label:hover { border-color: var(--accent-dim); color: var(--text); }
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    margin-top: 6px;
+  }
+
+  /* Select */
+  select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 8px 12px;
+    width: 100%;
+    max-width: 340px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8680'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  select:focus { outline: none; border-color: var(--accent-dim); }
+
+  /* Checkbox group */
+  .check-group { display: flex; flex-direction: column; gap: 8px; }
+  .check-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .check-item input[type=checkbox] { display: none; }
+  .check-box {
+    width: 16px; height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+  .check-item input:checked ~ .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check-item input:checked ~ .check-box::after {
+    content: '✓';
+    font-size: 10px;
+    color: #0d0d0e;
+    font-weight: 700;
+  }
+  .check-label { font-size: 12px; color: var(--text-dim); }
+  .check-item:hover .check-box { border-color: var(--accent-dim); }
+
+  /* Submit */
+  .btn-primary {
+    background: var(--accent);
+    color: #0d0d0e;
+    border: none;
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 13px 28px;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  /* ── RESULT PANEL ── */
+  #result-panel { display: none; margin-top: 32px; }
+  .score-banner {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px 28px 24px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 20px;
+  }
+  .score-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .score-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .score-desc { font-size: 12px; color: var(--text-dim); max-width: 460px; line-height: 1.7; }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    text-align: right;
+  }
+  .score-max { font-size: 14px; color: var(--text-faint); font-family: 'IBM Plex Mono', monospace; }
+
+  /* Flags */
+  .flag-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .flag {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .flag.red { border-left-color: var(--danger); }
+  .flag.yellow { border-left-color: var(--warn); }
+  .flag.green { border-left-color: var(--ok); }
+  .flag-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+  .flag-text { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+  .flag-text strong { color: var(--text); font-weight: 500; }
+
+  /* ── TRAINING PANEL ── */
+  .protocol-header {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 28px;
+  }
+  .protocol-badge {
+    background: var(--accent);
+    color: #0d0d0e;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+    margin-top: 4px;
+  }
+  .protocol-intro { font-size: 12px; color: var(--text-dim); line-height: 1.7; }
+  .protocol-intro strong { color: var(--text); }
+
+  .step-list { display: flex; flex-direction: column; gap: 14px; }
+  .step {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 16px;
+    align-items: flex-start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px 20px 18px 0;
+  }
+  .step-num {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 2px;
+    padding-left: 18px;
+  }
+  .step-content {}
+  .step-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .step-body { font-size: 12px; color: var(--text-dim); line-height: 1.7; }
+  .step-body strong { color: var(--text); font-weight: 500; }
+  .step-timing {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-dim);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  /* Protocol selector */
+  .protocol-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .proto-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .proto-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(200,169,110,0.06);
+  }
+  .proto-btn:hover:not(.active) { border-color: var(--text-faint); color: var(--text); }
+  .proto-panel { display: none; }
+  .proto-panel.active { display: block; }
+
+  /* ── PROGRESS PANEL ── */
+  .log-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .log-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .log-field label {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 6px;
+  }
+  .log-field input, .log-field select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 8px 10px;
+    width: 100%;
+  }
+  .log-field input:focus, .log-field select:focus { outline: none; border-color: var(--accent-dim); }
+  .log-field input[type=range] {
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--border);
+    border: none;
+    border-radius: 2px;
+    padding: 0;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+  .log-field input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .range-val {
+    font-size: 18px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: right;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .btn-secondary:hover { border-color: var(--accent-dim); color: var(--text); }
+
+  /* Chart */
+  .chart-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .chart-title {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 16px;
+  }
+  .chart-canvas { width: 100%; height: 140px; position: relative; }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .bar-date { font-size: 9px; color: var(--text-faint); width: 70px; flex-shrink: 0; }
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .bar-score { font-size: 10px; color: var(--text-dim); width: 24px; text-align: right; flex-shrink: 0; }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-lbl { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-faint);
+    font-size: 12px;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+  }
+  .empty-state p { margin-bottom: 6px; }
+
+  /* info callout */
+  .callout {
+    background: rgba(200,169,110,0.06);
+    border: 1px solid var(--accent-dim);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .callout strong { color: var(--accent); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- HEADER -->
+  <header>
+    <span class="brand">build.inside</span>
+    <span class="brand-sep">|</span>
+    <span class="module-tag">Physical Optimization — Module 01</span>
+  </header>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <p class="intro-sub">Sleep Recovery Quality</p>
+    <h1>Your best work starts<br>the night <em>before.</em></h1>
+    <p>Most founders track output. Hours worked. Tasks closed. Revenue moved. Almost none track the single variable that determines cognitive quality for everything else: <strong>how recovered you actually are when you sit down to work.</strong></p>
+    <p>Sleep is not rest. It is active biological maintenance — memory consolidation, hormonal reset, cellular repair. Miss it once and you operate on deficit. Miss it consistently and you are making company-defining decisions with a systematically degraded brain, without knowing it.</p>
+    <p>This module does three things. It <strong>assesses your current sleep quality</strong> with precision — not vague questions about whether you feel tired, but the specific variables that predict cognitive performance. It gives you a <strong>targeted training protocol</strong> matched to your exact gaps. And it tracks your <strong>recovery trend</strong> over time so you can see whether interventions are actually working.</p>
+    <p><strong>This is not about sleeping more. It's about recovering better.</strong> Elite operators — Navy SEALs, F1 drivers, top-tier surgeons — treat sleep as a performance input, not a luxury. You should too.</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('assess')">01 — Assess</button>
+    <button class="tab-btn" onclick="switchTab('train')">02 — Train</button>
+    <button class="tab-btn" onclick="switchTab('progress')">03 — Progress</button>
+  </div>
+
+  <!-- ═══ ASSESS ═══ -->
+  <div id="tab-assess" class="tab-panel active">
+    <p class="section-label">Baseline Assessment</p>
+    <p class="section-title">Current Sleep Quality</p>
+
+    <div class="q-block">
+      <p class="q-num">Question 01</p>
+      <p class="q-text">How rested do you feel when you wake up?</p>
+      <p class="q-hint">Ignore alarm response — rate your felt state 10–15 min after waking.</p>
+      <div class="scale-row">
+        <input type="radio" name="q1" id="q1_1" class="scale-opt" value="1"><label for="q1_1">1</label>
+        <input type="radio" name="q1" id="q1_2" class="scale-opt" value="2"><label for="q1_2">2</label>
+        <input type="radio" name="q1" id="q1_3" class="scale-opt" value="3"><label for="q1_3">3</label>
+        <input type="radio" name="q1" id="q1_4" class="scale-opt" value="4"><label for="q1_4">4</label>
+        <input type="radio" name="q1" id="q1_5" class="scale-opt" value="5"><label for="q1_5">5</label>
+        <input type="radio" name="q1" id="q1_6" class="scale-opt" value="6"><label for="q1_6">6</label>
+        <input type="radio" name="q1" id="q1_7" class="scale-opt" value="7"><label for="q1_7">7</label>
+        <input type="radio" name="q1" id="q1_8" class="scale-opt" value="8"><label for="q1_8">8</label>
+        <input type="radio" name="q1" id="q1_9" class="scale-opt" value="9"><label for="q1_9">9</label>
+        <input type="radio" name="q1" id="q1_10" class="scale-opt" value="10"><label for="q1_10">10</label>
+      </div>
+      <div class="scale-labels"><span>Exhausted</span><span>Fully recovered</span></div>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 02</p>
+      <p class="q-text">How many hours do you typically sleep per night?</p>
+      <p class="q-hint">Honest average over the last 2 weeks.</p>
+      <select id="q2">
+        <option value="">— Select —</option>
+        <option value="1">Less than 5 hours</option>
+        <option value="2">5–6 hours</option>
+        <option value="3">6–7 hours</option>
+        <option value="4">7–8 hours</option>
+        <option value="5">More than 8 hours</option>
+      </select>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 03</p>
+      <p class="q-text">Do you wake up during the night?</p>
+      <p class="q-hint">Night waking — even briefly — indicates sleep architecture disruption.</p>
+      <select id="q3">
+        <option value="">— Select —</option>
+        <option value="5">Never / very rarely</option>
+        <option value="4">Once a week or less</option>
+        <option value="3">A few times a week</option>
+        <option value="2">Most nights, once</option>
+        <option value="1">Most nights, multiple times</option>
+      </select>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 04</p>
+      <p class="q-text">How consistent is your sleep/wake timing?</p>
+      <p class="q-hint">Variability in sleep timing disrupts circadian rhythm independent of total sleep duration.</p>
+      <select id="q4">
+        <option value="">— Select —</option>
+        <option value="5">Within ±30 min every day</option>
+        <option value="4">Within ±1 hour most days</option>
+        <option value="3">±1–2 hour variance</option>
+        <option value="2">Varies by 2+ hours regularly</option>
+        <option value="1">No consistent schedule</option>
+      </select>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 05</p>
+      <p class="q-text">How do you feel 2–3 hours after waking?</p>
+      <p class="q-hint">The post-adenosine clearance window. This is when your brain should be sharpest.</p>
+      <div class="scale-row">
+        <input type="radio" name="q5" id="q5_1" class="scale-opt" value="1"><label for="q5_1">1</label>
+        <input type="radio" name="q5" id="q5_2" class="scale-opt" value="2"><label for="q5_2">2</label>
+        <input type="radio" name="q5" id="q5_3" class="scale-opt" value="3"><label for="q5_3">3</label>
+        <input type="radio" name="q5" id="q5_4" class="scale-opt" value="4"><label for="q5_4">4</label>
+        <input type="radio" name="q5" id="q5_5" class="scale-opt" value="5"><label for="q5_5">5</label>
+        <input type="radio" name="q5" id="q5_6" class="scale-opt" value="6"><label for="q5_6">6</label>
+        <input type="radio" name="q5" id="q5_7" class="scale-opt" value="7"><label for="q5_7">7</label>
+        <input type="radio" name="q5" id="q5_8" class="scale-opt" value="8"><label for="q5_8">8</label>
+        <input type="radio" name="q5" id="q5_9" class="scale-opt" value="9"><label for="q5_9">9</label>
+        <input type="radio" name="q5" id="q5_10" class="scale-opt" value="10"><label for="q5_10">10</label>
+      </div>
+      <div class="scale-labels"><span>Foggy / sluggish</span><span>Sharp / alert</span></div>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 06</p>
+      <p class="q-text">Which of the following affect your sleep? (select all that apply)</p>
+      <p class="q-hint">Identifying disruption vectors.</p>
+      <div class="check-group">
+        <label class="check-item"><input type="checkbox" value="screen" id="cb1"><span class="check-box"></span><span class="check-label">Screens within 1h of bed</span></label>
+        <label class="check-item"><input type="checkbox" value="caffeine" id="cb2"><span class="check-box"></span><span class="check-label">Caffeine after 2pm</span></label>
+        <label class="check-item"><input type="checkbox" value="alcohol" id="cb3"><span class="check-box"></span><span class="check-label">Alcohol in the evening</span></label>
+        <label class="check-item"><input type="checkbox" value="racing" id="cb4"><span class="check-box"></span><span class="check-label">Racing thoughts / inability to wind down</span></label>
+        <label class="check-item"><input type="checkbox" value="temp" id="cb5"><span class="check-box"></span><span class="check-label">Room temperature too warm</span></label>
+        <label class="check-item"><input type="checkbox" value="noise" id="cb6"><span class="check-box"></span><span class="check-label">Noise / light disruption</span></label>
+        <label class="check-item"><input type="checkbox" value="none" id="cb7"><span class="check-box"></span><span class="check-label">None of the above</span></label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 07</p>
+      <p class="q-text">Do you experience a mid-afternoon energy crash?</p>
+      <p class="q-hint">A dip between 13:00–16:00 is normal; a severe crash often indicates poor sleep quality.</p>
+      <select id="q7">
+        <option value="">— Select —</option>
+        <option value="5">No noticeable dip</option>
+        <option value="4">Slight, manageable dip</option>
+        <option value="3">Clear drop, affects work quality</option>
+        <option value="2">Significant crash, need caffeine/rest</option>
+        <option value="1">Severe — barely functional for 1–2h</option>
+      </select>
+    </div>
+
+    <div class="q-block">
+      <p class="q-num">Question 08</p>
+      <p class="q-text">How would you rate your dream recall / depth of sleep feeling?</p>
+      <p class="q-hint">High dream recall correlates with adequate REM. Feeling of "deep sleep" signals good slow-wave sleep.</p>
+      <div class="scale-row">
+        <input type="radio" name="q8" id="q8_1" class="scale-opt" value="1"><label for="q8_1">1</label>
+        <input type="radio" name="q8" id="q8_2" class="scale-opt" value="2"><label for="q8_2">2</label>
+        <input type="radio" name="q8" id="q8_3" class="scale-opt" value="3"><label for="q8_3">3</label>
+        <input type="radio" name="q8" id="q8_4" class="scale-opt" value="4"><label for="q8_4">4</label>
+        <input type="radio" name="q8" id="q8_5" class="scale-opt" value="5"><label for="q8_5">5</label>
+        <input type="radio" name="q8" id="q8_6" class="scale-opt" value="6"><label for="q8_6">6</label>
+        <input type="radio" name="q8" id="q8_7" class="scale-opt" value="7"><label for="q8_7">7</label>
+        <input type="radio" name="q8" id="q8_8" class="scale-opt" value="8"><label for="q8_8">8</label>
+        <input type="radio" name="q8" id="q8_9" class="scale-opt" value="9"><label for="q8_9">9</label>
+        <input type="radio" name="q8" id="q8_10" class="scale-opt" value="10"><label for="q8_10">10</label>
+      </div>
+      <div class="scale-labels"><span>Light / fragmented</span><span>Deep / restorative</span></div>
+    </div>
+
+    <button class="btn-primary" onclick="runAssessment()">Calculate Recovery Score →</button>
+
+    <!-- RESULT -->
+    <div id="result-panel">
+      <div class="score-banner">
+        <div>
+          <p class="score-label">Recovery Score</p>
+          <p class="score-title" id="result-tier">—</p>
+          <p class="score-desc" id="result-desc">—</p>
+        </div>
+        <div style="text-align:right">
+          <div class="score-num" id="result-score" style="color: var(--accent)">—</div>
+          <div class="score-max">/ 100</div>
+        </div>
+      </div>
+      <div class="flag-list" id="flag-list"></div>
+      <div class="callout">
+        <strong>Next step:</strong> Move to the <strong>Train</strong> tab and select the protocol that matches your primary gap. Re-assess after <strong>14 days</strong> of consistent application.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TRAIN ═══ -->
+  <div id="tab-train" class="tab-panel">
+    <p class="section-label">Training Protocols</p>
+    <p class="section-title">Targeted Interventions</p>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:24px;line-height:1.7;">Select the protocol that matches your primary gap identified in the assessment. Each protocol is a step-by-step implementation — not general advice, but specific daily actions with timing, sequence, and rationale.</p>
+
+    <div class="protocol-tabs">
+      <button class="proto-btn active" onclick="switchProto('p1')">Sleep Architecture</button>
+      <button class="proto-btn" onclick="switchProto('p2')">Wind-Down System</button>
+      <button class="proto-btn" onclick="switchProto('p3')">Racing Thoughts</button>
+      <button class="proto-btn" onclick="switchProto('p4')">Sleep Consistency</button>
+    </div>
+
+    <!-- Protocol 1 -->
+    <div id="p1" class="proto-panel active">
+      <div class="protocol-header">
+        <span class="protocol-badge">Protocol A</span>
+        <div>
+          <p class="protocol-intro"><strong>Sleep Architecture Repair</strong> — for founders waking multiple times, feeling unrefreshed, or scoring low on deep/REM indicators.</p>
+          <p class="protocol-intro">Target: Improve sleep continuity and slow-wave sleep quality. Duration: 14 days minimum.</p>
+        </div>
+      </div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p class="step-title">Set a non-negotiable wake time</p>
+            <p class="step-body">Pick one wake time and hold it for 14 days — including weekends. <strong>This is the anchor of your circadian rhythm.</strong> The body builds sleep pressure (adenosine) relative to wake time, not sleep time. A consistent wake time regulates everything downstream. Start here even if you go to bed late the night before.</p>
+            <span class="step-timing">Duration: Permanent anchor, effective from day 1</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <p class="step-title">Cold-dark bedroom environment</p>
+            <p class="step-body">Body temperature must drop 1–3°C to initiate and maintain deep sleep. Set room to <strong>17–19°C</strong>. Block all light (blackout) — even small light sources suppress melatonin. This is the single highest-ROI physical change for sleep architecture.</p>
+            <span class="step-timing">Setup: Day 1–2</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <p class="step-title">Eliminate alcohol within 3h of sleep</p>
+            <p class="step-body">Alcohol is the most commonly overlooked sleep disruptor. It suppresses REM directly — even 1–2 drinks fragment architecture significantly. <strong>If you drink, finish at least 3 hours before bed.</strong> Track this as a binary variable for 14 days.</p>
+            <span class="step-timing">Immediate: Night 1 onward</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <p class="step-title">Magnesium glycinate before bed</p>
+            <p class="step-body"><strong>300–400mg magnesium glycinate, 30–60 min before sleep.</strong> Magnesium activates GABA receptors and suppresses cortisol. One of the few supplements with robust evidence for sleep quality improvement. Glycinate form is best tolerated. Do not use magnesium oxide (poor absorption).</p>
+            <span class="step-timing">Daily: 30–60 min pre-sleep</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <p class="step-title">No eating within 2–3h of bed</p>
+            <p class="step-body">Late eating elevates insulin and core body temperature, both of which interfere with deep sleep onset. <strong>Finish your last meal 2–3h before your target sleep time.</strong> If hunger is a problem, a small amount of protein (not carbs) is acceptable.</p>
+            <span class="step-timing">Daily discipline</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <p class="step-title">Morning HRV or recovery check</p>
+            <p class="step-body">Use a wearable (Oura, Garmin, Whoop) or a free app (HRV4Training) to measure HRV each morning. <strong>Track your trend over 14 days, not individual scores.</strong> A rising HRV trend is objective confirmation that your sleep architecture is improving. This is your progress signal.</p>
+            <span class="step-timing">Daily: Within 5 min of waking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Protocol 2 -->
+    <div id="p2" class="proto-panel">
+      <div class="protocol-header">
+        <span class="protocol-badge">Protocol B</span>
+        <div>
+          <p class="protocol-intro"><strong>Wind-Down System</strong> — for founders who can't fall asleep, take long to feel tired, or carry the day's activation into bed.</p>
+          <p class="protocol-intro">Target: Build a physiological transition from work-state to sleep-state. Duration: 7 days to establish, 21 to solidify.</p>
+        </div>
+      </div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p class="step-title">Hard stop: work ends 90 minutes before bed</p>
+            <p class="step-body"><strong>No work, no strategy, no Slack after your designated cutoff.</strong> Stress hormones (cortisol, norepinephrine) take 60–90 minutes to metabolize after activation. Working until bed means you are literally injecting stress hormones into your sleep-onset window. Set an alarm. Treat the cutoff as non-negotiable.</p>
+            <span class="step-timing">Daily: 90 min pre-sleep</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <p class="step-title">Dim all lights from cutoff onward</p>
+            <p class="step-body">Light above 10 lux in the 2 hours before sleep suppresses melatonin by up to 50%. <strong>Use only warm, dim lighting after your cutoff.</strong> If you use screens: blue-light glasses (not mode — physical glasses) or switch entirely to physical books. Candles are effective if practical.</p>
+            <span class="step-timing">Daily: From work cutoff</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <p class="step-title">Body temperature drop: hot shower or bath</p>
+            <p class="step-body">Counterintuitive but well-evidenced: a <strong>10–15 min hot shower 60–90 min before sleep</strong> accelerates core body temperature drop post-shower, triggering sleep onset. The body's attempt to cool down after heat exposure directly induces sleepiness. This is one of the most effective single-action interventions.</p>
+            <span class="step-timing">Daily: 60–90 min pre-sleep</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <p class="step-title">Physiological sigh (30 days, nightly)</p>
+            <p class="step-body">Double inhale through the nose (short inhale → second quick inhale → long exhale through mouth). <strong>5 repetitions.</strong> This activates the parasympathetic nervous system faster than any other breathwork technique. It is the fastest-acting physiological tool for state shift from activation to rest. Use it as you get into bed.</p>
+            <span class="step-timing">At bedtime: 2 min</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <p class="step-title">Non-sleep deep rest (NSDR) if needed</p>
+            <p class="step-body">If you still feel activated at bedtime: a <strong>10–20 min NSDR (Yoga Nidra protocol)</strong> directly precedes sleep. This is a body-scan guided relaxation practice with more evidence for nervous system downregulation than most relaxation methods. Free scripts available: search "Yoga Nidra for sleep." This is a tool, not a ritual — use only when needed.</p>
+            <span class="step-timing">As needed: Directly at bedtime</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Protocol 3 -->
+    <div id="p3" class="proto-panel">
+      <div class="protocol-header">
+        <span class="protocol-badge">Protocol C</span>
+        <div>
+          <p class="protocol-intro"><strong>Racing Thoughts at Night</strong> — for founders whose minds stay active at bedtime, replay the day, or generate unresolved decisions and worries.</p>
+          <p class="protocol-intro">Target: Offload cognitive load before bed. Duration: 5 days to see effect.</p>
+        </div>
+      </div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p class="step-title">Brain dump: 5-minute worry offload</p>
+            <p class="step-body">Every night, <strong>5 minutes before bed, write every open loop, worry, and tomorrow's priority into a notebook.</strong> The act of writing closes the loop in working memory — the brain no longer needs to rehearse it. This is not journaling for insight; it's a cognitive offload. Pen and paper only — no phone. Be ruthlessly fast and uncurated.</p>
+            <span class="step-timing">Daily: 5–7 min pre-sleep</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <p class="step-title">Tomorrow's top 3 decisions: written</p>
+            <p class="step-body"><strong>Write the 3 most important decisions or actions for tomorrow.</strong> The Zeigarnik effect — the brain's tendency to replay unfinished tasks — is directly reduced by committing them to an external system. This is the single most evidence-backed intervention for pre-sleep rumination in high-cognitive workers.</p>
+            <span class="step-timing">Immediately after brain dump</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <p class="step-title">4-7-8 breathing for thought interrupt</p>
+            <p class="step-body">If thoughts continue in bed: <strong>inhale 4 sec, hold 7 sec, exhale 8 sec — repeat 4–8 cycles.</strong> The extended exhale activates the vagus nerve and directly reduces sympathetic tone. The counting occupies working memory, interrupting the thought loop. This is a pattern break, not a meditation — it works even if you're skeptical.</p>
+            <span class="step-timing">In bed: As needed</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <p class="step-title">If still awake after 20 min: leave the bed</p>
+            <p class="step-body"><strong>Get up. Go to a different room. Low light, quiet activity (reading a physical book — not exciting), until sleepy.</strong> This is sleep restriction therapy principle: bed must be associated exclusively with sleep. Lying awake in bed teaches your nervous system that the bed is a place for alertness. Breaking this association is one of the most powerful long-term fixes for sleep-onset insomnia in high-performance populations.</p>
+            <span class="step-timing">As needed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Protocol 4 -->
+    <div id="p4" class="proto-panel">
+      <div class="protocol-header">
+        <span class="protocol-badge">Protocol D</span>
+        <div>
+          <p class="protocol-intro"><strong>Sleep Consistency & Schedule Repair</strong> — for founders with irregular schedules, social jet lag, or high variability in sleep/wake times.</p>
+          <p class="protocol-intro">Target: Stabilize the circadian rhythm. Duration: 21 days minimum. Most common profile in early-stage founders.</p>
+        </div>
+      </div>
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p class="step-title">Identify your chronotype and design around it</p>
+            <p class="step-body">Use the <strong>Munich Chronotype Questionnaire (MCTQ — free online)</strong> to identify whether you are a morning, intermediate, or evening type. Fighting your chronotype costs performance. If you are an evening type forced to wake at 6am, you are operating at a structural disadvantage. Design your schedule around your biology where possible — or use light therapy to shift your chronotype toward what your schedule demands.</p>
+            <span class="step-timing">One-time: Day 1</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <p class="step-title">Morning bright light within 30 min of waking</p>
+            <p class="step-body"><strong>10,000 lux light exposure (or outdoor natural light) within 30 minutes of waking, for 10–15 min.</strong> This is the primary signal that sets your circadian clock for the next 24 hours. It determines sleep onset timing at night (roughly 14–16h later). Skip this and your internal clock drifts. In Seoul's winter, a light therapy box is essential. This single step will improve both evening tiredness timing and morning alertness within 3–5 days.</p>
+            <span class="step-timing">Daily: Within 30 min of waking</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <p class="step-title">Social jet lag protocol for weekends</p>
+            <p class="step-body"><strong>Never sleep more than 1 hour past your weekday wake time on weekends.</strong> Social jet lag (large weekend sleep timing shifts) is equivalent to weekly transatlantic flights for your circadian system. You feel its effects Monday and Tuesday. If you need more sleep, go to bed earlier — do not wake later. This is the most commonly violated and impactful sleep rule in the founder population.</p>
+            <span class="step-timing">Weekly: Weekend anchor</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <p class="step-title">Caffeine hard cutoff at 12–1pm</p>
+            <p class="step-body">Caffeine has a <strong>5–6 hour half-life</strong> — a coffee at 3pm means half its stimulant effect is still active at 8pm. This delays sleep onset and suppresses deep sleep even if you fall asleep easily. Set an alarm for your caffeine cutoff. Track it as a daily binary. Most founders significantly underestimate how much late caffeine costs them.</p>
+            <span class="step-timing">Daily: Hard cutoff</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <p class="step-title">Build a consistent pre-sleep cue sequence</p>
+            <p class="step-body"><strong>Same 3–4 actions in the same order every night, starting 45–60 min before bed.</strong> Example: dim lights → phone off → teeth → 5-min brain dump → read. The sequence itself becomes a conditioned sleep trigger over 2–3 weeks. Athletes use pre-performance rituals for the same reason — the sequence signals the nervous system what comes next. Design yours deliberately.</p>
+            <span class="step-timing">Daily: 45–60 min pre-sleep</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROGRESS ═══ -->
+  <div id="tab-progress" class="tab-panel">
+    <p class="section-label">Progress Tracking</p>
+    <p class="section-title">Recovery Trend</p>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:24px;line-height:1.7;">Log your daily recovery score. Track for minimum 14 days to identify your trend. Single-day scores are noise. The trend is the signal.</p>
+
+    <div class="log-form">
+      <div class="log-grid">
+        <div class="log-field">
+          <label>Date</label>
+          <input type="date" id="log-date">
+        </div>
+        <div class="log-field">
+          <label>Protocol followed</label>
+          <select id="log-proto">
+            <option value="">— Select —</option>
+            <option value="A">A — Sleep Architecture</option>
+            <option value="B">B — Wind-Down System</option>
+            <option value="C">C — Racing Thoughts</option>
+            <option value="D">D — Consistency</option>
+          </select>
+        </div>
+        <div class="log-field">
+          <label>Morning Recovery Feel: <span class="range-val" id="rv1">5</span></label>
+          <input type="range" min="1" max="10" value="5" id="log-recovery" oninput="document.getElementById('rv1').textContent=this.value">
+        </div>
+        <div class="log-field">
+          <label>Focus Quality Today: <span class="range-val" id="rv2">5</span></label>
+          <input type="range" min="1" max="10" value="5" id="log-focus" oninput="document.getElementById('rv2').textContent=this.value">
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="logEntry()">+ Log Entry</button>
+    </div>
+
+    <div id="progress-empty" class="empty-state">
+      <p>No entries logged yet.</p>
+      <p>Start logging daily to see your recovery trend.</p>
+    </div>
+
+    <div id="progress-data" style="display:none">
+      <div class="stats-row" id="stats-row"></div>
+      <div class="chart-wrap">
+        <p class="chart-title">Recovery Score — Daily Trend</p>
+        <div id="bar-chart"></div>
+      </div>
+      <div class="chart-wrap">
+        <p class="chart-title">Focus Quality — Daily Trend</p>
+        <div id="focus-chart"></div>
+      </div>
+      <button class="btn-secondary" onclick="clearLog()" style="margin-top:8px">Clear all entries</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Tabs
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+function switchProto(name) {
+  document.querySelectorAll('.proto-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.proto-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Assessment
+function getRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? parseInt(el.value) : null;
+}
+function runAssessment() {
+  const q1 = getRadio('q1');
+  const q2 = parseInt(document.getElementById('q2').value) || null;
+  const q3 = parseInt(document.getElementById('q3').value) || null;
+  const q4 = parseInt(document.getElementById('q4').value) || null;
+  const q5 = getRadio('q5');
+  const q7 = parseInt(document.getElementById('q7').value) || null;
+  const q8 = getRadio('q8');
+
+  if ([q1,q2,q3,q4,q5,q7,q8].some(v => v === null)) {
+    alert('Please answer all questions before calculating.');
+    return;
+  }
+
+  // Score calculation (0–100)
+  const raw = (q1/10*20) + ((q2===4||q2===5)?20:(q2===3?14:(q2===2?8:4))) + (q3/5*15) + (q4/5*15) + (q5/10*15) + (q7/5*10) + (q8/10*5);
+  const score = Math.round(raw);
+
+  let tier, desc, color;
+  if (score >= 78) { tier = 'High Recovery'; desc = 'Your sleep foundation is solid. Focus training on maintaining consistency under travel and high-stress periods, and on optimizing circadian alignment for peak cognitive windows.'; color = 'var(--score-high)'; }
+  else if (score >= 55) { tier = 'Moderate Recovery'; desc = 'You are functional but leaving cognitive performance on the table. Targeted intervention in 1–2 areas will produce measurable improvement in decision quality and sustained focus within 10–14 days.'; color = 'var(--score-mid)'; }
+  else { tier = 'Low Recovery'; desc = 'Your cognitive baseline is significantly impaired by sleep quality. Before optimizing focus, flow, or work systems, this must be addressed. Everything else you build sits on a degraded foundation.'; color = 'var(--score-low)'; }
+
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-score').style.color = color;
+  document.getElementById('result-tier').textContent = tier;
+  document.getElementById('result-tier').style.color = color;
+  document.getElementById('result-desc').textContent = desc;
+
+  // Flags
+  const flags = [];
+  const cbVals = ['screen','caffeine','alcohol','racing','temp','noise'].filter(v => document.getElementById('cb'+(['screen','caffeine','alcohol','racing','temp','noise'].indexOf(v)+1)).checked);
+  if (q1 <= 4) flags.push({cls:'red', icon:'⚠', title:'Critical: Morning recovery score', body:'Waking at ≤4/10 means your sleep is not fulfilling its core biological function. Protocol A (Sleep Architecture) is your entry point.'});
+  if (q2 <= 2) flags.push({cls:'red', icon:'⚠', title:'Insufficient sleep duration', body:'Under 6 hours is a hard physiological deficit. Cognitive impairment is measurable and compounds. Duration increase is prerequisite to all other optimization.'});
+  if (q3 <= 2) flags.push({cls:'red', icon:'⚠', title:'Sleep continuity disrupted', body:'Frequent night waking fragments your sleep cycles and destroys slow-wave and REM recovery. Protocol A is primary.'});
+  if (q4 <= 2) flags.push({cls:'yellow', icon:'△', title:'Schedule inconsistency: social jet lag risk', body:'High timing variability disrupts your circadian rhythm structurally. Protocol D (Consistency) should be your starting point.'});
+  if (cbVals.includes('alcohol')) flags.push({cls:'red', icon:'⚠', title:'Alcohol affecting sleep', body:'Evening alcohol suppresses REM directly. Even moderate amounts significantly degrade architecture. Eliminating within 3h of bed is the single highest-impact change available.'});
+  if (cbVals.includes('caffeine')) flags.push({cls:'yellow', icon:'△', title:'Late caffeine disrupting sleep onset', body:'Caffeine half-life means afternoon caffeine still affects sleep onset. Hard cutoff at 12–1pm is the fix.'});
+  if (cbVals.includes('racing')) flags.push({cls:'yellow', icon:'△', title:'Cognitive activation at bedtime', body:'Racing thoughts indicate insufficient work-to-rest transition. Protocol C (Racing Thoughts) or Protocol B (Wind-Down) directly addresses this.'});
+  if (q5 <= 4) flags.push({cls:'yellow', icon:'△', title:'Low morning cognitive sharpness', body:'Feeling foggy 2–3h after waking suggests inadequate recovery or delayed adenosine clearance. Morning light exposure and consistent wake time will improve this within 5–7 days.'});
+  if (flags.length === 0) flags.push({cls:'green', icon:'✓', title:'No critical flags detected', body:'Maintain your current habits. Focus on consistency — recovery quality degrades quickly under stress and travel. Track HRV trend as your early warning system.'});
+
+  const fl = document.getElementById('flag-list');
+  fl.innerHTML = flags.map(f => `<div class="flag ${f.cls}"><span class="flag-icon">${f.icon}</span><p class="flag-text"><strong>${f.title}</strong><br>${f.body}</p></div>`).join('');
+
+  document.getElementById('result-panel').style.display = 'block';
+  document.getElementById('result-panel').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Progress
+let logData = JSON.parse(localStorage.getItem('bi_sleep_log') || '[]');
+function saveLog() { localStorage.setItem('bi_sleep_log', JSON.stringify(logData)); }
+function logEntry() {
+  const date = document.getElementById('log-date').value;
+  const proto = document.getElementById('log-proto').value;
+  const rec = parseInt(document.getElementById('log-recovery').value);
+  const foc = parseInt(document.getElementById('log-focus').value);
+  if (!date) { alert('Please select a date.'); return; }
+  const existing = logData.findIndex(e => e.date === date);
+  const entry = {date, proto, rec, foc};
+  if (existing >= 0) logData[existing] = entry;
+  else logData.push(entry);
+  logData.sort((a,b) => a.date.localeCompare(b.date));
+  saveLog(); renderProgress();
+}
+function clearLog() { if (confirm('Clear all log entries?')) { logData = []; saveLog(); renderProgress(); } }
+function renderProgress() {
+  const empty = document.getElementById('progress-empty');
+  const data = document.getElementById('progress-data');
+  if (logData.length === 0) { empty.style.display = 'block'; data.style.display = 'none'; return; }
+  empty.style.display = 'none'; data.style.display = 'block';
+
+  const avg = arr => (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1);
+  const recs = logData.map(e=>e.rec), focs = logData.map(e=>e.foc);
+  const trend = recs.length >= 2 ? (recs[recs.length-1] - recs[0] > 0 ? '↑' : (recs[recs.length-1] - recs[0] < 0 ? '↓' : '→')) : '—';
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-box"><div class="stat-val">${logData.length}</div><div class="stat-lbl">Days Logged</div></div>
+    <div class="stat-box"><div class="stat-val">${avg(recs)}</div><div class="stat-lbl">Avg Recovery</div></div>
+    <div class="stat-box"><div class="stat-val">${avg(focs)}</div><div class="stat-lbl">Avg Focus</div></div>
+    <div class="stat-box"><div class="stat-val">${trend}</div><div class="stat-lbl">Trend</div></div>`;
+
+  const makeChart = (containerId, key, label) => {
+    const last14 = logData.slice(-14);
+    const max = 10;
+    document.getElementById(containerId).innerHTML = last14.map(e => {
+      const val = e[key];
+      const pct = (val/max)*100;
+      const col = val >= 7 ? 'var(--score-high)' : val >= 5 ? 'var(--score-mid)' : 'var(--score-low)';
+      return `<div class="bar-row"><span class="bar-date">${e.date.slice(5)}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><span class="bar-score">${val}</span></div>`;
+    }).join('');
+  };
+  makeChart('bar-chart','rec','Recovery');
+  makeChart('focus-chart','foc','Focus');
+}
+// Init date
+document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+renderProgress();
+</script>
+</body>
+</html>
