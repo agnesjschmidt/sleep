@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>build.inside — Founder Performance Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f9f6f1;
+  --surface: #f0ebe1;
+  --card: #ffffff;
+  --border: #e2d9cc;
+  --border-mid: #c8bfb0;
+  --purple: #7F77DD;
+  --purple-light: #EEEDFE;
+  --purple-dark: #3C3489;
+  --teal: #5DCAA5;
+  --teal-light: #E1F5EE;
+  --teal-dark: #085041;
+  --coral: #F0997B;
+  --coral-light: #FAECE7;
+  --coral-dark: #712B13;
+  --gold: #BA7517;
+  --gold-light: #FAEEDA;
+  --gold-dark: #633806;
+  --text: #1a1510;
+  --text-dim: #5a5040;
+  --text-faint: #9a9080;
+  --green: #639922;
+  --green-light: #EAF3DE;
+  --green-dark: #27500A;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Karla', sans-serif; font-size: 15px; line-height: 1.7; }
+
+/* ── PRINT ── */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; font-size: 11px; }
+  .shell { max-width: 100%; padding: 0 20px; }
+  .step { display: block !important; }
+  .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+  header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .habit-row { break-inside: avoid; }
+  .plan-area { break-inside: avoid; }
+}
+
+.shell { max-width: 900px; margin: 0 auto; padding: 0 28px 80px; }
+
+/* ── HEADER ── */
+header {
+  background: #0e0e0e;
+  margin: 0 -28px;
+  padding: 40px 56px 36px;
+  margin-bottom: 48px;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(127,119,221,0.15) 0%, transparent 70%);
+}
+.header-brand { font-size: 11px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--purple); margin-bottom: 12px; }
+header h1 { font-family: 'Cormorant Garamond', serif; font-size: 54px; font-weight: 600; line-height: 1.0; color: #f7f4ee; }
+header h1 em { font-style: italic; color: var(--coral); }
+.header-sub { font-size: 14px; color: rgba(247,244,238,0.55); margin-top: 14px; max-width: 500px; line-height: 1.7; }
+.header-steps { display: flex; gap: 0; margin-top: 32px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; }
+.hs-item { flex: 1; padding: 10px 14px; border-right: 1px solid rgba(255,255,255,0.08); }
+.hs-item:last-child { border-right: none; }
+.hs-num { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--purple); line-height: 1; margin-bottom: 3px; }
+.hs-lbl { font-size: 10px; color: rgba(247,244,238,0.45); line-height: 1.4; }
+
+/* ── STEP NAVIGATION ── */
+.step { display: none; }
+.step.active { display: block; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 40px;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--teal));
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-label { font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+
+/* ── SECTION CARDS ── */
+.section-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.section-card-header {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.cat-dot.purple { background: var(--purple); }
+.cat-dot.teal { background: var(--teal); }
+.cat-dot.coral { background: var(--coral); }
+.cat-dot.gold { background: var(--gold); }
+.section-card-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--text); flex: 1; }
+.section-card-sub { font-size: 11px; color: var(--text-faint); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+.section-card-body { padding: 20px 24px; }
+
+/* ── ASSESSMENT SLIDERS ── */
+.skill-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 40px;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.skill-label { font-size: 13px; color: var(--text-dim); line-height: 1.4; }
+.skill-label strong { display: block; font-size: 14px; color: var(--text); font-weight: 600; margin-bottom: 1px; }
+.skill-slider { width: 100%; height: 4px; border-radius: 2px; cursor: pointer; accent-color: var(--purple); }
+.skill-val { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--purple); text-align: right; }
+
+/* ── CATEGORY CARDS ── */
+.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+.cat-card {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+.cat-card.focus-cat {
+  border-color: var(--purple);
+  background: var(--purple-light);
+}
+.cat-card.strength-cat {
+  border-color: var(--teal);
+  background: var(--teal-light);
+}
+.cat-card-tag {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.tag-focus { background: var(--purple); color: white; }
+.tag-strength { background: var(--teal); color: white; }
+.tag-neutral { background: var(--surface); color: var(--text-faint); border: 1px solid var(--border); }
+.cat-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.cat-score { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; line-height: 1; }
+.cat-score.focus { color: var(--purple-dark); }
+.cat-score.strength { color: var(--teal-dark); }
+.cat-score.neutral { color: var(--text-faint); }
+.cat-score-sub { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+.cat-top-items { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+.cat-item-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.cat-item-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.cat-item-name { color: var(--text-dim); flex: 1; }
+.cat-item-score { font-weight: 600; font-size: 11px; }
+
+/* ── OUTCOME CHOOSER ── */
+.outcome-section { margin-bottom: 28px; }
+.outcome-section h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+.outcome-section p { font-size: 13px; color: var(--text-dim); margin-bottom: 14px; line-height: 1.7; }
+.outcome-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.outcome-opt {
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.outcome-opt:hover { border-color: var(--border-mid); background: var(--surface); }
+.outcome-opt.selected { border-color: var(--purple); background: var(--purple-light); }
+.outcome-opt input[type=radio] { margin-top: 2px; flex-shrink: 0; accent-color: var(--purple); }
+.outcome-opt-content { flex: 1; }
+.outcome-opt-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.outcome-opt-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+/* ── HABIT SELECTION ── */
+.habits-section { margin-bottom: 28px; }
+.habits-section h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+.habits-section .outcome-promise { font-size: 12px; color: var(--purple-dark); font-style: italic; margin-bottom: 14px; line-height: 1.5; }
+.habit-group { margin-bottom: 16px; }
+.habit-group-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.habit-group-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.habit-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  transition: all 0.12s;
+  background: var(--card);
+}
+.habit-row:hover { border-color: var(--border-mid); }
+.habit-row.selected { border-color: var(--purple); background: var(--purple-light); }
+.habit-row.must { border-color: var(--purple); }
+.habit-row.must.selected { background: var(--purple-light); }
+.habit-cb { width: 16px; height: 16px; border: 1.5px solid var(--border-mid); border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; background: white; transition: all 0.1s; }
+.habit-row.selected .habit-cb { background: var(--purple); border-color: var(--purple); }
+.habit-row.selected .habit-cb::after { content: '✓'; font-size: 10px; color: white; font-weight: 700; }
+.habit-content { flex: 1; }
+.habit-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.habit-desc { font-size: 12px; color: var(--text-dim); line-height: 1.55; }
+.habit-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.habit-tag { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; }
+.tag-must { background: var(--purple); color: white; }
+.tag-nice { background: var(--surface); color: var(--text-faint); border: 1px solid var(--border); }
+.tag-time { background: var(--gold-light); color: var(--gold-dark); }
+.tag-alt { background: var(--teal-light); color: var(--teal-dark); border: 1px solid rgba(93,202,165,0.3); }
+
+/* ── PLAN OUTPUT ── */
+.plan-area {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 32px 36px;
+  margin-bottom: 24px;
+}
+.plan-header { margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+.plan-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.plan-meta { font-size: 12px; color: var(--text-faint); }
+.plan-section { margin-bottom: 24px; }
+.plan-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.plan-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.plan-cat-block { margin-bottom: 20px; }
+.plan-cat-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.plan-outcome-badge {
+  display: inline-block;
+  background: var(--teal-light);
+  color: var(--teal-dark);
+  border: 1px solid rgba(93,202,165,0.3);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.tracker-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+.tracker-table th { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint); padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+.tracker-table td { padding: 8px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.tracker-table .day-cell { width: 32px; text-align: center; color: var(--text-faint); border-left: 1px solid var(--border); }
+.tracker-table .habit-cell { color: var(--text-dim); font-weight: 500; max-width: 160px; }
+.tracker-table .check-cell { width: 28px; text-align: center; }
+.habit-tracker-box { width: 14px; height: 14px; border: 1px solid var(--border-mid); border-radius: 2px; display: inline-block; }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* ── NAV BUTTONS ── */
+.nav-row { display: flex; gap: 12px; align-items: center; margin-top: 32px; }
+.btn-primary {
+  background: #0e0e0e;
+  color: #f7f4ee;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Karla', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 5px;
+  font-family: 'Karla', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.btn-secondary:hover { border-color: #0e0e0e; color: #0e0e0e; }
+.btn-print { background: var(--purple); color: white; border: none; border-radius: 5px; font-family: 'Karla', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; padding: 12px 24px; cursor: pointer; transition: opacity 0.15s; }
+.btn-print:hover { opacity: 0.85; }
+.nav-note { font-size: 12px; color: var(--text-faint); margin-left: auto; }
+
+/* ── SCORE BAR ── */
+.score-bar-wrap { display: flex; align-items: center; gap: 10px; }
+.score-bar-track { flex: 1; height: 5px; background: var(--surface); border-radius: 3px; }
+.score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.score-bar-val { font-size: 12px; font-weight: 600; color: var(--text-dim); min-width: 28px; text-align: right; }
+
+/* ── INSIGHT BOX ── */
+.insight-box {
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.insight-box.focus-insight { background: var(--purple-light); border: 1px solid rgba(127,119,221,0.25); }
+.insight-box.strength-insight { background: var(--teal-light); border: 1px solid rgba(93,202,165,0.3); }
+.insight-box.info-insight { background: var(--surface); border: 1px solid var(--border); }
+.insight-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.insight-content {}
+.insight-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.insight-body { font-size: 12px; color: var(--text-dim); line-height: 1.65; }
+
+/* ── INTRO TEXT ── */
+.step-kicker { font-size: 10px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 10px; }
+.step-h1 { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 600; color: var(--text); line-height: 1.1; margin-bottom: 14px; }
+.step-intro { font-size: 14px; color: var(--text-dim); line-height: 1.8; margin-bottom: 28px; max-width: 640px; }
+.step-intro strong { color: var(--text); font-weight: 600; }
+
+/* ── REASSESS BOX ── */
+.reassess-box {
+  background: var(--surface);
+  border: 1.5px dashed var(--border-mid);
+  border-radius: 10px;
+  padding: 28px 32px;
+  text-align: center;
+  margin-top: 32px;
+}
+.reassess-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.reassess-box p { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 18px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+/* ── STRENGTH PROFILES ── */
+.profile-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.profile-pill { background: var(--teal-light); border: 1px solid rgba(93,202,165,0.3); color: var(--teal-dark); font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; }
+.focus-pill { background: var(--purple-light); border: 1px solid rgba(127,119,221,0.3); color: var(--purple-dark); font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; }
+
+/* ── COMMITMENT ── */
+.commit-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.commit-label { font-size: 13px; color: var(--text-dim); flex: 1; }
+.commit-input {
+  width: 100px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: 'Karla', sans-serif;
+  font-size: 13px;
+  padding: 7px 10px;
+  color: var(--text);
+}
+.commit-input:focus { outline: none; border-color: var(--purple); }
+
+/* ── STATUS ── */
+.status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <p class="header-brand">build.inside</p>
+    <h1>Founder<br>Performance<br><em>Assessment</em></h1>
+    <p class="header-sub">A rigorous self-evaluation across the four areas that determine your performance ceiling — and a personalized plan to raise it.</p>
+    <div class="header-steps">
+      <div class="hs-item"><div class="hs-num">01</div><div class="hs-lbl">Assess all 4 areas</div></div>
+      <div class="hs-item"><div class="hs-num">02</div><div class="hs-lbl">Review your profile</div></div>
+      <div class="hs-item"><div class="hs-num">03</div><div class="hs-lbl">Choose outcomes</div></div>
+      <div class="hs-item"><div class="hs-num">04</div><div class="hs-lbl">Commit to habits</div></div>
+      <div class="hs-item"><div class="hs-num">05</div><div class="hs-lbl">Download your plan</div></div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       STEP 1 — ASSESSMENT
+  ════════════════════════════════════════════ -->
+  <div id="step1" class="step active">
+    <p class="step-kicker">Step 01 of 05 — Assessment</p>
+    <h2 class="step-h1">Where are you right now?</h2>
+    <p class="step-intro">Rate each area <strong>honestly</strong> — not where you want to be, but where you actually are today. 1 = significant gap, 10 = genuinely strong. Be the observer, not the critic. This takes 8–10 minutes.</p>
+
+    <div class="progress-label">Assessment progress</div>
+    <div class="progress-bar"><div class="progress-fill" id="assess-progress" style="width:20%"></div></div>
+
+    <!-- PHYSICAL -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="cat-dot purple"></div>
+        <div class="section-card-title">Physical Optimization</div>
+        <div class="section-card-sub">Inputs to the body</div>
+      </div>
+      <div class="section-card-body">
+        <div id="sliders-physical"></div>
+      </div>
+    </div>
+
+    <!-- MENTAL -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="cat-dot teal"></div>
+        <div class="section-card-title">Mental Performance</div>
+        <div class="section-card-sub">Processing quality</div>
+      </div>
+      <div class="section-card-body">
+        <div id="sliders-mental"></div>
+      </div>
+    </div>
+
+    <!-- WORK -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="cat-dot coral"></div>
+        <div class="section-card-title">Work Performance</div>
+        <div class="section-card-sub">What the work produces</div>
+      </div>
+      <div class="section-card-body">
+        <div id="sliders-work"></div>
+      </div>
+    </div>
+
+    <!-- LEADERSHIP -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="cat-dot gold"></div>
+        <div class="section-card-title">Leadership, Vision & Identity</div>
+        <div class="section-card-sub">Who the founder is</div>
+      </div>
+      <div class="section-card-body">
+        <div id="sliders-leadership"></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-primary" onclick="goToStep2()">View my profile →</button>
+      <span class="nav-note">All ratings saved automatically</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       STEP 2 — PROFILE OVERVIEW
+  ════════════════════════════════════════════ -->
+  <div id="step2" class="step">
+    <p class="step-kicker">Step 02 of 05 — Your Profile</p>
+    <h2 class="step-h1">Where the leverage is.</h2>
+    <p class="step-intro">Based on your ratings, here is your current performance profile. Your highest-leverage opportunities and your existing strengths — both are real data about where to invest next.</p>
+
+    <div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+
+    <div id="profile-overview"></div>
+
+    <div class="divider"></div>
+
+    <div id="strength-summary"></div>
+
+    <div id="focus-summary"></div>
+
+    <div class="nav-row">
+      <button class="btn-secondary" onclick="goTo(1)">← Revise ratings</button>
+      <button class="btn-primary" onclick="goTo(3)">Choose my outcomes →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       STEP 3 — OUTCOMES
+  ════════════════════════════════════════════ -->
+  <div id="step3" class="step">
+    <p class="step-kicker">Step 03 of 05 — Outcomes</p>
+    <h2 class="step-h1">What do you want to change?</h2>
+    <p class="step-intro">For each focus area, choose the outcome that matters most to you right now. One per category. <strong>This shapes the specific habits you will be offered in the next step.</strong></p>
+
+    <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+
+    <div id="outcomes-container"></div>
+
+    <div class="nav-row">
+      <button class="btn-secondary" onclick="goTo(2)">← Back</button>
+      <button class="btn-primary" onclick="goTo(4)">Choose my habits →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       STEP 4 — HABIT SELECTION
+  ════════════════════════════════════════════ -->
+  <div id="step4" class="step">
+    <p class="step-kicker">Step 04 of 05 — Your Plan</p>
+    <h2 class="step-h1">What will you actually do?</h2>
+    <p class="step-intro">For each area and outcome, here are the habits with the highest evidence base. <strong>Must-haves</strong> are pre-selected — they are the minimum viable protocol. Add nice-to-haves or alternatives based on your situation. What you select becomes your downloadable plan.</p>
+
+    <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+
+    <div id="habits-container"></div>
+
+    <div class="nav-row">
+      <button class="btn-secondary" onclick="goTo(3)">← Back</button>
+      <button class="btn-primary" onclick="generatePlan()">Generate my plan →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       STEP 5 — PLAN + TRACKER
+  ════════════════════════════════════════════ -->
+  <div id="step5" class="step">
+    <p class="step-kicker no-print">Step 05 of 05 — Your Plan</p>
+    <h2 class="step-h1 no-print">Your performance plan.</h2>
+
+    <div class="progress-bar no-print"><div class="progress-fill" style="width:100%"></div></div>
+
+    <div id="plan-output"></div>
+
+    <div class="reassess-box no-print">
+      <h3>Reassess after 30 days — or sooner.</h3>
+      <p>If you've completed the cycle or found the plan isn't working, come back. Run the assessment again. Your scores will have shifted — and so will what needs attention. <strong>The plan is a living document, not a verdict.</strong></p>
+      <button class="btn-secondary" onclick="restart()">↺ Start a new assessment</button>
+    </div>
+
+    <div class="nav-row no-print">
+      <button class="btn-print" onclick="window.print()">⎙ Print / Save as PDF</button>
+      <button class="btn-secondary" onclick="goTo(4)">← Edit habits</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+
+const categories = {
+  physical: {
+    name: 'Physical Optimization',
+    color: 'purple',
+    tagline: 'Inputs to the body',
+    skills: [
+      { id: 'sleep', name: 'Sleep Recovery Quality', hint: 'How well you recover overnight — subjective feel + HRV trend' },
+      { id: 'circadian', name: 'Circadian Alignment', hint: 'Consistency of wake time, light exposure, chronotype match' },
+      { id: 'fueling', name: 'Performance Fueling', hint: 'Pre-work nutrition, caffeine timing, workout placement' },
+      { id: 'fitness', name: 'Aerobic & Strength Baseline', hint: 'VO2 proxy, weekly movement load, BDNF buffer' },
+      { id: 'recovery', name: 'Recovery Stack', hint: 'Active recovery: cold, heat, breathwork, rest days' },
+      { id: 'substance', name: 'Substance & Stimulant Management', hint: 'Alcohol, caffeine, nicotine, supplements — timing & quantity' },
+      { id: 'energy_trend', name: 'Subjective Energy Trend', hint: 'Daily energy rating as lagging indicator for all inputs' },
+    ]
+  },
+  mental: {
+    name: 'Mental Performance',
+    color: 'teal',
+    tagline: 'Processing quality',
+    skills: [
+      { id: 'focus', name: 'Sustained Attention Capacity', hint: 'Longest uninterrupted focus block, sessions per day' },
+      { id: 'flow', name: 'Optimal Activation Regulation', hint: 'Ability to reach and sustain flow; avoid over/underactivation' },
+      { id: 'inhibition', name: 'Impulse & Distraction Inhibition', hint: 'Resistance to task-switching triggers, notification behavior' },
+      { id: 'switching', name: 'Cognitive Switching Cost Management', hint: 'Recovery time between context switches; transition use' },
+      { id: 'selftalk', name: 'Internal Narrative Quality', hint: 'Ratio of performance-supporting vs. draining self-talk' },
+      { id: 'visualization', name: 'Mental Simulation & Clarity', hint: 'Ability to pre-play scenarios, decisions, outcomes in detail' },
+      { id: 'acute_stress', name: 'Acute Stress Response', hint: 'Recovery speed from spikes; toolkit available in-moment' },
+      { id: 'chronic_stress', name: 'Chronic Load & Recovery Balance', hint: 'Stress input vs recovery output ratio over weeks' },
+      { id: 'hrv_baseline', name: 'Nervous System Baseline (HRV)', hint: 'Resting HRV trend — readiness before the day starts' },
+      { id: 'emotion_reg', name: 'Emotional Regulation Under Pressure', hint: 'Reaction time to frustration; functional under conflict/failure' },
+      { id: 'decision_fatigue', name: 'Decision Fatigue Awareness', hint: 'Decision volume per day; quality of late-day decisions' },
+      { id: 'entry_ritual', name: 'Pre-Performance Activation Routine', hint: 'Consistency and effectiveness of deep work entry ritual' },
+    ]
+  },
+  work: {
+    name: 'Work Performance',
+    color: 'coral',
+    tagline: 'What the work produces',
+    skills: [
+      { id: 'deep_work', name: 'Deep Work Volume', hint: 'Hours in uninterrupted, cognitively demanding work' },
+      { id: 'signal_noise', name: 'Signal-to-Noise Ratio', hint: '% of time on tasks only the founder can or should do' },
+      { id: 'leverage', name: 'Leverage & Asymmetry of Effort', hint: 'Output per hour on high-leverage vs. low-leverage activity' },
+      { id: 'systems', name: 'Systems Maturity', hint: '% of recurring tasks with documented, delegable processes' },
+      { id: 'delegation', name: 'Delegation Effectiveness', hint: 'Tasks successfully handed off; team decision autonomy' },
+      { id: 'metrics', name: 'Metrics Literacy & Tracking Discipline', hint: 'Weekly review cadence; leading vs. lagging indicator clarity' },
+      { id: 'velocity', name: 'Execution Velocity', hint: 'Time from decision to first real-world test' },
+      { id: 'meetings', name: 'Meeting & Communication Efficiency', hint: 'Hours in meetings, async/sync ratio, decision output' },
+      { id: 'planning', name: 'Planning & Prioritization Quality', hint: 'Weekly plan completion rate, strategy-to-task alignment' },
+      { id: 'energy_task', name: 'Energy-Task Matching', hint: 'High-cognitive tasks placed in peak energy windows' },
+    ]
+  },
+  leadership: {
+    name: 'Leadership, Vision & Identity',
+    color: 'gold',
+    tagline: 'Who the founder is',
+    skills: [
+      { id: 'identity', name: 'Personal Identity & Values Clarity', hint: 'Non-negotiable values, desired life design, 10-year self' },
+      { id: 'life_sat', name: 'Life Satisfaction & Fulfillment', hint: 'Sustainability check across life domains' },
+      { id: 'org_identity', name: 'Organizational Identity Clarity', hint: 'Mission sharpness, culture codification, team alignment' },
+      { id: 'vision_exec', name: 'Vision-Execution Gap', hint: 'Distance between stated vision and current reality' },
+      { id: 'decision_qual', name: 'Decision-Making Quality', hint: 'Framework used, reversibility assessed, outcome tracked' },
+      { id: 'narrative', name: 'Communication & Narrative Ability', hint: 'Clarity of pitch, investor updates, team alignment' },
+      { id: 'stakeholders', name: 'Stakeholder Relationship Management', hint: 'Quality of investor, customer, key partner relations' },
+      { id: 'resilience', name: 'Resilience & Adversity Response', hint: 'Recovery speed and effectiveness from setbacks' },
+      { id: 'purpose', name: 'Purpose Clarity & Meaning', hint: 'Why this company, why now, why me — stability over time' },
+    ]
+  }
+};
+
+const outcomesBySkill = {
+  sleep: [
+    { id: 'sleep_1', title: 'Wake up recovered — consistently', desc: 'Morning recovery feel of 7+ on most days within 14 days. Less reliance on caffeine to feel functional.' },
+    { id: 'sleep_2', title: 'Eliminate night waking and fragmented sleep', desc: 'Solid consolidated sleep with fewer than 1 night waking per week on average.' },
+    { id: 'sleep_3', title: 'Build a reliable wind-down system', desc: 'A consistent pre-sleep sequence that reliably transitions you from work-state to sleep-ready state.' },
+  ],
+  circadian: [
+    { id: 'circ_1', title: 'Fix the Monday performance gap', desc: 'Eliminate the weekly social jet lag cycle — Monday cognitive performance within 1 point of midweek.' },
+    { id: 'circ_2', title: 'Lock in my cognitive peak window', desc: 'Identify and protect your 2–3h daily peak for deep work through schedule redesign.' },
+    { id: 'circ_3', title: 'Shift my chronotype to match my obligations', desc: 'Gradually shift sleep/wake timing by up to 1.5h using a deliberate light and timing protocol.' },
+  ],
+  fueling: [
+    { id: 'fuel_1', title: 'Eliminate the afternoon crash', desc: 'No more work-stopping energy dips. Stable energy from morning through 5–6pm.' },
+    { id: 'fuel_2', title: 'Upgrade caffeine architecture', desc: 'Delay first coffee, cut the afternoon caffeine — rebuild natural morning alertness within 7–10 days.' },
+    { id: 'fuel_3', title: 'Optimize pre-work nutrition for focus', desc: 'Identify your personal optimal pre-deep-work fueling state via a 5-day self-experiment.' },
+  ],
+  fitness: [
+    { id: 'fit_1', title: 'Build a consistent movement baseline', desc: '150+ min weekly aerobic activity, 2x strength — the minimum needed for measurable cognitive benefit.' },
+    { id: 'fit_2', title: 'Use workout timing to protect deep work', desc: 'Schedule movement to leverage the post-exercise focus window rather than competing with it.' },
+  ],
+  recovery: [
+    { id: 'rec_1', title: 'Build a recovery toolkit for high-pressure periods', desc: 'Cold/heat exposure, breathwork practices, deliberate rest days — deployed strategically during peak load.' },
+  ],
+  substance: [
+    { id: 'sub_1', title: 'Audit and reduce silent performance drains', desc: 'Map alcohol, caffeine, and substance patterns against focus and recovery scores. Eliminate correlating drains.' },
+  ],
+  energy_trend: [
+    { id: 'et_1', title: 'Build reliable, predictable daily energy', desc: 'Understand your personal energy drivers — and design a day that works with them, not against them.' },
+  ],
+  focus: [
+    { id: 'foc_1', title: 'Build 2h+ uninterrupted focus sessions', desc: 'Reach and sustain 2-hour deep work blocks as the daily standard, not the exception.' },
+    { id: 'foc_2', title: 'Double my weekly deep work hours', desc: 'Identify where focus hours are lost and recover them through environment design and commitment structures.' },
+  ],
+  flow: [
+    { id: 'flow_1', title: 'Access flow state reliably — not accidentally', desc: 'A deliberate entry protocol that produces flow-conducive activation within 15–20 min.' },
+    { id: 'flow_2', title: 'Stop running chronically overactivated', desc: 'Reduce the hypervigilant review state — build yin recovery into the day as a system, not an afterthought.' },
+  ],
+  inhibition: [
+    { id: 'inh_1', title: 'Protect deep work from notification noise', desc: 'A phone and notification system that defaults to deep work — removal rather than resistance.' },
+  ],
+  switching: [
+    { id: 'sw_1', title: 'Reduce the hidden cost of context switching', desc: 'Deliberate transition rituals that cut cognitive recovery time between mode-switches.' },
+  ],
+  selftalk: [
+    { id: 'st_1', title: 'Replace performance-draining inner commentary', desc: 'Identify recurring draining patterns; replace with performance-supporting alternatives that are actually believable.' },
+  ],
+  visualization: [
+    { id: 'vis_1', title: 'Use mental simulation as a daily performance tool', desc: 'Daily outcome visualization and decision pre-play — used before important meetings, decisions, and work blocks.' },
+  ],
+  acute_stress: [
+    { id: 'as_1', title: 'Build a reliable in-moment toolkit for stress spikes', desc: 'Breathwork and somatic protocols that restore function within 5–10 min of a stress spike.' },
+  ],
+  chronic_stress: [
+    { id: 'cs_1', title: 'Rebalance the stress-recovery ratio', desc: 'Track load vs. recovery weekly. Design structured recovery that is as non-negotiable as the work.' },
+  ],
+  hrv_baseline: [
+    { id: 'hrv_1', title: 'Use HRV data to read my nervous system baseline', desc: 'Morning HRV trend as a daily readiness score — adapt work intensity to what the body actually has available.' },
+  ],
+  emotion_reg: [
+    { id: 'er_1', title: 'Stay functional under pressure and conflict', desc: 'Reduce reactive decision-making under stress. Maintain deliberate response capacity in high-stakes moments.' },
+  ],
+  decision_fatigue: [
+    { id: 'df_1', title: 'Protect decision quality across the whole day', desc: 'Restructure the decision load: highest-stakes choices made in peak state, low-stakes batched or eliminated.' },
+  ],
+  entry_ritual: [
+    { id: 'rit_1', title: 'Design a reliable deep work entry sequence', desc: 'A consistent 5–10 min pre-work ritual that reliably produces cognitive readiness — used before every deep work block.' },
+  ],
+  deep_work: [
+    { id: 'dw_1', title: 'Reach 4+ hours daily deep work', desc: 'Design the environment and calendar to make 4h of genuine deep work achievable on most days.' },
+    { id: 'dw_2', title: 'Identify where deep work hours are being lost', desc: 'A 5-day time audit that makes the drag visible — then design targeted removal.' },
+  ],
+  signal_noise: [
+    { id: 'sn_1', title: 'Remove myself from tasks I should not be doing', desc: 'Identify the 20% of your calendar that should not exist on a founder calendar — and eliminate or delegate it.' },
+  ],
+  leverage: [
+    { id: 'lev_1', title: 'Invest more time in truly asymmetric work', desc: 'Protect and expand time on the small number of actions that unlock disproportionate outcomes.' },
+  ],
+  systems: [
+    { id: 'sys_1', title: 'Build systems that run without me', desc: 'Document and delegate the most recurring founder bottlenecks. Make the machine run more independently.' },
+  ],
+  delegation: [
+    { id: 'del_1', title: 'Delegate effectively — not just tasks, but authority', desc: 'Transfer decision-making authority alongside tasks. Build a team that acts without needing approval.' },
+  ],
+  metrics: [
+    { id: 'met_1', title: 'Build a weekly number review habit', desc: 'A consistent weekly cadence for reviewing the 5–7 metrics that actually predict the business outcome.' },
+  ],
+  velocity: [
+    { id: 'vel_1', title: 'Cut decision-to-test cycle time', desc: 'Identify the most common decision-making delays and design them out of the process.' },
+  ],
+  meetings: [
+    { id: 'meet_1', title: 'Reclaim 5+ hours per week from ineffective meetings', desc: 'Audit the meeting calendar. Redesign for async default and decision-output focus.' },
+  ],
+  planning: [
+    { id: 'plan_1', title: 'Build a weekly planning system that actually holds', desc: 'A consistent weekly review and planning cadence that connects strategy to the day\'s first action.' },
+  ],
+  energy_task: [
+    { id: 'et2_1', title: 'Match my highest-cognitive tasks to my peak window', desc: 'Redesign the calendar so deep work lands in biological peak, not in reactive leftover time.' },
+  ],
+  identity: [
+    { id: 'id_1', title: 'Get clear on my non-negotiable values and 10-year design', desc: 'Written, specific, honest articulation of what I\'m actually building — for the company and for myself.' },
+  ],
+  life_sat: [
+    { id: 'ls_1', title: 'Raise satisfaction in the domains most depleted', desc: 'Identify the 1–2 life domains causing the biggest drag — and design a minimum viable intervention.' },
+  ],
+  org_identity: [
+    { id: 'oi_1', title: 'Codify and communicate what we actually stand for', desc: 'A clear, written organizational identity that guides hiring, product, and culture decisions.' },
+  ],
+  vision_exec: [
+    { id: 've_1', title: 'Close the gap between vision and current trajectory', desc: 'Map the distance honestly. Design quarterly priorities that are genuinely connected to the 3-year target.' },
+  ],
+  decision_qual: [
+    { id: 'dq_1', title: 'Install a decision-making framework', desc: 'A repeatable process for high-stakes decisions: reversibility assessment, alternatives considered, outcome tracked.' },
+  ],
+  narrative: [
+    { id: 'nar_1', title: 'Sharpen the founder narrative', desc: 'A clear, compelling, practiced version of the investor pitch, the team alignment message, and the customer story.' },
+  ],
+  stakeholders: [
+    { id: 'sk_1', title: 'Invest deliberately in relationship capital', desc: 'A simple system for proactive investor and key relationship maintenance — not just reactive.' },
+  ],
+  resilience: [
+    { id: 'res_1', title: 'Build faster setback recovery', desc: 'A practiced protocol for returning to function after failure, pivot, or high-stress period — tested and owned.' },
+  ],
+  purpose: [
+    { id: 'pur_1', title: 'Deepen and stabilize my sense of why', desc: 'A clear, honest articulation of why this company and why now — that holds under pressure and doubt.' },
+  ],
+};
+
+const habitsByOutcome = {
+  sleep_1: {
+    must: [
+      { id: 'h_sleep_wake', title: 'Non-negotiable wake time', desc: 'Set one wake time and hold it 7 days a week — including weekends. Maximum 1h variation.', time: '0 min / day', outcome_boost: 'Anchors recovery architecture. Effective from day 1.' },
+      { id: 'h_sleep_temp', title: 'Cold dark bedroom (17–19°C, full blackout)', desc: 'Bedroom temperature and complete darkness for the duration of sleep. One-time setup.', time: '5 min setup', outcome_boost: 'Highest-ROI single environment change for recovery depth.' },
+    ],
+    nice: [
+      { id: 'h_sleep_mag', title: 'Magnesium glycinate 300–400mg pre-sleep', desc: 'GABA activation and cortisol suppression. Glycinate form only. 30–60 min before sleep.', time: '1 min / day', alt: false },
+      { id: 'h_sleep_alcohol', title: 'No alcohol within 3h of sleep', desc: 'Alcohol suppresses REM even at 1–2 drinks. Track as a daily binary.', time: 'Daily discipline', alt: false },
+    ]
+  },
+  sleep_2: {
+    must: [
+      { id: 'h_sleep_wake', title: 'Non-negotiable wake time', desc: 'Set one wake time and hold it 7 days a week — including weekends.', time: '0 min / day', outcome_boost: 'Anchors the sleep cycle. Reduces night waking within 7–10 days.' },
+      { id: 'h_sleep_alcohol', title: 'No alcohol within 3h of sleep', desc: 'The primary cause of night waking after age 30 in founders. Track daily.', time: 'Daily discipline', outcome_boost: 'Removes the most common disruptor of sleep continuity.' },
+    ],
+    nice: [
+      { id: 'h_sleep_food', title: 'Last food 2–3 hours before sleep', desc: 'Elevated core body temperature from late eating directly disrupts sleep continuity.', time: 'Daily discipline', alt: false },
+      { id: 'h_sleep_mag', title: 'Magnesium glycinate 300–400mg pre-sleep', desc: 'GABA activation. Reduces physiological arousal that causes night waking.', time: '1 min / day', alt: false },
+    ]
+  },
+  sleep_3: {
+    must: [
+      { id: 'h_wind_cutoff', title: 'Hard work cutoff 90 min before sleep', desc: 'No work, no Slack, no strategy after this alarm. Set it now. This is not negotiable.', time: '0 min (alarm set)', outcome_boost: 'Allows stress hormones to metabolize before sleep window.' },
+      { id: 'h_wind_lights', title: 'Dim warm light from cutoff onward', desc: 'No overhead lighting. Warm lamp/candle only after work cutoff. Physical blue-light glasses if screens needed.', time: 'Daily habit', outcome_boost: 'Preserves natural melatonin rise. Sleep onset improvement within 4–6 days.' },
+    ],
+    nice: [
+      { id: 'h_wind_shower', title: 'Hot shower 60–90 min before sleep', desc: 'Post-heat cooling response directly triggers sleepiness. 10–15 min.', time: '15 min / day', alt: false },
+      { id: 'h_wind_breath', title: 'Physiological sigh at bedtime', desc: 'Double inhale → long exhale. 5 repetitions at bedtime. Activates parasympathetic system.', time: '2 min / day', alt: false },
+    ]
+  },
+  circ_1: {
+    must: [
+      { id: 'h_circ_wake_wknd', title: 'Weekend wake within 1h of weekday wake — always', desc: 'Non-negotiable. If you need more sleep, go to bed earlier. This eliminates social jet lag.', time: '0 min (discipline)', outcome_boost: 'Monday performance improvement within the first week applied.' },
+      { id: 'h_circ_sunday', title: 'Sunday wind-down identical to a weeknight', desc: 'Same cutoff, same dimming, same sleep time as Thursday. Sunday is setup day for the week.', time: 'Weekly habit', outcome_boost: 'Adds ~30% more effective cognitive hours to Monday and Tuesday.' },
+    ],
+    nice: [
+      { id: 'h_circ_light', title: 'Morning light within 30 min of waking', desc: 'Outdoor walk or light box. Amplifies natural cortisol peak and accelerates clock anchoring.', time: '10–15 min / day', alt: false },
+    ]
+  },
+  circ_2: {
+    must: [
+      { id: 'h_peak_map', title: '5-day peak mapping diagnostic', desc: 'Rate focus/sharpness every hour from 7am–9pm for 5 days. Build your personal performance curve from data.', time: '30 sec / hour × 5 days', outcome_boost: 'Identifies true peak window. Most founders\' intuition about this is wrong.' },
+      { id: 'h_peak_block', title: 'Calendar block: peak window = deep work only', desc: 'Block your peak 2–3h. No meetings, no Slack. Standing policy for stakeholders.', time: 'Calendar restructure', outcome_boost: 'Immediate output quality improvement. Peak window deep work produces measurably better work.' },
+    ],
+    nice: [
+      { id: 'h_circ_light', title: 'Morning light within 30 min of waking', desc: 'Amplifies and stabilizes the morning cortisol peak that drives peak window alertness.', time: '10–15 min / day', alt: false },
+    ]
+  },
+  circ_3: {
+    must: [
+      { id: 'h_circ_shift', title: 'Gradual shift: 15 min earlier every 3 days', desc: 'Move wake time 15 min earlier every 3 days. Morning light locked in at each new time. Slow is the only method that works.', time: '0 min extra', outcome_boost: '1.5h shift achievable in 2–3 weeks without performance degradation.' },
+      { id: 'h_circ_evening', title: 'Dim light after 8pm throughout transition', desc: 'Both levers must move together. Evening light cutoff pulled forward simultaneously with morning shift.', time: 'Daily discipline', outcome_boost: 'Without this, the shift produces exhaustion without the corresponding sleep-onset improvement.' },
+    ],
+    nice: [
+      { id: 'h_circ_melatonin', title: 'Low-dose melatonin 0.5mg — 5h before new sleep target', desc: 'Clock-signal use, not sedation. 0.5mg only. For transition period only (3 weeks).', time: '1 min / day', alt: false },
+    ]
+  },
+  fuel_1: {
+    must: [
+      { id: 'h_fuel_lunch', title: 'Protein + vegetable lunch, reduce carbs 50%', desc: 'Replace high-carb lunch with protein + vegetable + fat. The insulin spike is the crash mechanism.', time: 'Meal choice', outcome_boost: 'Crash reduction measurable within 2–3 days.' },
+      { id: 'h_fuel_walk', title: '10–15 min walk after lunch', desc: 'Post-meal light movement blunts glucose spike. Evidence-backed. Non-negotiable on its own.', time: '10–15 min / day', outcome_boost: 'Immediately effective. Combined with lunch composition, eliminates most afternoon crashes within a week.' },
+    ],
+    nice: [
+      { id: 'h_fuel_water', title: '2L water daily — proactive not reactive', desc: 'Even mild dehydration mimics and amplifies crash symptoms. 500ml on waking + desk bottle system.', time: 'Daily system', alt: false },
+      { id: 'h_fuel_caffcut', title: 'Hard caffeine cutoff at 1pm', desc: 'Late caffeine disrupts sleep architecture, which causes the need for more caffeine — the cycle breaks here.', time: 'Daily discipline', alt: false },
+    ]
+  },
+  fuel_2: {
+    must: [
+      { id: 'h_fuel_delay', title: 'Delay first caffeine 90 min after waking', desc: 'Protect and amplify the natural cortisol peak. First 3 days are uncomfortable. From day 4: cleaner, more sustained morning energy.', time: '0 min (timing change)', outcome_boost: 'Natural morning alertness returns within 7–10 days for most people.' },
+      { id: 'h_fuel_caffcut', title: 'Hard caffeine cutoff at 1pm', desc: 'Eliminates the sleep suppression that drives morning caffeine dependency. Both ends of the cycle must change together.', time: 'Daily discipline', outcome_boost: 'Sleep architecture improvement within 5–7 days. Reduced need for afternoon caffeine follows.' },
+    ],
+    nice: [
+      { id: 'h_fuel_food_first', title: 'Take caffeine with or after food — never fasted', desc: 'Moderates cortisol spike, reduces anxiety and jitteriness, smoother sustained effect.', time: 'Daily habit', alt: false },
+    ]
+  },
+  fuel_3: {
+    must: [
+      { id: 'h_fuel_test', title: '5-day pre-work fueling self-experiment', desc: '2 days fasted, 2 days protein/fat, 1 day carb. Rate focus at 60–90 min into deep work. Your biology reveals the answer.', time: '5-day diagnostic', outcome_boost: 'Personalized fueling protocol — not generic advice. Works within the next 5 days.' },
+    ],
+    nice: [
+      { id: 'h_fuel_protein', title: '30–40g protein at breakfast daily', desc: 'Stabilizes blood glucose, provides neurotransmitter precursors, delays hunger. Eggs, Greek yogurt, cottage cheese.', time: 'Meal choice', alt: false },
+    ]
+  },
+  fit_1: {
+    must: [
+      { id: 'h_fit_aerobic', title: '150+ min aerobic movement per week', desc: 'The minimum dosage for measurable BDNF increase and cognitive benefit. 30 min × 5 days or equivalent blocks.', time: '30 min × 5 / week', outcome_boost: 'Cognitive benefit measurable within 4–6 weeks of consistency.' },
+      { id: 'h_fit_strength', title: '2x weekly strength training', desc: '45–60 min. Compound movements. The cognitive and mood stability benefit requires both aerobic and resistance components.', time: '90 min / week', outcome_boost: 'Mood stability and stress buffer. Compound effect at 8+ weeks.' },
+    ],
+    nice: [
+      { id: 'h_fit_schedule', title: 'Block exercise in calendar like a meeting', desc: 'Schedule or it doesn\'t happen. Non-negotiable time block, same days each week, confirmed for 30 days.', time: '0 min extra', alt: false },
+    ]
+  },
+  fit_2: {
+    must: [
+      { id: 'h_fit_timing', title: 'Schedule workouts to exploit the post-exercise focus window', desc: 'Light aerobic in the morning amplifies the peak window. Intense training mid-day or end-of-day avoids competing with deep work.', time: 'Schedule change', outcome_boost: 'The 2h post-exercise window is cognitively elevated for most people. Use it.' },
+    ],
+    nice: [
+      { id: 'h_fit_aerobic', title: '20–30 min morning walk or light aerobic', desc: 'Low-intensity morning movement for cortisol regulation and light exposure — distinct from peak training.', time: '20–30 min AM', alt: false },
+    ]
+  },
+  rec_1: {
+    must: [
+      { id: 'h_rec_breath', title: 'Daily breathwork (5–10 min)', desc: '4-7-8 or box breathing. Measurably reduces HRV response to stress. The minimum viable recovery tool.', time: '5–10 min / day', outcome_boost: 'Nervous system regulation. Effective from session 1.' },
+      { id: 'h_rec_rest', title: 'One full rest day per week — protected', desc: 'A day with zero deep work, no new problem-solving, deliberate low-stimulation. Recovery is training.', time: '1 day / week', outcome_boost: 'The compounding effect of structured recovery shows in week 3–4 performance.' },
+    ],
+    nice: [
+      { id: 'h_rec_cold', title: 'Cold exposure 2–3x weekly', desc: '2–5 min cold shower or immersion. Proven HRV and recovery benefits at this dosage.', time: '5 min × 3 / week', alt: false },
+    ]
+  },
+  sub_1: {
+    must: [
+      { id: 'h_sub_audit', title: '14-day substance-performance correlation audit', desc: 'Track alcohol, caffeine, nicotine daily alongside focus and recovery scores. Map the correlations. Data reveals what intuition missed.', time: '2 min / day × 14', outcome_boost: 'Founders who run this audit make lasting behavioral changes because the data is undeniable.' },
+    ],
+    nice: [
+      { id: 'h_sub_alcohol', title: 'Alcohol: 3+ hours before sleep, maximum 2 drinks per occasion', desc: 'The performance-protection protocol — not abstinence, but deliberate timing and quantity.', time: 'Behavioral rule', alt: false },
+    ]
+  },
+  et_1: {
+    must: [
+      { id: 'h_et_track', title: 'Daily energy tracking (morning, midday, evening — 1 min)', desc: 'Rate energy 1–10 three times daily for 14 days. Identifies personal patterns most people have wrong.', time: '1 min × 3 / day', outcome_boost: 'Personalized energy map. Reveals which physical variables actually drive your energy.' },
+    ],
+    nice: []
+  },
+  foc_1: {
+    must: [
+      { id: 'h_foc_block', title: 'Calendar block: one 2h deep work session daily', desc: 'Immovable calendar slot. No meetings, no Slack, phone in another room. Non-negotiable for 30 days.', time: '2h daily', outcome_boost: '2h blocks compound. 5 days × 4 weeks = 40h of quality deep work that didn\'t exist before.' },
+      { id: 'h_foc_phone', title: 'Phone in a different room during deep work', desc: 'Phone presence — even silent, even face-down — measurably reduces available cognitive capacity. Physical separation only.', time: '0 min extra', outcome_boost: 'Focus quality improvement measurable from session 1.' },
+    ],
+    nice: [
+      { id: 'h_foc_ritual', title: '5-min entry ritual before each deep work block', desc: 'Same 2–3 actions in the same order: clear desk, close tabs, set timer, one intention. Conditions the brain for focus.', time: '5 min daily', alt: false },
+    ]
+  },
+  foc_2: {
+    must: [
+      { id: 'h_foc_audit', title: '5-day time audit (30-min blocks)', desc: 'Track every 30 minutes for 5 days — category, focus quality, interruptions. The data reveals where the hours actually go.', time: '30 sec per 30 min × 5 days', outcome_boost: 'Identifies the specific drains. Without the audit, changes are guesses.' },
+      { id: 'h_foc_block', title: 'Calendar block: one 2h deep work session daily', desc: 'Immovable slot. Protect it for 30 days. All other time bends around it.', time: '2h daily', outcome_boost: 'Every protected session is a net recovery from the current deficit.' },
+    ],
+    nice: []
+  },
+  flow_1: {
+    must: [
+      { id: 'h_flow_ritual', title: 'Pre-work activation ritual (5–10 min)', desc: 'Fixed sequence before deep work: breath, intention, one activation action. Conditions the nervous system into flow-ready state.', time: '5–10 min daily', outcome_boost: 'Flow accessed deliberately within 15–20 min, not accidentally. Consistency builds the trigger.' },
+      { id: 'h_flow_phone', title: 'Phone + notifications completely off during deep work', desc: 'Flow is interrupted by notifications at the neurological level — even unread ones generate anticipatory attention.', time: '0 min extra', outcome_boost: 'Flow session depth measurably improves from day 1.' },
+    ],
+    nice: [
+      { id: 'h_flow_music', title: 'Binaural beats or fixed music during flow sessions', desc: 'Alpha-wave (10 Hz) binaural or repetitive instrumental. Maintains entrainment state. Personal — test across 3 sessions.', time: 'During session', alt: false },
+    ]
+  },
+  flow_2: {
+    must: [
+      { id: 'h_flow_yin', title: 'Scheduled yin recovery windows — 20 min, twice daily', desc: 'Non-working, non-stimulating time with zero task orientation. Walk, sit, nothing digital. Not optional — this IS the recovery.', time: '20 min × 2 daily', outcome_boost: 'Reduces the chronic overactivation loop within 7–10 days of consistent practice.' },
+      { id: 'h_flow_review', title: 'Brain dump before sleep (5 min)', desc: 'Every open loop and tomorrow\'s priorities written out. Closes working memory. Reduces nighttime review cycling.', time: '5 min nightly', outcome_boost: 'Reduces the hypervigilant review state that erodes both work quality and sleep.' },
+    ],
+    nice: [
+      { id: 'h_flow_contemplation', title: 'Morning contemplative practice (10–15 min)', desc: 'Meditation, Ignatian review, or equivalent. Establishes a pre-work baseline of calm rather than reactive activation.', time: '10–15 min AM', alt: false },
+    ]
+  },
+  inh_1: {
+    must: [
+      { id: 'h_inh_phone', title: 'Phone physically removed from workspace during deep work', desc: 'Default: phone in another room. No exceptions. Apps and silent mode are insufficient — physical removal only.', time: '0 min extra', outcome_boost: 'Focus quality improves from session 1. This is the single most high-leverage environment change available.' },
+      { id: 'h_inh_notif', title: 'All notifications off except voice calls', desc: 'Batch communication to 2–3 windows daily. Default: airplane mode with calls permitted.', time: 'Setup: 15 min', outcome_boost: 'Removes the anticipatory attention load that pre-fills working memory before interruptions even occur.' },
+    ],
+    nice: [
+      { id: 'h_inh_grayscale', title: 'Phone grayscale during work hours', desc: 'Color removal reduces dopaminergic reward of phone checking by ~20–30%. Reduces the pull without extra willpower.', time: 'Setup: 2 min', alt: false },
+    ]
+  },
+  sw_1: {
+    must: [
+      { id: 'h_sw_ritual', title: 'Mode-switch ritual between context types', desc: 'A fixed 2–3 min transition sequence between deep work and communication mode: clear notes, close tabs, 3 breaths, set intention for next mode.', time: '2–3 min per switch', outcome_boost: 'Reduces cognitive residue from prior context. Each switch becomes cleaner.' },
+      { id: 'h_sw_batch', title: 'Batch all communication into 2–3 windows', desc: 'Email and Slack: checked at 10am, 1pm, and 5pm only. Everything else: deep work or meetings.', time: 'Calendar redesign', outcome_boost: 'Removes the 10–20 micro-interruptions per day that prevent recovery between focus blocks.' },
+    ],
+    nice: []
+  },
+  st_1: {
+    must: [
+      { id: 'h_st_observe', title: '7-day self-talk observation log', desc: 'When you notice a draining internal narrative, write it down. Just the observation — no correction yet. 7 days builds the pattern map.', time: '2 min as-needed', outcome_boost: 'Cannot replace what you cannot see. This is the diagnostic before the intervention.' },
+      { id: 'h_st_replace', title: 'Replace one recurring drain pattern with a performance narrative', desc: 'Choose the most frequent draining pattern from your log. Design a specific, believable replacement. Practice it when triggered.', time: '2 min daily', outcome_boost: 'Output improvement within 2–3 weeks of consistent replacement practice.' },
+    ],
+    nice: [
+      { id: 'h_st_review', title: 'Evening daily review: one specific win', desc: 'Write one specific thing done well today. Not gratitude — evidence. Counters the negativity bias in self-evaluation.', time: '3 min nightly', alt: false },
+    ]
+  },
+  vis_1: {
+    must: [
+      { id: 'h_vis_daily', title: '5-min outcome visualization before key work blocks', desc: 'Before your deep work session or an important meeting: close eyes, see the outcome specifically — including what you do, how it goes, how you feel after.', time: '5 min daily', outcome_boost: 'Used by every elite performance category. Sets cognitive and motivational state for the following session.' },
+    ],
+    nice: [
+      { id: 'h_vis_decision', title: 'Pre-decision scenario pre-play', desc: 'Before high-stakes decisions: mentally simulate the 2–3 most likely outcomes. Decision clarity and reduced post-decision anxiety.', time: '5–10 min as-needed', alt: false },
+    ]
+  },
+  as_1: {
+    must: [
+      { id: 'h_as_breath', title: 'Physiological sigh protocol for acute stress', desc: 'Double inhale (nose) → long slow exhale (mouth). 5 repetitions. Use at the first sign of stress spike. Fastest single breathwork intervention.', time: '90 sec as-needed', outcome_boost: 'Measurable HRV recovery within 90 seconds. Effective from the first application.' },
+      { id: 'h_as_478', title: '4-7-8 breathing for sustained stress states', desc: 'Inhale 4 → hold 7 → exhale 8. 4–6 cycles. For sustained activation states rather than acute spikes.', time: '3–5 min as-needed', outcome_boost: 'Returns prefrontal function faster than any other single technique. Train before you need it.' },
+    ],
+    nice: [
+      { id: 'h_as_cold', title: 'Cold water face immersion for acute overwhelm', desc: 'Diving reflex: cold water to face or cold shower activates immediate parasympathetic response within 30 seconds.', time: '30 sec as-needed', alt: false },
+    ]
+  },
+  cs_1: {
+    must: [
+      { id: 'h_cs_weekly', title: 'Weekly load vs. recovery audit (5 min)', desc: 'Rate stress input and recovery output weekly on a 1–10 scale. Track the ratio. An honest number is more useful than a good one.', time: '5 min weekly', outcome_boost: 'Makes the imbalance visible before it becomes a performance problem.' },
+      { id: 'h_cs_restday', title: 'One protected rest day weekly — zero deep work', desc: 'Not just a day off from the office. A day with no strategic thinking, no problem-solving, deliberate low-input.', time: '1 day / week', outcome_boost: 'The compounding effect of structured recovery becomes measurable at 3–4 weeks.' },
+    ],
+    nice: [
+      { id: 'h_cs_breath', title: 'Daily breathwork (10 min)', desc: 'Box breathing or 4-7-8 as a daily baseline practice — not reactive to stress spikes.', time: '10 min daily', alt: false },
+    ]
+  },
+  hrv_1: {
+    must: [
+      { id: 'h_hrv_measure', title: 'Daily HRV measurement (morning, before rising)', desc: 'Consistent timing critical. Wearable (Whoop, Garmin, Apple Watch) or HRV4Training app. 3-day baseline needed before interpretation.', time: '2 min AM', outcome_boost: 'The readiness score that determines how much cognitive and physical resource is actually available.' },
+      { id: 'h_hrv_adapt', title: 'Adapt work intensity to HRV trend — not to ambition', desc: 'HRV below 7-day average: reduce peak cognitive output, prioritize restoration. HRV elevated: schedule highest-stakes work today.', time: '1 min AM decision', outcome_boost: 'Prevents performance degradation from training against a depleted system.' },
+    ],
+    nice: []
+  },
+  er_1: {
+    must: [
+      { id: 'h_er_pause', title: 'Mandatory pause protocol before responding under pressure', desc: 'When triggered: 3 breaths before any response — verbal, written, or decision. The pause is the intervention.', time: '15 sec as-needed', outcome_boost: 'Breaks the stimulus-response automaticity. Measurably reduces reactive decisions within 2 weeks of practice.' },
+      { id: 'h_er_debrief', title: 'Post-reaction debrief (3 min)', desc: 'After any high-reactivity event: what happened, what you felt, what you said or did, what you would do differently. Written, brief, honest.', time: '3 min as-needed', outcome_boost: 'Builds the pattern recognition needed to catch the trigger earlier each time.' },
+    ],
+    nice: [
+      { id: 'h_er_contemp', title: 'Morning contemplative practice for baseline regulation', desc: 'Meditation, prayer, contemplation — 10+ min. Sets the nervous system baseline that determines reaction threshold for the day.', time: '10 min AM', alt: false },
+    ]
+  },
+  df_1: {
+    must: [
+      { id: 'h_df_peak', title: 'High-stakes decisions: morning peak window only', desc: 'Make your most consequential decisions in the first 3–4 hours of your peak. Calendar block: no decisions over €10k or irreversible calls after 3pm.', time: 'Calendar rule', outcome_boost: 'Decision quality measurably degrades over the day. This rule protects the most important calls.' },
+      { id: 'h_df_eliminate', title: 'Eliminate or batch 20 low-stakes decisions per week', desc: 'Identify the recurring micro-decisions that deplete daily capacity: meals, meeting responses, minor approvals. Default or automate them.', time: '30 min setup', outcome_boost: 'Recovered decision capacity flows into the decisions that actually matter.' },
+    ],
+    nice: []
+  },
+  rit_1: {
+    must: [
+      { id: 'h_rit_fixed', title: 'Design and write a fixed 5-step pre-work sequence', desc: 'Same 5 actions in the same order before every deep work block. Write them down. Condition the brain to recognize "work time" is starting.', time: '5 min daily', outcome_boost: 'Within 2–3 weeks, the sequence becomes an automatic focus trigger. The startup time for cognitive work shrinks.' },
+    ],
+    nice: [
+      { id: 'h_rit_breath', title: 'Breath activation pattern as step 1 of ritual', desc: 'Double inhale → hold → strong exhale. Activating rather than calming. Sets the arousal level for deep focus work.', time: '30 sec daily', alt: false },
+    ]
+  },
+  dw_1: {
+    must: [
+      { id: 'h_dw_block', title: 'Block 4h in calendar as immovable deep work', desc: 'Two 2h blocks, or one 4h block. Treated as a recurring meeting with your most important client: yourself.', time: '4h daily', outcome_boost: 'The only work that compounds. Every additional hour here has an asymmetric return.' },
+      { id: 'h_dw_shutdown', title: 'Daily shutdown ritual (5 min)', desc: 'End the workday deliberately: clear tomorrow\'s top 3, close all tabs, write "shutdown complete." Reduces the carry-over cognitive load.', time: '5 min daily', outcome_boost: 'The clean separation between work and recovery protects both. Tomorrow\'s first hour becomes more effective.' },
+    ],
+    nice: [
+      { id: 'h_dw_env', title: 'Design a single deep work environment', desc: 'A physical location used only for deep work. Conditions the brain: this space = deep work. Separate from communication spaces.', time: 'Setup: 1 day', alt: false },
+    ]
+  },
+  dw_2: {
+    must: [
+      { id: 'h_dw_audit', title: '5-day time audit (30-min blocks)', desc: 'Track every 30 min for 5 days. Category + focus quality + interruption count. The data shows where the hours actually go.', time: '30 sec per 30 min × 5 days', outcome_boost: 'The audit makes the specific drag visible. Without it, changes are guesses.' },
+    ],
+    nice: []
+  },
+  sn_1: {
+    must: [
+      { id: 'h_sn_calendar', title: '60-min weekly calendar audit', desc: 'Every week: identify 1 recurring item that should not be on a founder calendar. Delegate, eliminate, or reduce frequency.', time: '30 min weekly', outcome_boost: 'Cumulative. 1 item removed per week = 10+ hours recovered per year, compounding.' },
+    ],
+    nice: [
+      { id: 'h_sn_filter', title: '"Only I can do this" filter applied to new requests', desc: 'Before accepting any new recurring commitment: would the business lose something irreplaceable if someone else handled this? If no — don\'t take it.', time: '0 min (mental framework)', alt: false },
+    ]
+  },
+  lev_1: {
+    must: [
+      { id: 'h_lev_map', title: 'Weekly 15-min leverage map', desc: 'Each week: list your 3 highest-leverage activities and your 3 lowest. Track actual time spent in each category.', time: '15 min weekly', outcome_boost: 'Founders are often systematically underinvested in their highest-leverage activities. This makes the gap visible.' },
+    ],
+    nice: [
+      { id: 'h_lev_protect', title: 'One "leverage hour" daily — for highest-return activity only', desc: 'A protected daily block for the one activity with the most asymmetric potential return. Separate from general deep work.', time: '1h daily', alt: false },
+    ]
+  },
+  sys_1: {
+    must: [
+      { id: 'h_sys_doc', title: 'Document one recurring process per week', desc: 'Identify the most time-consuming recurring founder task. Document it clearly enough to delegate. One per week for 8 weeks = 8 systems built.', time: '30 min weekly', outcome_boost: 'Each documented process is a permanent reduction in founder operational load.' },
+    ],
+    nice: []
+  },
+  del_1: {
+    must: [
+      { id: 'h_del_authority', title: 'Delegate one decision-type per month', desc: 'Choose a category of recurring decision you currently make. Transfer both the task and the authority. Observe — don\'t rescue.', time: 'Monthly commitment', outcome_boost: 'Real delegation transfers authority. Without this distinction, the founder remains a bottleneck regardless of how much they "delegate."' },
+    ],
+    nice: []
+  },
+  met_1: {
+    must: [
+      { id: 'h_met_review', title: 'Weekly 45-min metrics review (same day, same time)', desc: 'Review your 5–7 leading indicators every week. Same day. Written notes on what the numbers are telling you.', time: '45 min weekly', outcome_boost: 'Knowing your numbers is not enough. The review habit converts information into decision input.' },
+    ],
+    nice: [
+      { id: 'h_met_dashboard', title: 'Single-page metrics dashboard', desc: 'All 5–7 key metrics on one page. Updated weekly. Visible in your workspace.', time: 'Setup: 2h', alt: false },
+    ]
+  },
+  vel_1: {
+    must: [
+      { id: 'h_vel_test', title: '"Fastest test" question for every decision', desc: 'Before any project or strategy decision: "What is the smallest, fastest thing we could do to validate this?" Default to that.', time: '0 min (mental framework)', outcome_boost: 'Compresses the learning loop. The founder who tests faster learns faster at every scale.' },
+    ],
+    nice: []
+  },
+  meet_1: {
+    must: [
+      { id: 'h_meet_audit', title: 'One-time meeting audit: eliminate or reduce 30%', desc: 'List every recurring meeting. For each: what decision does this produce? If no clear answer — eliminate or reduce to monthly.', time: 'One-time: 90 min', outcome_boost: 'Most founders recover 5–8h per week from this single audit.' },
+      { id: 'h_meet_async', title: 'Default new communication to async', desc: 'New information requests and status updates: Loom, voice memo, or written update by default. Meetings reserved for decisions.', time: 'Policy change', outcome_boost: 'Removes the scheduling overhead and interruption cost of synchronous communication for non-decision content.' },
+    ],
+    nice: []
+  },
+  plan_1: {
+    must: [
+      { id: 'h_plan_weekly', title: 'Weekly review + plan: Sunday/Monday, 45 min', desc: 'Review last week (what moved, what didn\'t, why). Plan next week: 3 non-negotiables + calendar blocks for deep work.', time: '45 min weekly', outcome_boost: 'The consistent weekly plan is the connective tissue between strategy and daily action. Without it, the calendar fills reactively.' },
+    ],
+    nice: [
+      { id: 'h_plan_3', title: 'Daily: write 3 non-negotiables the night before', desc: 'The three things that, if done, mean the day was a success. Written the evening before so the morning starts with direction.', time: '3 min nightly', alt: false },
+    ]
+  },
+  et2_1: {
+    must: [
+      { id: 'h_et2_peak', title: 'Move all high-cognitive tasks into identified peak window', desc: 'After peak mapping: reschedule deep work, strategic thinking, and high-stakes decisions into peak. Everything else fills the trough.', time: 'Calendar restructure', outcome_boost: 'The same cognitive task done in peak vs trough produces 40–60% better output. This is not effort — it\'s timing.' },
+    ],
+    nice: []
+  },
+  id_1: {
+    must: [
+      { id: 'h_id_write', title: 'Write your non-negotiables and 10-year design', desc: 'A written document: your non-negotiable values, what your life looks like in 10 years (specific, honest), and what the company must achieve to make that true.', time: '2h (once)', outcome_boost: 'Clear identity = consistent decisions. This document becomes the filter for all strategic choices.' },
+    ],
+    nice: [
+      { id: 'h_id_review', title: 'Monthly review: am I living the design?', desc: 'One question monthly: what in my actual life or work is misaligned with what I wrote? Name it, respond to it.', time: '15 min monthly', alt: false },
+    ]
+  },
+  ls_1: {
+    must: [
+      { id: 'h_ls_wheel', title: 'Life satisfaction wheel: honest scoring across 8 domains', desc: 'Score each domain (health, relationships, purpose, finances, fun, contribution, environment, growth) 1–10. Circle what you\'re avoiding.', time: '20 min (once)', outcome_boost: 'The founder is also the product. An honest map is the prerequisite for any meaningful change.' },
+    ],
+    nice: [
+      { id: 'h_ls_action', title: 'One targeted action in lowest-scoring domain per month', desc: 'From your wheel: identify the one domain with the most drag. Design one specific monthly action for it — not a project, one action.', time: '1 action / month', alt: false },
+    ]
+  },
+  oi_1: {
+    must: [
+      { id: 'h_oi_write', title: 'Write the company identity document', desc: 'Mission (why we exist), values (specific behaviors — not adjectives), culture (what we actually reward). Short enough to be used.', time: '3h (once)', outcome_boost: 'Culture codification prevents drift. Hiring, firing, product decisions all become more consistent once this exists.' },
+    ],
+    nice: []
+  },
+  ve_1: {
+    must: [
+      { id: 'h_ve_map', title: 'Honest gap map: vision vs current trajectory', desc: 'Write where you say you\'re going. Write where the current trajectory actually leads. Name the distance honestly and specifically.', time: '2h (once)', outcome_boost: 'The gap map is the honest conversation most founders avoid. It is the prerequisite for any strategy recalibration.' },
+      { id: 'h_ve_quarterly', title: 'Quarterly priorities connected to 3-year target', desc: 'Before each quarter: 3 priorities that are causally connected to the 3-year target. Not activity goals — outcome milestones.', time: '2h quarterly', outcome_boost: 'Connects the daily work to the actual destination. Prevents the strategic drift that kills most growth-stage companies.' },
+    ],
+    nice: []
+  },
+  dq_1: {
+    must: [
+      { id: 'h_dq_framework', title: 'Decision framework for high-stakes choices', desc: 'Before any irreversible or €100k+ decision: frame the choice, assess reversibility, list alternatives, write the key assumption being made.', time: '15 min per high-stakes decision', outcome_boost: 'Most founders make high-stakes decisions by feel. A framework doesn\'t eliminate intuition — it checks it.' },
+    ],
+    nice: [
+      { id: 'h_dq_track', title: 'Decision log: record and review quarterly', desc: 'Brief log of high-stakes decisions made each quarter. Quarterly review: which were right, wrong, and why.', time: '5 min per decision', alt: false },
+    ]
+  },
+  nar_1: {
+    must: [
+      { id: 'h_nar_write', title: 'Write and practice the investor narrative', desc: 'A specific, practiced version of the company story — problem, solution, why now, why you. Practiced out loud at least 3x.', time: '3h (once) + 3 practice sessions', outcome_boost: 'The founder who can tell the story compellingly at any moment closes more deals, attracts better people, builds stronger culture.' },
+    ],
+    nice: [
+      { id: 'h_nar_team', title: 'Team alignment narrative: quarterly update written and spoken', desc: 'A consistent quarterly update that connects current work to the vision. Creates narrative continuity that compounds over time.', time: '1h quarterly', alt: false },
+    ]
+  },
+  sk_1: {
+    must: [
+      { id: 'h_sk_system', title: 'Proactive relationship system: monthly check-in with 10 key people', desc: 'List your 10 most important relationships (investors, customers, advisors). One proactive outreach per month each. Calendar reminders. No exceptions.', time: '10 min × 10 / month', outcome_boost: 'Relationship capital compounds or erodes. A simple proactive system is the difference.' },
+    ],
+    nice: []
+  },
+  res_1: {
+    must: [
+      { id: 'h_res_protocol', title: 'Design a personal setback response protocol', desc: 'Written: what you do in the first 24h after a major failure or pivot. Physical (movement, sleep, nutrition), cognitive (perspective, facts vs interpretation), relational (who you call). Own it before you need it.', time: '1h (once)', outcome_boost: 'Resilience is not a trait — it\'s a practiced protocol. The founders who recover fastest have this designed in advance.' },
+    ],
+    nice: [
+      { id: 'h_res_debrief', title: 'Post-setback debrief within 72h', desc: 'What happened, what you did, what you learned, what you\'d change. Brief, written, honest. This is the extraction of value from every failure.', time: '30 min as-needed', alt: false },
+    ]
+  },
+  pur_1: {
+    must: [
+      { id: 'h_pur_write', title: 'Write the honest answer to: why this, why now, why me', desc: 'Not the pitch version. The true version — including doubt, including the cost. The answer that holds under pressure.', time: '1h (once)', outcome_boost: 'Purpose clarity is the primary buffer against burnout. This document becomes the anchor during the hardest periods.' },
+    ],
+    nice: [
+      { id: 'h_pur_review', title: 'Monthly 10-min purpose review', desc: 'Reread your purpose document. Does it still hold? What has shifted? What needs updating? Staying connected to why is a practice.', time: '10 min monthly', alt: false },
+    ]
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const state = {
+  scores: {},
+  selectedOutcomes: {},
+  selectedHabits: {},
+  commitDate: '',
+  userName: '',
+};
+
+// ═══════════════════════════════════════════════════════════════
+// BUILD SLIDERS
+// ═══════════════════════════════════════════════════════════════
+function buildSliders() {
+  Object.entries(categories).forEach(([catKey, cat]) => {
+    const container = document.getElementById(`sliders-${catKey}`);
+    if (!container) return;
+    cat.skills.forEach(skill => {
+      state.scores[skill.id] = 5;
+      container.innerHTML += `
+        <div class="skill-row">
+          <div class="skill-label"><strong>${skill.name}</strong>${skill.hint}</div>
+          <input type="range" min="1" max="10" value="5" step="1" class="skill-slider"
+            id="slider-${skill.id}"
+            oninput="updateScore('${skill.id}', this.value)">
+          <div class="skill-val" id="val-${skill.id}">5</div>
+        </div>`;
+    });
+  });
+  updateProgress();
+}
+
+function updateScore(id, val) {
+  state.scores[id] = parseInt(val);
+  document.getElementById(`val-${id}`).textContent = val;
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = Object.keys(state.scores).length;
+  const filled = Object.values(state.scores).filter(v => v !== 5).length;
+  const pct = Math.round(20 + (filled / total) * 15);
+  const bar = document.getElementById('assess-progress');
+  if (bar) bar.style.width = pct + '%';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CAT SCORES
+// ═══════════════════════════════════════════════════════════════
+function getCatAvg(catKey) {
+  const skills = categories[catKey].skills;
+  const sum = skills.reduce((a, s) => a + (state.scores[s.id] || 5), 0);
+  return Math.round((sum / skills.length) * 10) / 10;
+}
+
+function getLowestSkills(catKey, n) {
+  return categories[catKey].skills
+    .map(s => ({ ...s, score: state.scores[s.id] || 5 }))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, n);
+}
+
+function getHighestSkills(catKey, n) {
+  return categories[catKey].skills
+    .map(s => ({ ...s, score: state.scores[s.id] || 5 }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, n);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 2 — PROFILE
+// ═══════════════════════════════════════════════════════════════
+function buildProfile() {
+  const avgs = {};
+  Object.keys(categories).forEach(k => avgs[k] = getCatAvg(k));
+  const sorted = Object.entries(avgs).sort((a, b) => a[1] - b[1]);
+  const bottomCats = sorted.slice(0, 2).map(e => e[0]);
+  const topCats = sorted.slice(-2).map(e => e[0]);
+
+  const colorsMap = { physical: 'purple', mental: 'teal', work: 'coral', leadership: 'gold' };
+
+  // Overview grid
+  const overview = document.getElementById('profile-overview');
+  let overviewHtml = '<div class="cat-grid">';
+  sorted.forEach(([catKey, avg]) => {
+    const isFocus = bottomCats.includes(catKey);
+    const isStrength = topCats.includes(catKey);
+    const cat = categories[catKey];
+    const lowest3 = getLowestSkills(catKey, 3);
+    const cardClass = isFocus ? 'focus-cat' : isStrength ? 'strength-cat' : '';
+    const tagClass = isFocus ? 'tag-focus' : isStrength ? 'tag-strength' : 'tag-neutral';
+    const tagText = isFocus ? '⚡ Focus area' : isStrength ? '✓ Your strength' : 'Developing';
+    const scoreClass = isFocus ? 'focus' : isStrength ? 'strength' : 'neutral';
+    const barColor = { purple: '#7F77DD', teal: '#5DCAA5', coral: '#F0997B', gold: '#BA7517' }[cat.color];
+
+    overviewHtml += `
+      <div class="cat-card ${cardClass}">
+        <span class="cat-card-tag ${tagClass}">${tagText}</span>
+        <h3>${cat.name}</h3>
+        <div class="cat-score ${scoreClass}">${avg}</div>
+        <div class="cat-score-sub">avg across ${cat.skills.length} areas</div>
+        <div style="margin-top:10px">
+          <div class="score-bar-wrap">
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:${avg*10}%;background:${barColor}"></div></div>
+            <div class="score-bar-val">${avg}/10</div>
+          </div>
+        </div>
+        <div class="cat-top-items">
+          ${lowest3.map(s => `<div class="cat-item-row"><div class="cat-item-dot" style="background:${barColor}"></div><div class="cat-item-name">${s.name}</div><div class="cat-item-score" style="color:${barColor}">${s.score}</div></div>`).join('')}
+        </div>
+      </div>`;
+  });
+  overviewHtml += '</div>';
+  overview.innerHTML = overviewHtml;
+
+  // Strength summary
+  const strengthEl = document.getElementById('strength-summary');
+  let strengthHtml = `<div class="insight-box strength-insight"><div class="insight-icon">●</div><div class="insight-content"><div class="insight-title">What you\'re already building from</div><div class="insight-body">`;
+  topCats.forEach(catKey => {
+    const highest = getHighestSkills(catKey, 2);
+    strengthHtml += `<strong>${categories[catKey].name}:</strong> You rate ${highest.map(s => s.name + ' (' + s.score + ')').join(' and ')} as genuine strengths. These are assets — your plan will be designed to protect and leverage them. `;
+  });
+  strengthHtml += `</div></div></div>`;
+  strengthEl.innerHTML = strengthHtml;
+
+  // Focus summary
+  const focusEl = document.getElementById('focus-summary');
+  let focusHtml = `<div class="insight-box focus-insight"><div class="insight-icon">→</div><div class="insight-content"><div class="insight-title">Where the highest leverage is</div><div class="insight-body">`;
+  bottomCats.forEach(catKey => {
+    const lowest = getLowestSkills(catKey, 2);
+    focusHtml += `<strong>${categories[catKey].name}:</strong> ${lowest.map(s => s.name + ' (' + s.score + ')').join(' and ')} are your primary leverage points. Small improvements here have outsized effects on overall performance. `;
+  });
+  focusHtml += `</div></div></div>`;
+  focusEl.innerHTML = focusHtml;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 3 — OUTCOMES
+// ═══════════════════════════════════════════════════════════════
+function buildOutcomes() {
+  const avgs = {};
+  Object.keys(categories).forEach(k => avgs[k] = getCatAvg(k));
+  const sorted = Object.entries(avgs).sort((a, b) => a[1] - b[1]);
+  const focusCats = sorted.slice(0, 2).map(e => e[0]);
+
+  const container = document.getElementById('outcomes-container');
+  let html = '';
+
+  focusCats.forEach(catKey => {
+    const cat = categories[catKey];
+    const lowestSkills = getLowestSkills(catKey, 3);
+    const colorsInfo = { purple: '#7F77DD', teal: '#5DCAA5', coral: '#F0997B', gold: '#BA7517' };
+    const accent = colorsInfo[cat.color];
+
+    html += `<div class="section-card"><div class="section-card-header">
+      <div class="cat-dot ${cat.color}"></div>
+      <div class="section-card-title">${cat.name}</div>
+      <div class="section-card-sub">Focus area</div>
+    </div><div class="section-card-body">`;
+
+    lowestSkills.forEach(skill => {
+      const outcomes = outcomesBySkill[skill.id];
+      if (!outcomes || !outcomes.length) return;
+      html += `
+        <div class="outcome-section">
+          <h3>${skill.name}</h3>
+          <p>Score: <strong style="color:${accent}">${skill.score}/10</strong> — Choose the outcome that matters most to you right now.</p>
+          <div class="outcome-options">
+            ${outcomes.map(o => `
+              <label class="outcome-opt" id="opt-${o.id}" onclick="selectOutcome('${skill.id}', '${o.id}')">
+                <input type="radio" name="outcome-${skill.id}" value="${o.id}" style="accent-color:var(--purple)">
+                <div class="outcome-opt-content">
+                  <div class="outcome-opt-title">${o.title}</div>
+                  <div class="outcome-opt-desc">${o.desc}</div>
+                </div>
+              </label>`).join('')}
+          </div>
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function selectOutcome(skillId, outcomeId) {
+  state.selectedOutcomes[skillId] = outcomeId;
+  // Visual update
+  document.querySelectorAll(`input[name="outcome-${skillId}"]`).forEach(inp => {
+    inp.closest('.outcome-opt').classList.toggle('selected', inp.value === outcomeId);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 4 — HABITS
+// ═══════════════════════════════════════════════════════════════
+function buildHabits() {
+  const container = document.getElementById('habits-container');
+  let html = '';
+
+  const avgs = {};
+  Object.keys(categories).forEach(k => avgs[k] = getCatAvg(k));
+  const sorted = Object.entries(avgs).sort((a, b) => a[1] - b[1]);
+  const focusCats = sorted.slice(0, 2).map(e => e[0]);
+
+  const colorsInfo = { physical: '#7F77DD', mental: '#5DCAA5', work: '#F0997B', leadership: '#BA7517' };
+
+  focusCats.forEach(catKey => {
+    const cat = categories[catKey];
+    const lowestSkills = getLowestSkills(catKey, 3);
+
+    html += `<div class="section-card"><div class="section-card-header">
+      <div class="cat-dot ${cat.color}"></div>
+      <div class="section-card-title">${cat.name}</div>
+      <div class="section-card-sub">Your selected outcomes</div>
+    </div><div class="section-card-body">`;
+
+    lowestSkills.forEach(skill => {
+      const outcomeId = state.selectedOutcomes[skill.id];
+      if (!outcomeId) return;
+
+      const outcomeList = outcomesBySkill[skill.id] || [];
+      const outcome = outcomeList.find(o => o.id === outcomeId);
+      const habits = habitsByOutcome[outcomeId];
+      if (!outcome || !habits) return;
+
+      html += `<div class="habits-section">
+        <h3>${skill.name} → ${outcome.title}</h3>
+        <div class="outcome-promise">${outcome.desc}</div>`;
+
+      if (habits.must && habits.must.length) {
+        html += `<div class="habit-group"><div class="habit-group-label">Must-have — minimum viable protocol</div>`;
+        habits.must.forEach(h => {
+          const sel = state.selectedHabits[h.id] !== false;
+          if (state.selectedHabits[h.id] === undefined) state.selectedHabits[h.id] = true;
+          html += `
+            <div class="habit-row must ${sel ? 'selected' : ''}" id="hrow-${h.id}" onclick="toggleHabit('${h.id}')">
+              <div class="habit-cb" id="hcb-${h.id}">${sel ? '' : ''}</div>
+              <div class="habit-content">
+                <div class="habit-title">${h.title}</div>
+                <div class="habit-desc">${h.desc}</div>
+                <div class="habit-tags">
+                  <span class="habit-tag tag-must">Must-have</span>
+                  <span class="habit-tag tag-time">${h.time}</span>
+                  ${h.outcome_boost ? `<span class="habit-tag" style="background:var(--teal-light);color:var(--teal-dark);border:1px solid rgba(93,202,165,0.3)">→ ${h.outcome_boost}</span>` : ''}
+                </div>
+              </div>
+            </div>`;
+        });
+        html += `</div>`;
+      }
+
+      if (habits.nice && habits.nice.length) {
+        html += `<div class="habit-group"><div class="habit-group-label">Nice-to-have — add if it fits your situation</div>`;
+        habits.nice.forEach(h => {
+          const sel = state.selectedHabits[h.id] || false;
+          html += `
+            <div class="habit-row ${sel ? 'selected' : ''}" id="hrow-${h.id}" onclick="toggleHabit('${h.id}')">
+              <div class="habit-cb" id="hcb-${h.id}"></div>
+              <div class="habit-content">
+                <div class="habit-title">${h.title}</div>
+                <div class="habit-desc">${h.desc}</div>
+                <div class="habit-tags">
+                  <span class="habit-tag tag-nice">${h.alt ? 'Alternative' : 'Nice-to-have'}</span>
+                  <span class="habit-tag tag-time">${h.time}</span>
+                </div>
+              </div>
+            </div>`;
+        });
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += `
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-title">Commitment</div>
+        <div class="section-card-sub">Your plan period</div>
+      </div>
+      <div class="section-card-body">
+        <div class="commit-row">
+          <div class="commit-label">Your name (appears on your plan)</div>
+          <input type="text" class="commit-input" placeholder="Your name" id="commit-name" style="width:200px">
+        </div>
+        <div class="commit-row">
+          <div class="commit-label">Start date</div>
+          <input type="date" class="commit-input" id="commit-date">
+        </div>
+        <div class="commit-row">
+          <div class="commit-label">Plan period</div>
+          <select class="commit-input" id="commit-period" style="width:160px">
+            <option value="14">14 days</option>
+            <option value="21">21 days</option>
+            <option value="30" selected>30 days</option>
+          </select>
+        </div>
+      </div>
+    </div>`;
+
+  container.innerHTML = html;
+  // Re-check must-haves
+  Object.keys(state.selectedHabits).forEach(id => {
+    updateHabitVisual(id, state.selectedHabits[id]);
+  });
+}
+
+function toggleHabit(id) {
+  state.selectedHabits[id] = !state.selectedHabits[id];
+  updateHabitVisual(id, state.selectedHabits[id]);
+}
+
+function updateHabitVisual(id, sel) {
+  const row = document.getElementById(`hrow-${id}`);
+  const cb = document.getElementById(`hcb-${id}`);
+  if (row) row.classList.toggle('selected', sel);
+  if (cb) cb.innerHTML = sel ? '✓' : '';
+  if (cb) { cb.style.background = sel ? 'var(--purple)' : 'white'; cb.style.borderColor = sel ? 'var(--purple)' : ''; cb.style.color = 'white'; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 5 — PLAN GENERATION
+// ═══════════════════════════════════════════════════════════════
+function generatePlan() {
+  state.userName = document.getElementById('commit-name')?.value || 'Founder';
+  state.commitDate = document.getElementById('commit-date')?.value || new Date().toISOString().split('T')[0];
+  const period = document.getElementById('commit-period')?.value || '30';
+
+  const startDate = new Date(state.commitDate);
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + parseInt(period));
+
+  const dateStr = startDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const endStr = endDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const avgs = {};
+  Object.keys(categories).forEach(k => avgs[k] = getCatAvg(k));
+  const sorted = Object.entries(avgs).sort((a, b) => a[1] - b[1]);
+  const focusCats = sorted.slice(0, 2).map(e => e[0]);
+
+  const selectedHabitsAll = Object.entries(state.selectedHabits).filter(([,v]) => v).map(([k]) => k);
+
+  // Gather habit data for selected habits
+  const allHabits = [];
+  Object.values(habitsByOutcome).forEach(group => {
+    [...(group.must || []), ...(group.nice || [])].forEach(h => {
+      if (selectedHabitsAll.includes(h.id)) allHabits.push(h);
+    });
+  });
+  const uniqueHabits = [...new Map(allHabits.map(h => [h.id, h])).values()];
+
+  // Build plan blocks by category
+  let planBlocks = '';
+  focusCats.forEach(catKey => {
+    const cat = categories[catKey];
+    const lowestSkills = getLowestSkills(catKey, 3);
+    let catHtml = `<div class="plan-cat-block">
+      <div class="plan-cat-name">${cat.name}</div>`;
+
+    lowestSkills.forEach(skill => {
+      const outcomeId = state.selectedOutcomes[skill.id];
+      if (!outcomeId) return;
+      const outcomes = outcomesBySkill[skill.id] || [];
+      const outcome = outcomes.find(o => o.id === outcomeId);
+      if (!outcome) return;
+      const habits = habitsByOutcome[outcomeId];
+      if (!habits) return;
+
+      const selectedForOutcome = [...(habits.must || []), ...(habits.nice || [])].filter(h => selectedHabitsAll.includes(h.id));
+      if (!selectedForOutcome.length) return;
+
+      catHtml += `<div class="outcome-promise">Target: ${outcome.title}</div>
+      <div style="font-size:12px;color:var(--text-faint);margin-bottom:8px;font-style:italic">${outcome.desc}</div>`;
+
+      selectedForOutcome.forEach(h => {
+        catHtml += `
+        <div style="margin-bottom:10px;padding:12px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface)">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">${h.title}</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px">${h.desc}</div>
+          ${h.outcome_boost ? `<div style="font-size:10px;font-style:italic;color:var(--purple-dark)">→ ${h.outcome_boost}</div>` : ''}
+        </div>`;
+      });
+    });
+
+    catHtml += `</div>`;
+    planBlocks += catHtml;
+  });
+
+  // Build tracker table
+  const days = parseInt(period);
+  const weekCount = Math.ceil(days / 7);
+  let trackerHtml = '';
+
+  uniqueHabits.forEach((habit, idx) => {
+    const daysArr = Array.from({ length: Math.min(days, 14) }, (_, i) => {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+    });
+
+    trackerHtml += `<tr>
+      <td class="habit-cell">${habit.title}</td>
+      ${daysArr.map(() => `<td class="check-cell"><div class="habit-tracker-box"></div></td>`).join('')}
+    </tr>`;
+  });
+
+  const trackerDays = Array.from({ length: Math.min(days, 14) }, (_, i) => {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+  });
+
+  const output = document.getElementById('plan-output');
+  output.innerHTML = `
+    <div class="plan-area">
+      <div class="plan-header">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">build.inside — Performance Plan</div>
+        <div class="plan-title">Performance Plan<br><span style="font-style:italic;color:var(--coral)">${state.userName}</span></div>
+        <div class="plan-meta">${dateStr} → ${endStr} · ${period} days · ${uniqueHabits.length} committed habits</div>
+      </div>
+
+      <div class="plan-section">
+        <div class="plan-section-title">Your performance snapshot</div>
+        ${Object.entries(avgs).sort((a,b)=>a[1]-b[1]).map(([catKey, avg]) => {
+          const cat = categories[catKey];
+          const barColor = {physical:'#7F77DD',mental:'#5DCAA5',work:'#F0997B',leadership:'#BA7517'}[catKey];
+          return `<div style="margin-bottom:8px;display:flex;align-items:center;gap:12px">
+            <div style="font-size:12px;color:var(--text-dim);width:220px;flex-shrink:0">${cat.name}</div>
+            <div style="flex:1;height:5px;background:var(--surface);border-radius:3px"><div style="height:100%;width:${avg*10}%;background:${barColor};border-radius:3px"></div></div>
+            <div style="font-size:12px;font-weight:600;color:var(--text-dim);width:30px;text-align:right">${avg}</div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div class="plan-section">
+        <div class="plan-section-title">Your focus areas & committed outcomes</div>
+        ${planBlocks}
+      </div>
+
+      <div class="plan-section">
+        <div class="plan-section-title">Daily habit tracker — first 14 days</div>
+        <p style="font-size:11px;color:var(--text-faint);margin-bottom:12px;font-style:italic">Check each habit daily. Tick = done. Track the pattern, not the perfection.</p>
+        <table class="tracker-table">
+          <thead>
+            <tr>
+              <th style="min-width:160px">Habit</th>
+              ${trackerDays.map(d => `<th class="day-cell">${d}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>${trackerHtml}</tbody>
+        </table>
+      </div>
+
+      <div class="plan-section">
+        <div class="plan-section-title">What to expect</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px">
+            <div style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px">Days 1–7</div>
+            <div style="font-size:12px;color:var(--text-dim);line-height:1.6">Habits feel effortful. Some initial improvements in the fastest-responding areas (sleep, caffeine, environment). Observe without judging the speed.</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px">
+            <div style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px">Days 8–21</div>
+            <div style="font-size:12px;color:var(--text-dim);line-height:1.6">Pattern recognition kicks in. The habits that actually fit start to feel like less effort. Cognitive and energy changes become visible to others, not just you.</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px">
+            <div style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px">Day 22–30</div>
+            <div style="font-size:12px;color:var(--text-dim);line-height:1.6">What is working becomes clear from the data. Identify the 1–2 habits with the most obvious ROI and make them permanent. Return to this assessment and reset.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-section" style="border-top:1px solid var(--border);padding-top:18px;margin-top:6px">
+        <div style="font-size:11px;color:var(--text-faint);line-height:1.7;text-align:center">
+          <strong style="color:var(--text)">If you miss days — don't restart the clock. Continue from where you are.</strong><br>
+          Consistency over time beats perfect streaks. The habit that you maintain imperfectly for 30 days outperforms the one you drop after a 10-day streak.<br>
+          <strong style="color:var(--text)">At day 30 (or earlier if the plan isn't working):</strong> run this assessment again. Your scores will have shifted — and so will what needs attention.
+        </div>
+      </div>
+
+    </div>`;
+
+  goTo(5);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function goTo(n) {
+  document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n - 1));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToStep2() {
+  buildProfile();
+  goTo(2);
+}
+
+function goTo(n) {
+  if (n === 2) { buildProfile(); }
+  if (n === 3) { buildOutcomes(); }
+  if (n === 4) { buildHabits(); }
+  document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n - 1));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restart() {
+  Object.keys(state.scores).forEach(k => state.scores[k] = 5);
+  state.selectedOutcomes = {};
+  state.selectedHabits = {};
+  // Reset sliders
+  document.querySelectorAll('.skill-slider').forEach(s => {
+    s.value = 5;
+    updateScore(s.id.replace('slider-', ''), 5);
+  });
+  goTo(1);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+buildSliders();
+</script>
+</body>
+</html>
