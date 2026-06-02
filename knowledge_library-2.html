@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>build.inside — Knowledge Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f9f6f1;
+  --surface: #f0ebe1;
+  --card: #ffffff;
+  --border: #e2d9cc;
+  --border-mid: #c8bfb0;
+  --purple: #7F77DD;
+  --purple-50: #EEEDFE;
+  --purple-dark: #3C3489;
+  --teal: #5DCAA5;
+  --teal-50: #E1F5EE;
+  --teal-dark: #085041;
+  --coral: #F0997B;
+  --coral-50: #FAECE7;
+  --coral-dark: #712B13;
+  --gold: #BA7517;
+  --gold-50: #FAEEDA;
+  --gold-dark: #633806;
+  --text: #1a1510;
+  --text-dim: #5a5040;
+  --text-faint: #9a9080;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Karla', sans-serif; font-size: 16px; line-height: 1.75; }
+
+@media print {
+  .sidebar { display: none !important; }
+  .no-print { display: none !important; }
+  body { background: white; font-size: 12px; }
+  .content-area { margin-left: 0 !important; padding: 24px; }
+  .category-section { break-before: page; }
+  .topic-section { break-inside: avoid; }
+  header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* ── LAYOUT ── */
+.page-wrap { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: #0e0e0e;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0 40px;
+}
+.sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-brand {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--purple);
+  padding: 0 28px;
+  margin-bottom: 8px;
+}
+.sidebar-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #f7f4ee;
+  padding: 0 28px;
+  margin-bottom: 32px;
+  line-height: 1.2;
+}
+.sidebar-title em { font-style: italic; color: var(--coral); }
+.sidebar-section {
+  margin-bottom: 6px;
+}
+.sidebar-cat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 28px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 3px solid transparent;
+}
+.sidebar-cat:hover { background: rgba(255,255,255,0.05); }
+.sidebar-cat.active { border-left-color: var(--purple); background: rgba(127,119,221,0.08); }
+.sidebar-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sidebar-cat-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(247,244,238,0.85);
+  line-height: 1.3;
+}
+.sidebar-sub-list { padding: 0 0 8px 56px; }
+.sidebar-sub-item {
+  font-size: 11px;
+  color: rgba(247,244,238,0.4);
+  padding: 3px 0;
+  cursor: pointer;
+  transition: color 0.1s;
+  line-height: 1.4;
+}
+.sidebar-sub-item:hover { color: rgba(247,244,238,0.8); }
+.sidebar-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 16px 28px; }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 0 28px;
+  font-size: 10px;
+  color: rgba(247,244,238,0.25);
+  line-height: 1.6;
+}
+
+/* ── CONTENT ── */
+.content-area {
+  flex: 1;
+  min-width: 0;
+  padding: 0 60px 80px;
+  max-width: 860px;
+}
+
+/* ── SITE HEADER ── */
+.site-header {
+  background: #0e0e0e;
+  margin: 0 -60px;
+  padding: 44px 60px 40px;
+  margin-bottom: 64px;
+  position: relative;
+  overflow: hidden;
+}
+.site-header::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 65%);
+}
+.site-header-kicker { font-size: 10px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--purple); margin-bottom: 12px; }
+.site-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 600; line-height: 1.0; color: #f7f4ee; margin-bottom: 14px; }
+.site-header h1 em { font-style: italic; color: var(--coral); }
+.site-header p { font-size: 15px; color: rgba(247,244,238,0.55); max-width: 560px; line-height: 1.75; }
+
+/* ── CATEGORY SECTIONS ── */
+.category-section { margin-bottom: 100px; }
+
+.cat-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 40px;
+  padding-bottom: 28px;
+  border-bottom: 2px solid var(--border);
+  position: relative;
+}
+.cat-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 80px;
+  font-weight: 600;
+  line-height: 0.85;
+  opacity: 0.07;
+  position: absolute;
+  right: 0;
+  top: -10px;
+  color: var(--text);
+  user-select: none;
+}
+.cat-dot-lg { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 10px; }
+.cat-header-text {}
+.cat-kicker { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px; }
+.cat-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 600; color: var(--text); line-height: 1.1; margin-bottom: 10px; }
+
+/* ── TOPIC SECTIONS ── */
+.topic-section { margin-bottom: 60px; }
+
+/* INTRO */
+.intro-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 36px 42px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.intro-block::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  border-radius: 10px 0 0 10px;
+}
+.intro-block.purple::before { background: var(--purple); }
+.intro-block.teal::before { background: var(--teal); }
+.intro-block.coral::before { background: var(--coral); }
+.intro-block.gold::before { background: var(--gold); }
+
+.block-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.block-label.purple { color: var(--purple); }
+.block-label.teal { color: var(--teal-dark); }
+.block-label.coral { color: var(--coral-dark); }
+.block-label.gold { color: var(--gold); }
+
+.intro-block h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 18px;
+}
+
+.intro-body p {
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1.85;
+  margin-bottom: 16px;
+}
+.intro-body p:last-child { margin-bottom: 0; }
+.intro-body p strong { color: var(--text); font-weight: 600; }
+.intro-body p em { font-style: italic; color: var(--text-dim); }
+
+/* ANALOGY CALLOUT */
+.analogy-box {
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin: 16px 0;
+  display: flex;
+  gap: 16px;
+}
+.analogy-box.purple { background: var(--purple-50); border: 1px solid rgba(127,119,221,0.2); }
+.analogy-box.teal { background: var(--teal-50); border: 1px solid rgba(93,202,165,0.2); }
+.analogy-box.coral { background: var(--coral-50); border: 1px solid rgba(240,153,123,0.25); }
+.analogy-box.gold { background: var(--gold-50); border: 1px solid rgba(186,117,23,0.2); }
+.analogy-label { font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 5px; }
+.analogy-label.purple { color: var(--purple-dark); }
+.analogy-label.teal { color: var(--teal-dark); }
+.analogy-label.coral { color: var(--coral-dark); }
+.analogy-label.gold { color: var(--gold-dark); }
+.analogy-text { font-size: 14px; line-height: 1.7; }
+.analogy-text.purple { color: var(--purple-dark); }
+.analogy-text.teal { color: var(--teal-dark); }
+.analogy-text.coral { color: var(--coral-dark); }
+.analogy-text.gold { color: var(--gold-dark); }
+
+/* VARIABLES SECTION */
+.variables-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.block-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.block-header-icon { font-size: 15px; }
+.block-header-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--text); }
+.block-header-sub { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint); margin-left: auto; }
+
+.variable-item {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+}
+.variable-item:last-child { border-bottom: none; }
+.variable-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; }
+.variable-score-hint { font-size: 11px; color: var(--text-faint); margin-top: 3px; font-style: italic; }
+.variable-body { font-size: 14px; color: var(--text-dim); line-height: 1.75; }
+.variable-body strong { color: var(--text); font-weight: 600; }
+.variable-body em { color: var(--text-faint); font-style: italic; }
+
+/* PATTERNS SECTION */
+.patterns-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.pattern-item {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.pattern-item:last-child { border-bottom: none; }
+.pattern-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.pattern-icon-wrap {
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.pattern-icon-wrap.already { background: var(--teal-50); }
+.pattern-icon-wrap.fix { background: var(--purple-50); }
+.pattern-icon-wrap.gold { background: var(--gold-50); }
+.pattern-title { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.4; margin-top: 5px; }
+.pattern-body { font-size: 14px; color: var(--text-dim); line-height: 1.8; }
+.pattern-body strong { color: var(--text); font-weight: 600; }
+.pattern-body em { font-style: italic; }
+
+.win-box {
+  background: var(--teal-50);
+  border: 1px solid rgba(93,202,165,0.25);
+  border-radius: 7px;
+  padding: 14px 18px;
+  margin-top: 12px;
+}
+.win-box-label { font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 5px; }
+.win-box-text { font-size: 13px; color: var(--teal-dark); line-height: 1.65; font-weight: 500; }
+
+.already-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 14px 18px;
+  margin-top: 12px;
+}
+.already-box-label { font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 5px; }
+.already-box-text { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+
+/* ── SECTION BREAK ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 48px 0 36px;
+}
+.section-divider-label { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); white-space: nowrap; }
+.section-divider-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── PULL QUOTE ── */
+.pull-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--text);
+  padding: 20px 0 20px 24px;
+  border-left: 3px solid var(--border-mid);
+  margin: 28px 0;
+}
+
+/* ── STAT GRID ── */
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+.stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; text-align: center; }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+.stat-lbl { font-size: 11px; color: var(--text-faint); line-height: 1.5; }
+
+/* ── BACK-TO-TOP ── */
+.back-top { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); cursor: pointer; border: 1px solid var(--border); border-radius: 4px; padding: 6px 14px; margin-bottom: 20px; transition: all 0.12s; }
+.back-top:hover { color: var(--text); border-color: var(--border-mid); }
+
+/* ── MOBILE ── */
+@media (max-width: 900px) {
+  .page-wrap { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: relative; padding: 20px 0; }
+  .content-area { padding: 0 24px 60px; }
+  .site-header { margin: 0 -24px; padding: 36px 24px 32px; }
+  .variable-item { grid-template-columns: 1fr; gap: 8px; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ════════════════════════════
+     SIDEBAR
+════════════════════════════ -->
+<nav class="sidebar">
+  <p class="sidebar-brand">build.inside</p>
+  <p class="sidebar-title">Knowledge<br><em>Library</em></p>
+
+  <div class="sidebar-section">
+    <div class="sidebar-cat active" onclick="scrollTo('cat-physical')" id="nav-physical">
+      <div class="sidebar-cat-dot" style="background:#7F77DD"></div>
+      <div class="sidebar-cat-name">Physical Optimization</div>
+    </div>
+    <div class="sidebar-sub-list">
+      <div class="sidebar-sub-item" onclick="navTo('topic-sleep')">Sleep Recovery Quality</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-circadian')">Circadian Alignment</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-fueling')">Performance Fueling</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-fitness')">Aerobic & Strength</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-recovery')">Recovery Stack</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-substance')">Substance Management</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-cat" onclick="scrollTo('cat-mental')" id="nav-mental">
+      <div class="sidebar-cat-dot" style="background:#5DCAA5"></div>
+      <div class="sidebar-cat-name">Mental Performance</div>
+    </div>
+    <div class="sidebar-sub-list">
+      <div class="sidebar-sub-item" onclick="navTo('topic-focus')">Sustained Attention</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-flow')">Optimal Activation</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-inhibition')">Distraction Inhibition</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-switching')">Switching Cost</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-selftalk')">Internal Narrative</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-visualization')">Mental Simulation</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-stress')">Stress & Load Balance</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-emotion')">Emotional Regulation</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-cat" onclick="scrollTo('cat-work')" id="nav-work">
+      <div class="sidebar-cat-dot" style="background:#F0997B"></div>
+      <div class="sidebar-cat-name">Work Performance</div>
+    </div>
+    <div class="sidebar-sub-list">
+      <div class="sidebar-sub-item" onclick="navTo('topic-deepwork')">Deep Work Volume</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-signal')">Signal-to-Noise</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-leverage')">Leverage & Asymmetry</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-systems')">Systems Maturity</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-delegation')">Delegation</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-velocity')">Execution Velocity</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-planning')">Planning Quality</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-cat" onclick="scrollTo('cat-leadership')" id="nav-leadership">
+      <div class="sidebar-cat-dot" style="background:#BA7517"></div>
+      <div class="sidebar-cat-name">Leadership & Vision</div>
+    </div>
+    <div class="sidebar-sub-list">
+      <div class="sidebar-sub-item" onclick="navTo('topic-identity')">Identity & Values</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-purpose')">Purpose & Meaning</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-vision')">Vision-Execution Gap</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-decision')">Decision Quality</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-resilience')">Resilience</div>
+      <div class="sidebar-sub-item" onclick="navTo('topic-narrative')">Narrative Ability</div>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-footer">Use this library alongside the assessment tool. Each topic connects directly to the variables you rated.</div>
+</nav>
+
+<!-- ════════════════════════════
+     CONTENT
+════════════════════════════ -->
+<main class="content-area">
+  <div class="site-header">
+    <p class="site-header-kicker">build.inside — Knowledge Library</p>
+    <h1>The science<br>behind the <em>system.</em></h1>
+    <p>This is not background reading. Every section here maps directly to a variable you rated in the assessment. Understanding the mechanism turns a habit from a rule you follow into something you actually believe — which is the only kind that sticks.</p>
+  </div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CATEGORY 1: PHYSICAL OPTIMIZATION
+════════════════════════════════════════════════════════════ -->
+<div class="category-section" id="cat-physical">
+  <div class="cat-header">
+    <div class="cat-dot-lg" style="background:#7F77DD"></div>
+    <div class="cat-header-text">
+      <div class="cat-kicker" style="color:#7F77DD">Category 01</div>
+      <h2>Physical Optimization</h2>
+      <p style="font-size:15px;color:var(--text-dim);max-width:560px;line-height:1.75">Everything your body does — sleep, food, light, movement, substances — is an input that directly determines the quality of the brain running your company. These are the levers most founders haven't touched.</p>
+    </div>
+    <div class="cat-number">01</div>
+  </div>
+
+  <!-- ── SLEEP ── -->
+  <div class="topic-section" id="topic-sleep">
+    <div class="section-divider">
+      <span class="section-divider-label">Sleep Recovery Quality</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block purple">
+      <p class="block-label purple">Introduction</p>
+      <h3>You're not sleeping. You're recovering — or failing to.</h3>
+      <div class="intro-body">
+        <p>Sleep is the most misunderstood tool in a founder's arsenal. Most people treat it like downtime. It isn't. During sleep, your brain is actively consolidating everything you learned that day, clearing metabolic waste, rebuilding emotional regulation circuits, and restoring the neurochemical reserves that determine how sharp you'll be tomorrow.</p>
+        <p>Here's the number that should stop you: after 17–19 hours without good sleep, your cognitive performance is equivalent to being legally drunk. And the cruel part? Sleep-deprived people consistently think they're fine. The impairment hides itself from the person experiencing it.</p>
+        <p>The other thing almost nobody tells you: <strong>duration is not the variable that matters most. Architecture is.</strong> Six hours of deep, consolidated sleep produces more cognitive recovery than eight hours of broken, fragmented sleep. You're not trying to sleep longer. You're trying to sleep better.</p>
+      </div>
+      <div class="analogy-box purple">
+        <div>
+          <p class="analogy-label purple">The gym analogy</p>
+          <p class="analogy-text purple">If you skipped the recovery phase after every training session, your muscles would never grow — you'd just accumulate damage. That's exactly what happens when you skip quality sleep. The work day is the stimulus. Sleep is where the adaptation actually happens.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header">
+        <span class="block-header-icon">◎</span>
+        <span class="block-header-title">The variables — and why they matter</span>
+        <span class="block-header-sub">What you rated in the assessment</span>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Morning recovery feel</div><div class="variable-score-hint">Rated 1–10 in the assessment</div></div>
+        <div class="variable-body">This is the simplest and most honest measure of whether your sleep is working. Not how many hours you logged — how you actually feel. <strong>A score below 7 most mornings means you're starting every decision, every conversation, every creative problem with a cognitive deficit.</strong> The compounding effect of that over months is significant.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Sleep architecture</div><div class="variable-score-hint">Night waking, continuity</div></div>
+        <div class="variable-body">Your sleep cycles through stages — light sleep, deep slow-wave sleep, and REM — in roughly 90-minute loops. <strong>Each time you wake during the night, the cycle resets.</strong> Deep sleep (more in the first half of the night) handles physical repair and memory consolidation. REM (more in the second half) handles emotional regulation and creative processing. Alcohol kills REM. High room temperature kills deep sleep. Both are fixable tonight.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Wake time consistency</div><div class="variable-score-hint">Variance across the week</div></div>
+        <div class="variable-body">Your circadian rhythm is anchored by when you wake up — not when you go to sleep. <strong>Inconsistent wake times, especially between weekdays and weekends, are equivalent to giving yourself jet lag every single week.</strong> The body pays for this on Monday and Tuesday regardless of whether you feel it. A consistent wake time is the single most high-leverage change available in this category — and it costs nothing.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">HRV trend (if tracked)</div><div class="variable-score-hint">Objective recovery indicator</div></div>
+        <div class="variable-body">Heart Rate Variability measured each morning is the most objective signal of whether your nervous system actually recovered overnight. A rising trend over two weeks confirms your sleep interventions are working. A flat or declining trend tells you something is still wrong before you feel it. <strong>If you own a wearable, this number is more honest than how you feel.</strong></div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header">
+        <span class="block-header-icon">→</span>
+        <span class="block-header-title">Founder patterns — what's costing you</span>
+        <span class="block-header-sub">Common gaps and the fix</span>
+      </div>
+      <div class="pattern-item">
+        <div class="pattern-header">
+          <div class="pattern-icon-wrap already">✓</div>
+          <div class="pattern-title">You're probably already sleeping 6–7 hours most nights</div>
+        </div>
+        <div class="pattern-body">That's actually the baseline most high-performers are at. You're not starting from zero. <strong>The gap isn't duration — it's quality.</strong> Most founders who rate their recovery as a 4 or 5 are sleeping roughly the right number of hours. The architecture of that sleep is what's broken.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">One temperature change (17–19°C bedroom) and removing alcohol from the 3h pre-sleep window can move your morning recovery score from 4 to 7 within two weeks. That's the difference between starting every day in deficit and starting every day with a full cognitive account.</p>
+        </div>
+      </div>
+      <div class="pattern-item">
+        <div class="pattern-header">
+          <div class="pattern-icon-wrap fix">↑</div>
+          <div class="pattern-title">You work until 11pm and expect to sleep at 11:30pm</div>
+        </div>
+        <div class="pattern-body">Cortisol and norepinephrine released during problem-solving take 60–90 minutes to metabolize. <strong>Working until bed is biochemically equivalent to drinking a half-espresso before sleep.</strong> You may feel tired — but your nervous system is still activated. The fix is a hard work cutoff 90 minutes before sleep. Not a gradual wind-down. A hard stop.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Founders who install a 90-minute work cutoff report the single fastest improvement in sleep onset of any intervention. Within 5 days, most report falling asleep 20–35 minutes faster — and waking up feeling more recovered despite sleeping the same hours.</p>
+        </div>
+      </div>
+      <div class="pattern-item">
+        <div class="pattern-header">
+          <div class="pattern-icon-wrap fix">↑</div>
+          <div class="pattern-title">Weekend sleep timing is completely different from weekday</div>
+        </div>
+        <div class="pattern-body">Sleeping two hours later on Saturday means your body is on a different time zone by Sunday evening. <strong>Monday morning performance is not a motivation problem — it's a biology problem you created on the weekend.</strong> The fix is simple and requires no earlier bedtime: just hold your wake time within one hour, seven days a week.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Three weeks of consistent weekend wake times recovers approximately 30% of Monday cognitive performance. For most founders, that's 3–5 high-quality hours per week they weren't getting before — just from one scheduling decision.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CIRCADIAN ── -->
+  <div class="topic-section" id="topic-circadian">
+    <div class="section-divider">
+      <span class="section-divider-label">Circadian Alignment</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block purple">
+      <p class="block-label purple">Introduction</p>
+      <h3>Your brain has a clock. Most founders are running against it every day.</h3>
+      <div class="intro-body">
+        <p>Every cell in your body contains a molecular clock. Not metaphorically — literally a genetic timing mechanism that regulates when your cortisol peaks for morning alertness, when your core body temperature rises for reaction speed, when your brain is most capable of creative and strategic work, and when it needs to repair.</p>
+        <p>This clock runs on light. Specifically: bright light in the morning sets it forward, bright light in the evening delays it. Most founders are doing both of these exactly backwards — dark mornings scrolling in bed and bright-screened evenings at their desks. <strong>The result is a clock that's permanently 2–3 hours behind schedule.</strong> You're asking your brain to perform at its peak while it's still, biologically, in the middle of the night.</p>
+        <p>The performance implication is not subtle. A misaligned circadian rhythm means your natural cortisol peak — the physiological driver of your morning alertness — never arrives cleanly. You rely on caffeine to manufacture what the body would provide for free if the clock were set correctly.</p>
+      </div>
+      <div class="analogy-box purple">
+        <div>
+          <p class="analogy-label purple">The analogy</p>
+          <p class="analogy-text purple">Imagine always showing up to a sporting event three hours before your body is warmed up. You'd perform at 60–70% capacity and blame yourself for lack of motivation. Circadian alignment is simply getting the warm-up timing right.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Wake time consistency</div><div class="variable-score-hint">Variance across 7 days</div></div>
+        <div class="variable-body">The circadian clock is anchored by the timing of your first bright light exposure each morning. <strong>Inconsistency in wake time creates drift — the clock shifts 15–30 minutes per day without a consistent anchor.</strong> Seven days of variable wake times means your biology is running a different schedule every single morning. The solution is the simplest one available: same time, every day.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Morning light exposure</div><div class="variable-score-hint">Timing and intensity</div></div>
+        <div class="variable-body">Outdoor light — even overcast — delivers 10,000–50,000 lux to your retina. Indoor office lighting delivers 100–500 lux. <strong>This is a 20–100x difference in the signal your suprachiasmatic nucleus receives to set the day's clock.</strong> Ten minutes of outdoor light within 30 minutes of waking produces measurably better alertness within 5–7 days. This is not a wellness tip. It's a light-based signaling protocol.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Chronotype match</div><div class="variable-score-hint">Natural vs. obligated schedule</div></div>
+        <div class="variable-body">Your chronotype — whether you naturally run early or late — is largely genetic. <strong>Forcing an evening-type founder into a 6am schedule without adjusting the clock signals produces the same performance degradation as mild jet lag, every day.</strong> The right answer is not to override chronotype but to shift it gradually using light — achievable by 1.5 hours over 3 weeks.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Peak cognitive window identification</div><div class="variable-score-hint">Are you using yours?</div></div>
+        <div class="variable-body">Every founder has a 2–4 hour window of peak cognitive performance per day — driven by body temperature rhythm and adenosine clearance. <strong>Most founders do their deepest thinking in their trough and spend their peak on email.</strong> This is a scheduling problem, not a willpower problem. Identifying your peak and protecting it for deep work is the highest-leverage circadian intervention available.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You already know roughly when you're sharpest</div></div>
+        <div class="pattern-body">Most founders have an intuitive sense of their best hours — "I do my real work in the morning" or "I'm actually most creative after 7pm." <strong>That intuition is real data.</strong> The gap is that very few founders design their calendar around it consistently. The infrastructure hasn't caught up to the knowledge.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Moving your three most cognitively demanding weekly tasks into your identified peak window adds an estimated 30–40% output quality improvement on those tasks — without working more hours. The same task at the wrong biological time produces materially worse results.</p>
+        </div>
+      </div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap fix">↑</div><div class="pattern-title">First thing every morning is the phone</div></div>
+        <div class="pattern-body"><strong>Opening email or Slack in the first 30 minutes after waking floods your prefrontal cortex with reactive demands before it's fully online.</strong> You're making the first neurological impression of the day a stress response. Morning light exposure during that same window, instead, amplifies the natural cortisol peak and produces meaningfully better alertness within 20 minutes.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Replacing the first 20 minutes of phone use with an outdoor walk produces measurable cognitive improvement by 10am — confirmed across multiple research cohorts. It requires no extra time if it replaces the scroll. Most founders who try this for 7 days report it as one of the most impactful single changes they've made.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FUELING ── -->
+  <div class="topic-section" id="topic-fueling">
+    <div class="section-divider">
+      <span class="section-divider-label">Performance Fueling Protocol</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block purple">
+      <p class="block-label purple">Introduction</p>
+      <h3>What you eat matters far less than when. Almost nobody has the timing right.</h3>
+      <div class="intro-body">
+        <p>The nutrition conversation in the founder world is almost entirely focused on the wrong variable. What to eat, what to avoid, which diet is optimal. All of that matters less than timing — and timing is almost never discussed.</p>
+        <p>Your first coffee of the day, your pre-work meal, your lunch composition, your last caffeine intake — each of these sends a specific biochemical signal that either supports or undermines your cognitive performance for the following 4–6 hours. <strong>The founder who drinks coffee immediately on waking is actively suppressing the natural cortisol peak that drives morning alertness.</strong> The one who eats a large carbohydrate lunch is manufacturing a 90-minute cognitive hole every afternoon. Both are fixable without changing what you eat — just when.</p>
+        <p>This matters because the quality of your cognitive work is not just about focus techniques. It's about the biological environment those techniques are running in. An optimized environment makes everything easier. A degraded one makes everything harder.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Caffeine timing</div><div class="variable-score-hint">First and last intake</div></div>
+        <div class="variable-body">Caffeine works by blocking adenosine receptors — the receptors that accumulate sleep pressure throughout the day. <strong>Taking caffeine in the first 90 minutes after waking blocks the natural cortisol peak and substitutes an inferior external stimulant for a free internal one.</strong> The consequence: by early afternoon, the deferred adenosine hits, and you need more caffeine. The cycle perpetuates itself. Shifting first caffeine to 90 minutes post-waking breaks the cycle within 7–10 days.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Pre-work meal composition</div><div class="variable-score-hint">Before deep work blocks</div></div>
+        <div class="variable-body">Refined carbohydrates (bread, rice, pastry, cereal) trigger rapid blood glucose elevation followed by a compensatory insulin-driven drop 60–90 minutes later. <strong>That drop is your focus dip.</strong> Protein and fat produce no insulin spike and no corresponding crash. The same deep work session after protein versus after a high-carb meal produces measurably different output quality.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Afternoon crash severity</div><div class="variable-score-hint">Post-lunch dip intensity</div></div>
+        <div class="variable-body">A post-lunch crash is partly circadian (a normal mild dip exists for most people around 1–3pm) and partly blood glucose-driven (the insulin response to lunch composition). <strong>The circadian dip is manageable. The glucose crash is not — it produces 60–90 minutes of genuinely degraded cognitive performance.</strong> Lowering lunch carbohydrate load combined with a 10-minute post-lunch walk addresses both simultaneously.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Hydration consistency</div><div class="variable-score-hint">Daily water intake</div></div>
+        <div class="variable-body">By the time you feel thirsty, you're already at 1–2% dehydration — the level at which reaction time, short-term memory, and sustained attention are measurably degraded. <strong>Most founders are chronically mildly dehydrated during the workday because they drink reactively, not proactively.</strong> This is the lowest-effort, most immediate-return change in this entire category. 500ml on waking costs nothing and changes how you feel within 20 minutes.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You already know coffee is your fuel — you're not wrong</div></div>
+        <div class="pattern-body">Caffeine is one of the most robustly evidence-backed cognitive performance compounds available. You're right to use it. <strong>The problem isn't the caffeine — it's the timing.</strong> The same amount of caffeine, shifted 90 minutes later and cut off at 1pm instead of 3pm, produces better morning performance, eliminates the afternoon dependency, and improves sleep — all simultaneously.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">The +90-minute caffeine delay is consistently one of the top-rated interventions by founders who apply it. By day 10, most report cleaner, more sustained morning energy and reduced afternoon need for caffeine. You get more from the same coffee — just from changing when you drink it.</p>
+        </div>
+      </div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap fix">↑</div><div class="pattern-title">The afternoon crash is accepted as inevitable</div></div>
+        <div class="pattern-body"><strong>Most founders treat the afternoon crash as a fact of life and reach for more caffeine.</strong> It isn't inevitable. It's a blood glucose management problem. Two changes — a lower-carb lunch and a 10-minute walk afterward — eliminate most crashes within 3–5 days. No supplements, no special diet.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Eliminating the afternoon crash effectively adds 60–90 usable cognitive minutes to your day. For most founders, that's the difference between an exhausted 4pm and a functional, decision-capable 4pm. At five days per week, that's 5–7h per week of recovered performance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FITNESS ── -->
+  <div class="topic-section" id="topic-fitness">
+    <div class="section-divider">
+      <span class="section-divider-label">Aerobic & Strength Baseline</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block purple">
+      <p class="block-label purple">Introduction</p>
+      <h3>Movement is the most powerful brain drug you're not taking a consistent dose of.</h3>
+      <div class="intro-body">
+        <p>Aerobic exercise increases BDNF — brain-derived neurotrophic factor — which directly promotes neuronal growth, learning capacity, and mood stability. In practical terms: <strong>regular cardio makes you smarter, more emotionally stable, and more stress-resilient.</strong> Not as a side effect. As the primary mechanism.</p>
+        <p>The dose required is not heroic. 150 minutes of moderate aerobic activity per week and two strength sessions is the evidence-based minimum for measurable cognitive benefit. That's 30 minutes, five days. Most founders either train significantly more than this (which is fine) or significantly less (which is leaving a major performance lever untouched).</p>
+        <p>The scheduling question matters as much as the training itself. A 7am run can amplify your morning cognitive peak. An intense training session right before deep work can temporarily impair it. The question is not just whether you exercise — it's where it lives in your day.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Weekly aerobic volume</div><div class="variable-score-hint">Minutes at moderate intensity</div></div>
+        <div class="variable-body"><strong>Below 90 minutes per week, cognitive benefits are minimal. Above 150, measurable improvements in attention, working memory, and stress response.</strong> The threshold effect is real — there is a minimum effective dose below which exercise is mostly physical without significant cognitive upside.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Strength training frequency</div><div class="variable-score-hint">Sessions per week</div></div>
+        <div class="variable-body">Resistance training produces different neurochemical benefits from aerobic exercise. Both are necessary for the full cognitive and mood stability profile. <strong>Two sessions per week is the minimum for measurable emotional regulation and stress buffering effects.</strong> The combination of aerobic and strength produces compound benefits neither delivers alone.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Training placement relative to deep work</div><div class="variable-score-hint">Timing in the day</div></div>
+        <div class="variable-body">Light aerobic exercise in the morning amplifies cortisol and BDNF — producing a cognitive tailwind for the 2–3 hours following. <strong>High-intensity training directly before deep work temporarily depletes neurotransmitters and can impair focus for 60–90 minutes.</strong> Placing intense training at the end of the workday or mid-day trough is the optimal scheduling position for founders who want both performance outcomes.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You likely move more than the average person</div></div>
+        <div class="pattern-body">Founders who care enough about performance to read this are typically already somewhat physically active. <strong>The gap is usually consistency and timing — not effort.</strong></div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Moving your most cognitively demanding sessions to the 2–3h window after morning aerobic exercise leverages an existing BDNF peak you're probably not currently using. Zero additional training required.</p>
+        </div>
+      </div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap fix">↑</div><div class="pattern-title">Training is the first thing cut when the calendar fills</div></div>
+        <div class="pattern-body"><strong>Founders frequently cancel training sessions to reclaim time during high-pressure periods.</strong> This is counterproductive: high-pressure periods are exactly when the stress-buffering and cognitive effects of exercise matter most. The session that feels like a cost is actually the most direct investment in your capacity to handle what's in front of you.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Protecting exercise during high-pressure periods — even at reduced volume (20 min walk counts) — is one of the most consistent differentiators between founders who sustain performance under load and those who degrade. The protection of this habit is a strategic decision.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RECOVERY STACK ── -->
+  <div class="topic-section" id="topic-recovery">
+    <div class="section-divider">
+      <span class="section-divider-label">Recovery Stack</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block purple">
+      <p class="block-label purple">Introduction</p>
+      <h3>Elite performers treat recovery as training. Most founders treat it as weakness.</h3>
+      <div class="intro-body">
+        <p>In every elite performance domain — sports, military, performing arts — the athletes and performers who last longest are not the ones who push hardest. They're the ones who recover most deliberately. <strong>Recovery is not rest from work. It is the work.</strong> It's where the adaptation from stress happens. Stress without recovery produces breakdown, not growth.</p>
+        <p>For founders, the relevant recovery tools are cold exposure (activates the norepinephrine system and meaningfully elevates mood and focus), heat exposure (reduces muscle tension, improves sleep quality, has direct cardiovascular and longevity benefits), breathwork (fastest available tool for nervous system state change — measurable within 90 seconds), and deliberate rest days (complete cognitive offloading that prevents the accumulated depletion that causes poor decision-making). None of these require significant time. All of them produce significant ROI.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Breathwork practice</div><div class="variable-score-hint">Daily protocol</div></div>
+        <div class="variable-body">Deliberate breathwork is the only tool that gives you direct, rapid control over your autonomic nervous system. <strong>A double inhale followed by a long exhale (physiological sigh) activates the parasympathetic system in under 90 seconds.</strong> No other technique produces this speed of state change. This is not relaxation — it's nervous system reset, usable before high-stakes meetings, during stress spikes, and at the end of deep work blocks.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Deliberate rest days</div><div class="variable-score-hint">Full cognitive offload weekly</div></div>
+        <div class="variable-body">The prefrontal cortex does not have a visible fatigue signal the way muscles do. <strong>Decision quality can be significantly degraded while the founder subjectively feels fine.</strong> A full rest day — no strategic thinking, no problem-solving, low sensory input — allows genuine cognitive restoration that partial rest does not provide. The measurable benefit appears in the following 2–3 days, not on the rest day itself.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap fix">↑</div><div class="pattern-title">Rest is equated with unproductivity</div></div>
+        <div class="pattern-body"><strong>The founder who works seven days doesn't produce 40% more than the one who takes a full day off. They produce about the same amount — with significantly higher error rates and worse strategic decisions by day 5.</strong> The rest day is not a concession to limitation. It's the mechanism that makes the other six days significantly better.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Founders who implement a deliberate weekly rest day consistently report that the following Monday is their highest-performing day of the week. The rest day doesn't cost output — it creates the cognitive conditions for peak output to follow.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUBSTANCE ── -->
+  <div class="topic-section" id="topic-substance">
+    <div class="section-divider">
+      <span class="section-divider-label">Substance & Stimulant Management</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block purple">
+      <p class="block-label purple">Introduction</p>
+      <h3>The most common silent performance drain in the founder population has a name.</h3>
+      <div class="intro-body">
+        <p>Alcohol, caffeine, and nicotine are not inherently performance enemies. They are timing problems. <strong>The founder who has two glasses of wine at 8pm, not knowing they're suppressing the REM sleep that processes the day's learning and resets tomorrow's emotional regulation capacity, is making an unknowing trade.</strong> Not because of the alcohol — because of the timing.</p>
+        <p>Running a 14-day audit that correlates substance use with focus and recovery scores is one of the most reliably eye-opening things a founder can do. The data is almost always surprising. And data, unlike advice, is hard to dismiss.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Alcohol timing and quantity</div></div>
+        <div class="variable-body">Even 1–2 drinks suppress REM sleep measurably, regardless of how quickly they're consumed or how little effect you feel. <strong>This matters because REM is where emotional regulation resets and creative connections form.</strong> Finishing alcohol 3+ hours before sleep and hydrating deliberately reduces (but doesn't eliminate) the architectural disruption.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Caffeine total daily load</div></div>
+        <div class="variable-body">200–400mg daily is the evidence-based window for cognitive benefit without tolerance or cortisol dysregulation. Above 400mg: <strong>most of what you're drinking is maintaining baseline rather than producing enhancement</strong> — because tolerance has moved the baseline up. A brief reduction period (5–7 days, uncomfortable) resets sensitivity and makes the same dose twice as effective.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You're probably not overdoing either — the timing is the issue</div></div>
+        <div class="pattern-body">Most founders are not struggling with addiction or excess. <strong>They're struggling with timing.</strong> Two coffees at the wrong hour and one glass of wine at the wrong hour are enough to significantly degrade sleep architecture — and therefore next-day performance — without any subjective sense that something is wrong.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Running the 14-day correlation audit alone — without changing anything — gives most founders clear data on exactly which specific behaviors are costing them most. What follows is behavioral change driven by evidence rather than advice, which is significantly more durable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CATEGORY 2: MENTAL PERFORMANCE
+════════════════════════════════════════════════════════════ -->
+<div class="category-section" id="cat-mental">
+  <div class="cat-header">
+    <div class="cat-dot-lg" style="background:#5DCAA5"></div>
+    <div class="cat-header-text">
+      <div class="cat-kicker" style="color:#5DCAA5">Category 02</div>
+      <h2>Mental Performance</h2>
+      <p style="font-size:15px;color:var(--text-dim);max-width:560px;line-height:1.75">This is the quality of your processing — not how smart you are, but how well your cognitive machinery is running right now. Focus, flow, self-talk, stress response, emotional regulation. All trainable. All measurable.</p>
+    </div>
+    <div class="cat-number">02</div>
+  </div>
+
+  <!-- ── FOCUS / ATTENTION ── -->
+  <div class="topic-section" id="topic-focus">
+    <div class="section-divider">
+      <span class="section-divider-label">Sustained Attention Capacity</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block teal">
+      <p class="block-label teal">Introduction</p>
+      <h3>Focus is a skill. It degrades without training and improves with it.</h3>
+      <div class="intro-body">
+        <p>The ability to sustain attention on a single demanding task for 90–120 minutes without significant degradation is not a personality trait. It is a trainable cognitive capacity that responds to the same logic as physical training: stress, recovery, progressive overload. <strong>Most founders are in a state of chronic attention under-use</strong> — jumping between tasks, responding to notifications, context-switching constantly — which is the equivalent of an athlete who never does a single sustained sprint. The capacity atrophies.</p>
+        <p>The good news: it comes back faster than most people expect. Two to four weeks of deliberate 90-minute uninterrupted focus sessions produces measurable improvement. The mechanism is straightforward — you are literally rebuilding the neural circuits for sustained attention through use.</p>
+        <p>The environment matters more than the will. <strong>A founder with a phone in the room during deep work is working at 60–70% cognitive capacity regardless of their focus discipline.</strong> Phone presence alone — even silent, even face-down — generates anticipatory attention that pre-fills working memory. Physical removal is not an extreme measure. It's the minimum viable environment for real focus.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Longest uninterrupted focus block</div><div class="variable-score-hint">Daily maximum, in minutes</div></div>
+        <div class="variable-body"><strong>The length of your longest daily focus block is the most honest single indicator of your sustained attention capacity.</strong> Not total hours worked — the longest single stretch without interruption. Below 45 minutes typically indicates environmental problems. 90+ minutes indicates a functional attention system. This is the number to train.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Daily deep work sessions</div><div class="variable-score-hint">Count per day</div></div>
+        <div class="variable-body">One well-protected 2-hour deep work session produces more meaningful output than six fragmented 20-minute attempts. <strong>The compounding unit of knowledge work is the complete, uninterrupted session</strong> — where the problem has been loaded, engaged, and genuinely advanced. Fragmentary work produces fragmented output.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Environment quality</div><div class="variable-score-hint">Phone, notifications, workspace</div></div>
+        <div class="variable-body">The environment is the primary leverage point for focus improvement — more than motivation, more than techniques. <strong>Notification removal, physical phone separation, and a designated focus workspace produce immediate, session-1 improvements.</strong> This is not about willpower. It's about not manufacturing unnecessary cognitive friction.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You're capable of deep focus — you've done it before</div></div>
+        <div class="pattern-body">Every founder has experienced genuine deep focus — the state where 2 hours feels like 20 minutes and something real gets built. <strong>The question is not whether you can do it. It's whether your current environment and calendar allow it to happen consistently.</strong> Usually it doesn't — not because of you, but because nothing is deliberately protecting it.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">One protected 2-hour morning block per day, phone in another room, for 30 days adds approximately 40 hours of genuine deep work to your monthly output. For most founders, that's the equivalent of adding an extra high-performance week to every month.</p>
+        </div>
+      </div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap fix">↑</div><div class="pattern-title">Availability is confused with responsiveness</div></div>
+        <div class="pattern-body"><strong>Most founders conflate being reachable with being effective.</strong> Immediate response to Slack or email is not a leadership virtue — it's a focus destruction mechanism. A 90-minute response delay on most communications has essentially zero business cost. The cost of interrupting deep work is 15–25 minutes of recovery time per interruption, multiplied by how often it happens.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">A communication policy of "I respond to Slack and email at 10am, 1pm, and 5pm" recovers an estimated 1–2 hours of effective focus per day for most founders. Written up as a team norm, it costs essentially nothing and produces significant protection for the work that actually moves the needle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FLOW ── -->
+  <div class="topic-section" id="topic-flow">
+    <div class="section-divider">
+      <span class="section-divider-label">Optimal Activation Regulation</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block teal">
+      <p class="block-label teal">Introduction</p>
+      <h3>Flow is not an accident. It's a state you can design entry into.</h3>
+      <div class="intro-body">
+        <p>Flow — the state of effortless, fully-absorbed performance — produces output quality that is measurably different from normal focused work. It's not just that you feel better. The work is genuinely better. Creative problem-solving, pattern recognition, and strategic thinking all operate at a higher level during flow than during ordinary focused work.</p>
+        <p>The research on flow is clear about one thing: <strong>flow requires a specific level of activation — neither too high nor too low.</strong> Underactivation (boredom, low arousal) prevents entry. Overactivation (anxiety, hypervigilance, chronic stress) also prevents entry. Most founders are chronically overactivated — running in a persistent state of mild-to-moderate threat response — and wondering why flow feels inaccessible.</p>
+        <p>The yin/yang distinction is real and practical: yang is the activated, high-drive execution mode that gets things done. Yin is the open, spacious, present-moment state that generates the creative insight the execution mode executes against. <strong>Most founders have mastered yang. They've built an identity around yang. And they are starving yin into nonexistence.</strong> The cost is a steady narrowing of the creative bandwidth that made them founders in the first place.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Flow access — deliberate vs. accidental</div></div>
+        <div class="variable-body">The difference between flow as an occasional accident and flow as a reliable daily resource is the entry protocol. <strong>A consistent pre-work sequence — the same 2–4 actions in the same order — conditions the nervous system to recognize "it's time to go deep."</strong> The conditioned trigger builds over 2–3 weeks of consistency and then activates reliably without effort.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Chronic activation level</div><div class="variable-score-hint">The yin/yang balance</div></div>
+        <div class="variable-body"><strong>The founder who is chronically overactivated is running a performance deficit that compounds over weeks.</strong> The hypervigilant review state — the mind scanning for problems even during downtime — is not alertness. It's a nervous system dysregulation that gradually degrades both performance and recovery. Scheduled yin recovery windows (20 min twice daily, zero task orientation) are the intervention.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You've experienced flow — you know exactly what it feels like</div></div>
+        <div class="pattern-body">Every high-performing founder has experienced flow. The problem is frequency. <strong>If it happens once a week accidentally, the question becomes: what would change if it happened every day deliberately?</strong></div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">A consistent pre-work entry ritual — designed around your specific activation needs — produces reliable flow access within 2–3 weeks. The output difference between a week of accidental flow and a week of daily deliberate flow is not marginal. It's the kind of difference that changes what you build.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── INHIBITION + SWITCHING ── -->
+  <div class="topic-section" id="topic-inhibition">
+    <div class="section-divider">
+      <span class="section-divider-label">Distraction Inhibition & Switching Cost</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="intro-block teal">
+      <p class="block-label teal">Introduction</p>
+      <h3>Multitasking doesn't exist. Context switching does — and it has a measurable cost.</h3>
+      <div class="intro-body">
+        <p>The human brain cannot multitask on cognitive work. What it can do is switch between tasks — rapidly enough to feel simultaneous, but with a cost attached to every switch. That cost is called cognitive residue: a portion of your attention stays on the previous task while you try to engage with the next one. <strong>The average knowledge worker switches tasks every 2–3 minutes. Each switch costs 10–25 minutes of recovery time to return to full engagement.</strong> The math on this is devastating.</p>
+        <p>For founders, the issue is structural. The role demands constant context switching — investor calls, team questions, product decisions, customer conversations, strategic thinking, administrative tasks — often within the same hour. The answer is not to refuse switching. It's to make each switch deliberate, with a brief transition ritual that closes the previous context cleanly before opening the next one.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Notification and trigger resistance</div></div>
+        <div class="variable-body"><strong>The phone sitting on your desk generates anticipatory attention even when not in use.</strong> Knowing a notification might arrive pre-allocates cognitive resources to monitoring. Removing this trigger — physically — eliminates the anticipatory cost before the distraction even occurs. This is the prevention, not the cure.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Deliberate transition use</div></div>
+        <div class="variable-body">A 2–3 minute transition ritual between mode-switches (writing notes on the current task, closing tabs, 3 deliberate breaths, stating the intention for the next context) <strong>measurably reduces cognitive residue and shortens the time to full engagement in the new task.</strong> It adds 6 minutes to the day and recovers 30–60.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You've noticed you do your best work when undisturbed</div></div>
+        <div class="pattern-body">Every founder knows that their best thinking happens on long flights, during early mornings before the team wakes up, or on rare undisturbed stretches. <strong>This isn't circumstantial — it's the distraction-free environment doing what it always does.</strong> The question is whether you can manufacture that condition daily rather than waiting for it to happen accidentally.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Batching all reactive communication (email, Slack, messages) into 3 windows per day recovers an estimated 60–90 minutes of daily focus from the interruption cycle alone — without changing how much you communicate, only when.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SELF-TALK ── -->
+  <div class="topic-section" id="topic-selftalk">
+    <div class="section-divider"><span class="section-divider-label">Internal Narrative Quality</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block teal">
+      <p class="block-label teal">Introduction</p>
+      <h3>The voice in your head has a performance rating. Most founders have never audited it.</h3>
+      <div class="intro-body">
+        <p>Every founder has a running internal commentary. Some of it is performance-supporting: specific, forward-looking, grounded in what can be influenced. Some of it is performance-draining: comparative, catastrophizing, or looping on things outside of control. <strong>The ratio between these two types is one of the most trainable and most neglected performance variables available.</strong></p>
+        <p>Elite athletes work on this explicitly. Founders rarely do — partly because it sounds psychological rather than strategic, and partly because the drain patterns feel true. They're not. They're cognitive habits that formed under pressure and were reinforced through repetition. They can be replaced through the same mechanism: deliberate repetition of a different pattern.</p>
+        <p>The intervention is not affirmations. It's specific, evidence-based substitution: identify the exact recurring drain narrative, design a specific performance-supporting replacement, practice it when triggered. Within 2–3 weeks of consistent application, the new pattern becomes the default.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Performance-drain pattern recognition</div></div>
+        <div class="variable-body"><strong>You cannot replace what you cannot see.</strong> The first 7 days of the self-talk intervention are pure observation — writing down recurring drain patterns when you notice them, without attempting to change anything. This builds the pattern map that makes targeted replacement possible.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Replacement narrative quality</div></div>
+        <div class="variable-body">The replacement must be <em>specific</em> and <em>believable</em> — not positive, not inspirational, just accurate and forward-facing. <strong>"I'm bad at this" → "I haven't done this before; I'll figure it out" is specific and believable. "I'm amazing" is not.</strong> The specificity is what makes it actually work in high-pressure moments rather than bouncing off.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You already talk to yourself strategically when things are going well</div></div>
+        <div class="pattern-body">Founders in momentum tend to have naturally supporting internal narratives — forward-focused, confident, solution-oriented. <strong>The gap is what happens under pressure.</strong> When a fundraise stalls, a key hire leaves, or a product launch fails, the default narrative often becomes significantly more drain-oriented. This is exactly when it matters most.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Training one specific drain-to-performance narrative replacement produces measurable output improvement within 2–3 weeks. The highest-leverage version is the pattern that activates most frequently during your specific failure mode — identified through the 7-day observation log.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VISUALIZATION ── -->
+  <div class="topic-section" id="topic-visualization">
+    <div class="section-divider"><span class="section-divider-label">Mental Simulation & Clarity</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block teal">
+      <p class="block-label teal">Introduction</p>
+      <h3>Every elite performer uses this. Almost no founder does. That gap is your advantage.</h3>
+      <div class="intro-body">
+        <p>Mental simulation — the deliberate, vivid pre-experiencing of a future event or decision — activates the same neural circuits as the actual experience. The brain, at a neurological level, does not fully distinguish between a vividly imagined scenario and a remembered one. <strong>This is why visualization is not a motivational trick — it is a cognitive preparation technique.</strong></p>
+        <p>Athletes use it to pre-program movement sequences. Surgeons use it to pre-map complex procedures. Fighter pilots use it to rehearse decision trees under pressure. Founders can use it to walk through investor conversations before they happen, to pre-play the decision they're about to make, to set the cognitive state for a deep work session, to enter a difficult team conversation with their response already calibrated.</p>
+        <p>Five minutes before a high-stakes event is enough. Specific beats vague every time — see the room, hear the questions, feel yourself responding. The practice is simple. The competitive advantage it provides is substantial simply because almost nobody in the founder world is doing it.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You already do informal versions of this</div></div>
+        <div class="pattern-body">Every founder mentally rehearses important conversations, plays through scenarios, considers how things might unfold. <strong>The difference between this informal version and deliberate mental simulation is specificity, duration, and consistency.</strong> Five minutes of specific, seated, eyes-closed pre-play before an important meeting produces measurably better outcomes than the informal running-in-the-head version.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Applied before your three highest-stakes weekly events, deliberate pre-play visualization adds approximately 15 minutes per week to your schedule and produces preparation quality that would otherwise require hours of explicit planning. This is the most underused tool in the entire framework.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STRESS ── -->
+  <div class="topic-section" id="topic-stress">
+    <div class="section-divider"><span class="section-divider-label">Stress Response & Chronic Load Balance</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block teal">
+      <p class="block-label teal">Introduction</p>
+      <h3>Stress is not the problem. Unrecovered stress is.</h3>
+      <div class="intro-body">
+        <p>Stress is the mechanism of adaptation. Without it, nothing grows, nothing improves, nothing gets built. The question is not how to eliminate stress — it's how to recover from it. <strong>A founder who accumulates stress without recovery is like an athlete who trains every day without a rest day: performance declines, injury risk increases, and eventually the system breaks down.</strong></p>
+        <p>Acute stress management — having a reliable toolkit for in-moment spikes (a board meeting goes sideways, a fundraise falls apart, a key hire leaves) — and chronic load management — the ratio of stress input to recovery output across the week — are two distinct skills that require two distinct interventions.</p>
+        <p>For acute spikes: breathwork is the fastest available tool. The physiological sigh (double inhale, long exhale) produces measurable HRV recovery within 90 seconds. No technique beats it for speed. For chronic load: the answer is structural — a weekly load versus recovery audit, and a protected rest day that is treated as non-negotiable as any investor meeting.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Acute stress recovery speed</div></div>
+        <div class="variable-body">How quickly you return to baseline function after a stress spike determines how much of your day is reclaimed after a difficult event. <strong>A founder who recovers in 15 minutes versus one who recovers in 4 hours has fundamentally different cognitive resources available for the rest of the day.</strong> Recovery speed is trainable through breathwork practice — specifically, training the protocol before you need it, so it activates under pressure.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Weekly stress-to-recovery ratio</div></div>
+        <div class="variable-body">Burnout is not an event — it's the cumulative result of a stress-recovery ratio that has been consistently negative for months. <strong>Most founders don't track this ratio, which means they have no early warning system.</strong> Rating stress input and recovery output weekly on a 1–10 scale and watching the trend is the earliest possible signal of accumulating depletion.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You've developed stress tolerance — that's real and it matters</div></div>
+        <div class="pattern-body">Founders who've been building for 2+ years have built genuine stress tolerance. <strong>The capacity to keep functioning under pressure that would break most people is a real competitive advantage.</strong> The gap is the difference between stress tolerance (staying functional under load) and stress recovery (actively clearing load so the next load can be handled at full capacity).</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">A founder who has stress tolerance AND active recovery practices operates at a fundamentally different ceiling than one who only has tolerance. The tolerance keeps you in the game. The recovery keeps you performing at the top of your range rather than the bottom of it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EMOTIONAL REGULATION ── -->
+  <div class="topic-section" id="topic-emotion">
+    <div class="section-divider"><span class="section-divider-label">Emotional Regulation Under Pressure</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block teal">
+      <p class="block-label teal">Introduction</p>
+      <h3>The worst decisions founders make happen in the first 90 seconds after an emotional trigger.</h3>
+      <div class="intro-body">
+        <p>When the nervous system enters a stress response, blood flow shifts from the prefrontal cortex (the seat of strategic thinking, impulse control, and perspective-taking) to the limbic system (the seat of fight-or-flight responses). This is a physiological event, not a character flaw. <strong>For the 3–5 minutes following an emotional trigger, your decision-making capacity is genuinely and measurably reduced.</strong></p>
+        <p>The intervention is not to suppress emotion. It's to insert a delay between trigger and response. Three deliberate breaths before any response to a difficult message. A 24-hour waiting period before any high-stakes decision made in anger or fear. These are not weakness — they are the cognitive protection mechanisms that separate reactive founders from responsive ones.</p>
+        <p>The secondary skill is the post-reaction debrief: after any high-reactivity event, a brief written reflection that names what happened, what you felt, and what you would do differently. Over time, this builds the pattern recognition that catches the trigger earlier — until, eventually, the pause becomes automatic rather than deliberate.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You've learned not to react publicly — the private version is next</div></div>
+        <div class="pattern-body">Most experienced founders have learned to manage visible reactions. <strong>The gap is usually in private decisions made under emotional activation — the email sent at 1am, the hire or fire decision made in a tense moment, the strategic pivot driven by fear rather than analysis.</strong></div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">The mandatory-pause protocol (3 breaths before any response under pressure) requires 15 seconds per application and produces measurably better decisions within 2 weeks of consistent use. The founders who implement this report that the quality of their most difficult conversations and decisions improves more rapidly than any other single skill investment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CATEGORY 3: WORK PERFORMANCE
+════════════════════════════════════════════════════════════ -->
+<div class="category-section" id="cat-work">
+  <div class="cat-header">
+    <div class="cat-dot-lg" style="background:#F0997B"></div>
+    <div class="cat-header-text">
+      <div class="cat-kicker" style="color:#F0997B">Category 03</div>
+      <h2>Work Performance</h2>
+      <p style="font-size:15px;color:var(--text-dim);max-width:560px;line-height:1.75">Not how hard you work — how well-designed your work is. Deep work volume, signal vs. noise, leverage, systems, delegation, execution speed. These are the levers that determine whether effort produces compounding results or just activity.</p>
+    </div>
+    <div class="cat-number">03</div>
+  </div>
+
+  <!-- ── DEEP WORK ── -->
+  <div class="topic-section" id="topic-deepwork">
+    <div class="section-divider"><span class="section-divider-label">Deep Work Volume</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block coral">
+      <p class="block-label coral">Introduction</p>
+      <h3>The work that actually compounds is the work almost nobody protects.</h3>
+      <div class="intro-body">
+        <p>Deep work — cognitively demanding work performed in a state of distraction-free concentration — is the only category of work that produces compounding value. Strategy, product design, critical analysis, investor materials, key hiring decisions, foundational writing — all of these require sustained uninterrupted thinking to reach the quality level that actually advances the company.</p>
+        <p><strong>The average knowledge worker today gets fewer than 2 hours of genuine deep work per day.</strong> The rest is shallow: email, meetings, reactive tasks, administrative overhead. For founders, shallow work often masquerades as importance — it's urgent, it's visible, people are waiting for it. But it rarely moves the needle on the things that determine whether the company survives and scales.</p>
+        <p>The founder who protects 4 hours of genuine deep work daily — 20 hours per week — has a structural competitive advantage over one who doesn't. Not because they're smarter or working harder. Because they're directing cognitive capacity at the problems where it compounds.</p>
+      </div>
+    </div>
+
+    <div class="variables-block">
+      <div class="block-header"><span class="block-header-icon">◎</span><span class="block-header-title">The variables — and why they matter</span></div>
+      <div class="variable-item">
+        <div><div class="variable-name">Daily deep work hours</div><div class="variable-score-hint">Genuine, uninterrupted hours</div></div>
+        <div class="variable-body"><strong>This is the most important single productivity metric for founders.</strong> Not hours worked — hours in genuine cognitive depth. Below 2: likely reactive and shallow. 2–4: functional range. 4+: compounding at a serious rate. The gap between 2 and 4 daily hours of real deep work, compounded over a year, is enormous.</div>
+      </div>
+      <div class="variable-item">
+        <div><div class="variable-name">Shutdown ritual discipline</div></div>
+        <div class="variable-body">The deliberate end of the workday — clearing tomorrow's top 3, closing all tabs, a verbal or written "shutdown complete" — does two things. It protects recovery by creating a clean mental break. And it <strong>reduces the cognitive residue that degrades the following morning's first deep work session.</strong> The founder who never fully stops carries the previous day into the next one.</div>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You work hard — that's not the issue</div></div>
+        <div class="pattern-body">Most founders are not underworking. <strong>The issue is that a large fraction of the hours worked are shallow — meetings, email, reactive tasks — and are generating activity rather than progress.</strong> The reframe is not working more. It's protecting more of what's already there for the work that actually moves the needle.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Converting one existing meeting-heavy day per week into a protected deep work day adds approximately 200–250 additional high-quality thinking hours per year. That's the equivalent of 5–6 additional high-performance work weeks, without adding a single hour to your schedule.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SIGNAL/NOISE ── -->
+  <div class="topic-section" id="topic-signal">
+    <div class="section-divider"><span class="section-divider-label">Signal-to-Noise Ratio</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block coral">
+      <p class="block-label coral">Introduction</p>
+      <h3>The most expensive thing on your calendar is often something you added yourself.</h3>
+      <div class="intro-body">
+        <p>Signal tasks are the ones only you can do — tasks where your specific judgment, relationships, or capabilities produce irreplaceable value. Noise tasks are everything else. The question is not whether noise tasks need doing. It's whether <em>you</em> need to be the one doing them. <strong>Most founders have a significant fraction of their calendar that fails this test and has never been examined.</strong></p>
+        <p>The signal-to-noise audit is not about working less. It's about working righter. A founder who spends 6 hours per day on signal tasks and delegates the rest produces dramatically more value than one who spends 6 hours on a mix of both — because the quality of output on signal tasks is determined by the cognitive capacity available for them, which is depleted by every noise task that precedes them.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You know which tasks are yours and which aren't</div></div>
+        <div class="pattern-body">Most founders can, when asked directly, identify the 5–7 things that genuinely require them. <strong>The gap is that the calendar doesn't reflect this knowledge.</strong> Recurring commitments accumulate, requests get accepted out of habit, and gradually the founder's days fill with work that someone else could handle — without a single deliberate decision to allow it.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">A 60-minute weekly calendar audit with one item removed per week compounds into 10+ hours per year of recovered signal time. Each removal is a permanent structural improvement that makes every following week slightly better than the one before it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LEVERAGE ── -->
+  <div class="topic-section" id="topic-leverage">
+    <div class="section-divider"><span class="section-divider-label">Leverage & Asymmetry of Effort</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block coral">
+      <p class="block-label coral">Introduction</p>
+      <h3>Some of your work is worth 10x what other work is worth. Are you treating it that way?</h3>
+      <div class="intro-body">
+        <p>Not all founder work is created equal. A 2-hour strategic decision about which market to enter can unlock more value than 40 hours of execution. A well-crafted investor update can open a funding round. A key hire can multiply team output. A product bet, correctly placed, can define the company's trajectory for years. <strong>These asymmetric leverage points exist in every founder's week — but they rarely receive the protection and cognitive investment they warrant.</strong></p>
+        <p>The leverage audit is simple: identify your 3 highest-leverage weekly activities and your 3 lowest. Track actual time invested in each. The gap between where you're spending time and where the leverage actually is reveals the adjustment available.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap fix">↑</div><div class="pattern-title">High-leverage work gets the leftover time, not the prime time</div></div>
+        <div class="pattern-body"><strong>The most impactful founder work — the 2h strategic thinking session, the relationship investment, the key decision that determines the next quarter — typically happens in the scraps of time left after everything reactive has been handled.</strong> Protecting asymmetric work first and filling the calendar around it reverses this pattern. It requires a deliberate scheduling decision, not more hours.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">One protected "leverage hour" per day — reserved for the single highest-return activity — adds 5 hours per week of asymmetric effort. Over a year, this differential compounds into a company trajectory measurably different from one without it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SYSTEMS ── -->
+  <div class="topic-section" id="topic-systems">
+    <div class="section-divider"><span class="section-divider-label">Systems Maturity & Delegation</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block coral">
+      <p class="block-label coral">Introduction</p>
+      <h3>The question isn't whether you're working in the machine. It's whether the machine can run without you.</h3>
+      <div class="intro-body">
+        <p>Systems maturity measures whether recurring processes in your business are documented, owned by someone other than you, and producing consistent results without your direct involvement. <strong>A founder who is the bottleneck for every recurring decision is not building a company — they are building a job that requires them specifically.</strong></p>
+        <p>The systems-building investment is front-loaded (30 minutes to document a process, another session to hand it off) and produces compounding returns (that process runs without you, indefinitely). The founder who documents one process per week for 8 weeks has 8 things permanently off their plate. The one who doesn't has the same cognitive load in week 8 as in week 1.</p>
+        <p>Delegation is more than task transfer. <strong>Real delegation transfers the decision-making authority alongside the task.</strong> A founder who delegates tasks but retains all approval power hasn't delegated — they've added a reporting layer. The distinction is critical because it determines whether the team builds decision-making muscle or stays dependent on the founder for every choice.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You've started delegating — you know it's necessary</div></div>
+        <div class="pattern-body">Most growth-stage founders have begun delegating tasks. <strong>The next level is delegating categories of decisions.</strong> "You own all customer onboarding decisions under €5,000" is different from "let me know if any onboarding issues come up." The first builds a capable operator. The second builds a reporter.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Each category of decision fully transferred from founder to team permanently reduces cognitive overhead — not just task overhead. The mental load of being the decision point is often larger than the actual decision time. Real delegation recovers both.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VELOCITY ── -->
+  <div class="topic-section" id="topic-velocity">
+    <div class="section-divider"><span class="section-divider-label">Execution Velocity & Planning Quality</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block coral">
+      <p class="block-label coral">Introduction</p>
+      <h3>The company that tests faster learns faster. The learning loop is the actual competitive advantage.</h3>
+      <div class="intro-body">
+        <p>Execution velocity is not about working faster. It's about compressing the decision-to-test cycle time — the gap between deciding something is worth trying and running the first real-world test of it. <strong>The company with the 2-week learning loop has 26 learning cycles per year. The one with the 4-week loop has 13.</strong> Over 3 years, that's 78 versus 39 product and strategy experiments. The difference is not intelligence — it's loop speed.</p>
+        <p>Planning quality is the other side: the habit of translating strategy into specific weekly actions that are causally connected to the outcome goal. Without this habit, strategy exists in a separate mental space from the day's calendar — and the company drifts between them.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You're already biased toward action — that's the asset</div></div>
+        <div class="pattern-body">Founders are typically action-oriented by nature. <strong>The refinement is reducing the gap between decision and first test — specifically by asking "what is the fastest thing we could do to learn whether this is true?" before beginning any significant initiative.</strong></div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">The "fastest test" mental framework applied consistently reduces average cycle time by 30–50% for most founders — not by rushing, but by defaulting to the smallest valid test rather than the comprehensive version.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CATEGORY 4: LEADERSHIP, VISION & IDENTITY
+════════════════════════════════════════════════════════════ -->
+<div class="category-section" id="cat-leadership">
+  <div class="cat-header">
+    <div class="cat-dot-lg" style="background:#BA7517"></div>
+    <div class="cat-header-text">
+      <div class="cat-kicker" style="color:#BA7517">Category 04</div>
+      <h2>Leadership, Vision & Identity</h2>
+      <p style="font-size:15px;color:var(--text-dim);max-width:560px;line-height:1.75">This is who the founder is — not what they do. Identity, purpose, decision quality, resilience, narrative ability. The area most founders underinvest in most consistently. And the one that ultimately determines the ceiling of everything else.</p>
+    </div>
+    <div class="cat-number">04</div>
+  </div>
+
+  <!-- ── IDENTITY ── -->
+  <div class="topic-section" id="topic-identity">
+    <div class="section-divider"><span class="section-divider-label">Personal Identity & Values Clarity</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block gold">
+      <p class="block-label gold">Introduction</p>
+      <h3>Unclear identity means every decision is made from scratch. Clear identity makes most decisions obvious.</h3>
+      <div class="intro-body">
+        <p>Identity clarity is not a philosophical luxury. It is a decision-making infrastructure. A founder who knows specifically what they value, what kind of life they're building, and what the company must achieve to serve that design makes decisions from a stable foundation. <strong>A founder without this makes the same decisions reactively — shaped by whoever last applied pressure, whichever metric is currently down, or whichever opportunity appears most urgent.</strong></p>
+        <p>Values drift is one of the most consistent failure modes in high-growth companies. It happens gradually, under pressure, without announcement. A hiring decision that doesn't match the culture. A product bet driven by investor preference rather than conviction. A lifestyle eroding toward something nobody chose. The antidote is a written, specific, revisited document — not an aspirational statement, but an honest description of what actually matters and what the design of the next decade looks like.</p>
+        <p>This document becomes the filter. Product decisions, hiring decisions, strategic pivots, and life design choices all become easier when there is a clear reference point for "does this fit who I am and what I'm building?"</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You have a strong sense of your values — you just haven't written them</div></div>
+        <div class="pattern-body">Most founders who've been building for 2+ years have a visceral, intuitive sense of what they stand for. They can feel when a decision is wrong. <strong>The gap is that this knowledge lives in the body and the gut rather than on paper — which means it can't be communicated, can't be used as a hiring filter, and is subject to drift under pressure.</strong></div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Writing the 2-hour "non-negotiables and 10-year design" document converts intuitive values into organizational infrastructure. Founders who do this report that it immediately improves hiring conversations, strategic decision-making, and — most significantly — the clarity with which they can say no to misaligned opportunities.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PURPOSE ── -->
+  <div class="topic-section" id="topic-purpose">
+    <div class="section-divider"><span class="section-divider-label">Purpose Clarity & Meaning</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block gold">
+      <p class="block-label gold">Introduction</p>
+      <h3>Purpose is not inspiration. It's the primary buffer against burnout.</h3>
+      <div class="intro-body">
+        <p>Viktor Frankl, writing from a Nazi concentration camp, identified meaning as the variable that determined who survived the unsurvivable. Not physical strength, not connections, not luck — the people with a clear, stable sense of why they were alive had measurably better survival rates. <strong>The same mechanism applies at a lesser scale to founders under sustained pressure.</strong></p>
+        <p>Why this company, why now, why you — the honest answers to these three questions form the motivational architecture that determines whether you sustain through the difficult periods or erode. Most founders have excellent answers to the pitch version of these questions. Far fewer have deeply honest answers that hold up when the company is struggling, the team is unhappy, and the next funding round isn't coming together.</p>
+        <p>The purpose document is not a mission statement. It's a private, honest conversation with yourself about what this is actually for — including the doubts, including the personal stakes, including what you're willing to sacrifice and what you're not. The founders who revisit this quarterly are the ones who don't wake up five years in wondering what they've been doing with their lives.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You started this company for a reason — that reason is still in there</div></div>
+        <div class="pattern-body">Every founder has a moment of origin — the insight, the frustration, the vision that made building feel inevitable. <strong>That original clarity tends to get buried under urgency, investor expectations, team dynamics, and market pressure.</strong> It doesn't disappear. It just stops being visible. The practice of purpose clarity is the practice of keeping that origin visible — and updating it honestly as you grow.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Founders who maintain active connection to their purpose consistently outperform those who've lost touch with it during high-pressure periods — not because they feel better, but because purpose provides a stable decision filter when everything external is uncertain. This is measurable in decision quality, team leadership, and personal sustainability.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VISION / EXECUTION GAP ── -->
+  <div class="topic-section" id="topic-vision">
+    <div class="section-divider"><span class="section-divider-label">Vision-Execution Gap</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block gold">
+      <p class="block-label gold">Introduction</p>
+      <h3>Most founders know where they want to go. Almost none have a clear map of how far they currently are from there.</h3>
+      <div class="intro-body">
+        <p>The vision-execution gap is the distance between the future you're articulating and the trajectory you're actually on. <strong>This gap is the most honest measure of strategic health.</strong> It requires two things most founders are reluctant to do simultaneously: hold the vision with conviction and assess the current reality with complete honesty.</p>
+        <p>The founders who manage this gap best are not the most optimistic — they're the most clear. They know exactly where the company is, exactly where it needs to be in 3 years, and they can describe the specific bridges between the two without needing the situation to look better than it is. Closing the gap starts with naming it accurately.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You have a compelling vision — that's not the gap</div></div>
+        <div class="pattern-body">Founders who reach growth stage have typically proven their ability to articulate a compelling vision. <strong>The gap is the explicit causal map between today's quarterly priorities and that 3-year destination.</strong> Without this, the vision lives in the pitch deck and the quarterly work lives in the operational fires — with little explicit connection between them.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Quarterly priorities that are explicitly and causally connected to the 3-year target produce significantly better team alignment than priorities derived from operational urgency. The exercise takes 2 hours quarterly and produces a level of strategic clarity that most founders describe as immediately changing how they talk about the company internally.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DECISION QUALITY ── -->
+  <div class="topic-section" id="topic-decision">
+    <div class="section-divider"><span class="section-divider-label">Decision-Making Quality</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block gold">
+      <p class="block-label gold">Introduction</p>
+      <h3>Most founders make their most important decisions without a process. That's exactly backwards from how it should work.</h3>
+      <div class="intro-body">
+        <p>Low-stakes decisions benefit from intuition and speed. High-stakes, irreversible decisions benefit from a structured process that externalizes the reasoning, considers alternatives, and identifies the key assumption being made. <strong>The problem is that most founders apply the same fast, intuitive process to both — which works well for low stakes and badly for high stakes.</strong></p>
+        <p>A decision framework doesn't slow down decision-making. For routine decisions, it becomes automatic and fast. For significant ones, it adds 15 minutes of structured thinking that reduces the error rate on decisions that matter most. The meta-skill here is distinguishing which category a decision falls into — and treating high-stakes, irreversible decisions as the special category they are.</p>
+        <p>The second component is outcome tracking: logging high-stakes decisions and reviewing them quarterly. <strong>Most founders make the same category of mistake repeatedly because there is no feedback loop.</strong> The decision log creates the feedback loop that converts experience into learning rather than just repetition.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">Your intuition is a genuine asset — it just needs a check</div></div>
+        <div class="pattern-body">Founder intuition — built from accumulated pattern recognition across hundreds of decisions — is a real and valuable input. <strong>The risk is over-relying on it for decisions where the pattern is new, the stakes are high, and the reversibility is low.</strong> A framework doesn't replace intuition. It checks it, in exactly the situations where checking matters most.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">Applying a structured 15-minute pre-decision process to the 5–10 highest-stakes decisions you make per year catches the category of error most likely to produce significant regret — decisions made under emotional activation, under time pressure, or without adequate alternatives considered. The ROI on this investment is asymmetric.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESILIENCE ── -->
+  <div class="topic-section" id="topic-resilience">
+    <div class="section-divider"><span class="section-divider-label">Resilience & Adversity Response</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block gold">
+      <p class="block-label gold">Introduction</p>
+      <h3>Resilience is not a character trait. It's a practiced protocol.</h3>
+      <div class="intro-body">
+        <p>The research on resilience is clear: the people who recover fastest from adversity are not the people with the most natural emotional strength. They are the people who have a practiced, deliberate response to difficult events. They know what they do in the first 24 hours. They have a physical protocol, a cognitive reframe, and a relational support structure — and they activate it intentionally rather than waiting for motivation to return.</p>
+        <p><strong>Every founder will face failure, pivot, loss, and periods of genuine doubt.</strong> The question is not whether these periods arrive. It's how long they last and how much of the company's trajectory gets distorted while the founder is in them. A practiced setback protocol reduces this duration and distortion dramatically.</p>
+        <p>The secondary skill is the post-setback debrief — extracting specific learning from each difficult event within 72 hours. The founders who build the most resilient companies are not the ones who suffer least. They're the ones who extract the most learning from every failure.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You've survived things that would have ended others — that's real</div></div>
+        <div class="pattern-body">Founders at any meaningful stage have already demonstrated significant resilience. The survival itself is evidence. <strong>The refinement is designing the recovery period rather than enduring it — so that each setback produces faster return to function and clearer insight about what happened.</strong></div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">The difference between a founder who recovers from a major setback in 3 days versus 3 weeks is not personality — it's protocol. Designing the setback response in advance (before you need it) and practicing the debrief format converts what would otherwise be reactive suffering into systematic learning and faster return to performance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NARRATIVE ── -->
+  <div class="topic-section" id="topic-narrative">
+    <div class="section-divider"><span class="section-divider-label">Communication & Narrative Ability</span><div class="section-divider-line"></div></div>
+
+    <div class="intro-block gold">
+      <p class="block-label gold">Introduction</p>
+      <h3>The founder's ability to transmit the vision is a direct multiplier on everything the team can build.</h3>
+      <div class="intro-body">
+        <p>The clearest strategic vision in the world produces zero organizational value if the founder cannot communicate it compellingly to investors, transmit it clearly to the team, and articulate it convincingly to customers. <strong>The narrative skill is not a soft skill. It is a leadership force multiplier.</strong></p>
+        <p>The investor narrative is the one most founders practice explicitly. The team alignment narrative — the ability to explain why the current work connects to the 3-year destination — is the one most founders neglect. And yet it's the narrative that determines whether the team is executing a strategy or executing a task list. Those are different companies.</p>
+        <p>The narrative also needs to evolve. The story you told in the seed round is not the same story you tell at Series B. The story you tell the 3rd employee is not the one you tell the 30th. Keeping the narrative current, honest, and specific is a regular practice — not a one-time exercise.</p>
+      </div>
+    </div>
+
+    <div class="patterns-block">
+      <div class="block-header"><span class="block-header-icon">→</span><span class="block-header-title">Founder patterns — what's costing you</span></div>
+      <div class="pattern-item">
+        <div class="pattern-header"><div class="pattern-icon-wrap already">✓</div><div class="pattern-title">You can tell the story — the gap is consistency and internal direction</div></div>
+        <div class="pattern-body">Most founders can give a compelling account of their company when asked directly. <strong>The gap is the habit of telling it proactively, regularly, and internally.</strong> The team that hears the vision story once in the founding all-hands and then not again is not aligned — it's briefed. The difference between those two states shows up in the quality of decisions made without the founder in the room.</div>
+        <div class="win-box">
+          <p class="win-box-label">The win available to you</p>
+          <p class="win-box-text">A quarterly team narrative update — brief, specific, and connecting current work to destination — produces accumulating alignment that reduces the number of decisions that need to escalate to the founder. Over a year, this narrative habit builds a team that understands the strategy well enough to execute it autonomously. That is the definition of leverage.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end cat-leadership -->
+
+<div style="margin-top:60px;padding:28px 32px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:center">
+  <p style="font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">build.inside</p>
+  <p style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--text);margin-bottom:10px;line-height:1.3">Not for a broken mind.<br>For high performers to get even better.</p>
+  <p style="font-size:13px;color:var(--text-faint);max-width:480px;margin:0 auto">Return to the assessment whenever something shifts — new pressure, new company stage, new season. The variables that matter most change as you grow.</p>
+</div>
+
+</main>
+</div>
+
+<script>
+function navTo(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    const top = el.getBoundingClientRect().top + window.pageYOffset - 24;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+  }
+  // Update active nav
+  const catMap = { 'cat-physical': 'nav-physical', 'cat-mental': 'nav-mental', 'cat-work': 'nav-work', 'cat-leadership': 'nav-leadership' };
+  const catParents = {
+    'topic-sleep':'nav-physical','topic-circadian':'nav-physical','topic-fueling':'nav-physical','topic-fitness':'nav-physical','topic-recovery':'nav-physical','topic-substance':'nav-physical',
+    'topic-focus':'nav-mental','topic-flow':'nav-mental','topic-inhibition':'nav-mental','topic-switching':'nav-mental','topic-selftalk':'nav-mental','topic-visualization':'nav-mental','topic-stress':'nav-mental','topic-emotion':'nav-mental',
+    'topic-deepwork':'nav-work','topic-signal':'nav-work','topic-leverage':'nav-work','topic-systems':'nav-work','topic-velocity':'nav-work','topic-planning':'nav-work',
+    'topic-identity':'nav-leadership','topic-purpose':'nav-leadership','topic-vision':'nav-leadership','topic-decision':'nav-leadership','topic-resilience':'nav-leadership','topic-narrative':'nav-leadership'
+  };
+  const navId = catMap[id] || catParents[id];
+  if (navId) {
+    document.querySelectorAll('.sidebar-cat').forEach(c => c.classList.remove('active'));
+    const nav = document.getElementById(navId);
+    if (nav) nav.classList.add('active');
+  }
+}
+
+// Scroll spy
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      const catMap = { 'cat-physical': 'nav-physical', 'cat-mental': 'nav-mental', 'cat-work': 'nav-work', 'cat-leadership': 'nav-leadership' };
+      const navId = catMap[id];
+      if (navId) {
+        document.querySelectorAll('.sidebar-cat').forEach(c => c.classList.remove('active'));
+        document.getElementById(navId)?.classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-10% 0px -60% 0px' });
+
+document.querySelectorAll('.category-section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
