@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>build.inside — Founder Performance Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #F9F6F1;
+  --surface: #F0EBE1;
+  --card: #FFFFFF;
+  --border: #E2D9CC;
+  --border-mid: #C8BFB0;
+  --ink: #0E0E0E;
+  --text: #1A1510;
+  --dim: #5A5040;
+  --faint: #9A9080;
+  --purple: #7F77DD;
+  --purple-light: #EEEDFE;
+  --purple-dark: #3C3489;
+  --teal: #5DCAA5;
+  --teal-light: #E1F5EE;
+  --teal-dark: #085041;
+  --coral: #F0997B;
+  --coral-light: #FAECE7;
+  --coral-dark: #712B13;
+  --gold: #BA7517;
+  --gold-light: #FAEEDA;
+  --gold-dark: #633806;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Karla', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── LAYOUT ── */
+.page { max-width: 780px; margin: 0 auto; padding: 0 28px 80px; }
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--ink);
+  margin: 0 -28px;
+  padding: 48px 56px 44px;
+  margin-bottom: 52px;
+  position: relative;
+  overflow: hidden;
+}
+.site-header::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(127,119,221,0.14) 0%, transparent 68%);
+  pointer-events: none;
+}
+.brand { font-size: 10px; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase; color: var(--purple); margin-bottom: 14px; }
+.site-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 54px; font-weight: 600; line-height: 1.0;
+  color: #F7F4EE; margin-bottom: 14px;
+}
+.site-header h1 em { font-style: italic; color: var(--coral); }
+.header-sub { font-size: 14px; color: rgba(247,244,238,0.55); max-width: 480px; line-height: 1.75; }
+.header-meta { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.hm-pill {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 11px; color: rgba(247,244,238,0.65); font-weight: 500;
+}
+
+/* ── PROGRESS ── */
+.progress-wrap { margin-bottom: 36px; }
+.progress-label { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; display: flex; justify-content: space-between; }
+.progress-track { height: 3px; background: var(--border); border-radius: 2px; }
+.progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--purple), var(--teal)); transition: width 0.5s ease; }
+
+/* ── STEPS ── */
+.step { display: none; }
+.step.active { display: block; }
+
+.step-kicker { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--faint); margin-bottom: 10px; }
+.step-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--text); line-height: 1.1; margin-bottom: 10px; }
+.step-intro { font-size: 14px; color: var(--dim); line-height: 1.8; margin-bottom: 32px; max-width: 620px; }
+.step-intro strong { color: var(--text); font-weight: 600; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 20px; overflow: hidden;
+}
+.card-header {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 15px 22px; display: flex; align-items: center; gap: 12px;
+}
+.card-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.card-title { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 600; color: var(--text); flex: 1; }
+.card-body { padding: 22px 24px; }
+
+/* ── FORM FIELDS ── */
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.field-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faint); }
+.field input, .field select, .field textarea {
+  background: #FDFAF6; border: 1.5px solid var(--border);
+  border-radius: 5px; color: var(--text);
+  font-family: 'Karla', sans-serif; font-size: 14px;
+  padding: 9px 12px; width: 100%; transition: border-color 0.12s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--purple); }
+.field textarea { resize: vertical; min-height: 72px; }
+.field select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239A9080'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 11px center; }
+
+/* ── SLIDERS ── */
+.skill-row {
+  display: grid; grid-template-columns: 200px 1fr 36px;
+  align-items: center; gap: 14px; margin-bottom: 16px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--border);
+}
+.skill-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.skill-label { font-size: 13px; color: var(--dim); }
+.skill-label strong { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 1px; }
+.skill-label span { font-size: 11px; color: var(--faint); }
+.skill-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px; border-radius: 2px;
+  background: var(--border); cursor: pointer; outline: none;
+}
+.skill-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--purple);
+  cursor: pointer; border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  transition: transform 0.1s;
+}
+.skill-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.skill-val { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--purple); text-align: right; }
+
+/* ── NAVIGATION ── */
+.nav-row { display: flex; gap: 12px; align-items: center; margin-top: 32px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--ink); color: #F7F4EE; border: none; border-radius: 5px;
+  font-family: 'Karla', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; padding: 12px 28px;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.82; }
+.btn-accent { background: var(--purple); color: white; }
+.btn-teal { background: var(--teal); color: white; }
+.btn-secondary {
+  background: transparent; border: 1.5px solid var(--border); color: var(--dim);
+  border-radius: 5px; font-family: 'Karla', sans-serif; font-size: 11px;
+  font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 12px 22px; cursor: pointer; transition: all 0.12s;
+}
+.btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+.nav-note { font-size: 12px; color: var(--faint); margin-left: auto; }
+
+/* ── RESULTS ── */
+.results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+
+.cat-result-card {
+  border: 2px solid var(--border); border-radius: 10px;
+  padding: 20px; position: relative; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.cat-result-card.focus { border-color: var(--purple); background: var(--purple-light); }
+.cat-result-card.strength { border-color: var(--teal); background: var(--teal-light); }
+.cat-result-card.mid { border-color: var(--gold); background: var(--gold-light); }
+.cat-result-card.neutral { background: var(--surface); }
+
+.cat-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; padding: 3px 10px; border-radius: 12px; display: inline-block; margin-bottom: 10px; }
+.tag-focus { background: var(--purple); color: white; }
+.tag-strength { background: var(--teal); color: white; }
+.tag-mid { background: var(--gold); color: white; }
+.tag-neutral { background: var(--border); color: var(--dim); }
+
+.cat-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.cat-score-num { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+.cat-score-num.focus { color: var(--purple-dark); }
+.cat-score-num.strength { color: var(--teal-dark); }
+.cat-score-num.mid { color: var(--gold-dark); }
+.cat-score-num.neutral { color: var(--faint); }
+.cat-score-sub { font-size: 11px; color: var(--faint); margin-bottom: 12px; }
+
+.mini-bars { display: flex; flex-direction: column; gap: 5px; }
+.mini-bar-row { display: flex; align-items: center; gap: 7px; }
+.mini-bar-name { font-size: 10px; color: var(--dim); width: 130px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-bar-track { flex: 1; height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; }
+.mini-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.mini-bar-val { font-size: 10px; font-weight: 700; color: var(--dim); width: 18px; text-align: right; }
+
+/* ── BUSINESS PROFILE RESULTS ── */
+.profile-insight {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 24px; margin-bottom: 20px;
+}
+.profile-insight h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+.insight-list { display: flex; flex-direction: column; gap: 10px; }
+.insight-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border-radius: 7px; }
+.insight-item.strength-item { background: var(--teal-light); border: 1px solid rgba(93,202,165,0.2); }
+.insight-item.focus-item { background: var(--purple-light); border: 1px solid rgba(127,119,221,0.2); }
+.insight-item.risk-item { background: var(--coral-light); border: 1px solid rgba(240,153,123,0.25); }
+.insight-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.insight-text { font-size: 13px; color: var(--dim); line-height: 1.65; }
+.insight-text strong { color: var(--text); font-weight: 600; }
+
+/* ── RECOMMENDATION ── */
+.rec-block {
+  background: var(--ink); border-radius: 10px; padding: 30px 32px; margin-bottom: 20px; position: relative; overflow: hidden;
+}
+.rec-block::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(127,119,221,0.18) 0%, transparent 70%);
+}
+.rec-kicker { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--purple); margin-bottom: 12px; }
+.rec-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: #F7F4EE; margin-bottom: 14px; line-height: 1.1; }
+.rec-title em { font-style: italic; color: var(--coral); }
+.rec-body { font-size: 14px; color: rgba(247,244,238,0.65); line-height: 1.8; margin-bottom: 16px; }
+.rec-body strong { color: #F7F4EE; font-weight: 600; }
+
+.rec-areas { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
+.rec-area {
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 16px 20px;
+}
+.rec-area-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.rec-area-num {
+  font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600;
+  color: var(--purple); line-height: 1; flex-shrink: 0;
+}
+.rec-area-name { font-size: 14px; font-weight: 600; color: #F7F4EE; }
+.rec-area-cat { font-size: 10px; color: rgba(247,244,238,0.45); letter-spacing: 0.12em; text-transform: uppercase; }
+.rec-area-body { font-size: 13px; color: rgba(247,244,238,0.6); line-height: 1.7; }
+.rec-area-body strong { color: rgba(247,244,238,0.85); font-weight: 600; }
+
+/* ── NAVIGATION GUIDE ── */
+.nav-guide { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 26px 28px; margin-bottom: 20px; }
+.nav-guide h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+.nav-steps { display: flex; flex-direction: column; gap: 12px; }
+.nav-step { display: flex; gap: 14px; align-items: flex-start; }
+.nav-step-num {
+  font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600;
+  color: var(--purple); line-height: 1; flex-shrink: 0; width: 28px;
+}
+.nav-step-content {}
+.nav-step-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.nav-step-body { font-size: 13px; color: var(--dim); line-height: 1.6; }
+.nav-step-body strong { color: var(--text); font-weight: 600; }
+
+/* ── TIMELINE ── */
+.timeline-box {
+  background: var(--surface); border: 1.5px dashed var(--border-mid); border-radius: 10px;
+  padding: 22px 26px; margin-bottom: 20px;
+}
+.timeline-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
+.timeline-row { display: flex; gap: 16px; margin-bottom: 10px; align-items: flex-start; }
+.timeline-week {
+  font-size: 11px; font-weight: 700; color: var(--purple); text-transform: uppercase;
+  letter-spacing: 0.1em; flex-shrink: 0; width: 70px;
+}
+.timeline-text { font-size: 13px; color: var(--dim); line-height: 1.6; }
+.timeline-text strong { color: var(--text); font-weight: 600; }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* ── INTRO SCREEN ── */
+.intro-hero {
+  text-align: center; padding: 20px 0 40px;
+}
+.intro-hero .big-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600;
+  color: var(--text); line-height: 1.1; margin-bottom: 16px;
+}
+.intro-hero .big-title em { font-style: italic; color: var(--purple); }
+.intro-hero p { font-size: 15px; color: var(--dim); max-width: 520px; margin: 0 auto 28px; line-height: 1.8; }
+.intro-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 36px; }
+.intro-feature { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px 16px; text-align: center; }
+.intro-feature-icon { font-size: 20px; margin-bottom: 8px; }
+.intro-feature-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.intro-feature-text { font-size: 11px; color: var(--faint); line-height: 1.5; }
+
+.quote-box {
+  background: var(--ink); border-radius: 8px; padding: 20px 24px;
+  text-align: center; margin-bottom: 28px;
+}
+.quote-box p { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: rgba(247,244,238,0.8); line-height: 1.5; }
+.quote-box span { font-size: 11px; color: rgba(247,244,238,0.35); letter-spacing: 0.14em; text-transform: uppercase; display: block; margin-top: 8px; }
+
+/* ── SECTION NOTE ── */
+.section-note { font-size: 12px; color: var(--faint); font-style: italic; margin-bottom: 16px; }
+
+/* ── RADAR-LIKE OVERVIEW ── */
+.overview-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+.overview-table th { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+.overview-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.overview-table tr:last-child td { border-bottom: none; }
+.ot-name { color: var(--text); font-weight: 600; }
+.ot-cat { font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.1em; }
+.ot-bar-cell { width: 200px; }
+.ot-bar-track { height: 5px; background: var(--border); border-radius: 3px; }
+.ot-bar-fill { height: 100%; border-radius: 3px; }
+.ot-score { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; text-align: right; }
+.ot-status { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; }
+.status-low { background: var(--coral-light); color: var(--coral-dark); }
+.status-mid { background: var(--gold-light); color: var(--gold-dark); }
+.status-high { background: var(--teal-light); color: var(--teal-dark); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="site-header">
+    <p class="brand">build.inside</p>
+    <h1>Founder Performance<br><em>Assessment</em></h1>
+    <p class="header-sub">A rigorous self-evaluation across the 30 disciplines that determine your performance ceiling — and a personalised roadmap to raise it.</p>
+    <div class="header-meta">
+      <span class="hm-pill">30 disciplines assessed</span>
+      <span class="hm-pill">4 performance areas</span>
+      <span class="hm-pill">~12 minutes</span>
+      <span class="hm-pill">PDF report included</span>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">Introduction</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 0 — INTRO
+  ════════════════════════════════ -->
+  <div id="step-0" class="step active">
+    <div class="intro-hero">
+      <p class="step-kicker">build.inside — Founder Self-Assessment</p>
+      <h2 class="big-title">Know where you are.<br>Know where to <em>start.</em></h2>
+      <p>This assessment maps your current performance across 30 specific disciplines — the variables that determine how well you think, decide, build, and lead. It takes about 12 minutes. The result is a personalised profile showing your strengths, gaps, and where a targeted investment will produce the highest return.</p>
+
+      <div class="intro-features">
+        <div class="intro-feature">
+          <div class="intro-feature-icon">◎</div>
+          <div class="intro-feature-title">Your company profile</div>
+          <div class="intro-feature-text">Context that shapes what your gaps mean for your specific stage</div>
+        </div>
+        <div class="intro-feature">
+          <div class="intro-feature-icon">◉</div>
+          <div class="intro-feature-title">30 disciplines rated</div>
+          <div class="intro-feature-text">Across physical, mental, work performance, and leadership</div>
+        </div>
+        <div class="intro-feature">
+          <div class="intro-feature-icon">→</div>
+          <div class="intro-feature-title">1–2 focused recommendations</div>
+          <div class="intro-feature-text">The highest-leverage disciplines to work on first — with a practice plan</div>
+        </div>
+      </div>
+
+      <div class="quote-box">
+        <p>"Not for a broken mind. For high performers to get even better."</p>
+        <span>build.inside</span>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-primary btn-accent" onclick="goTo(1)">Begin assessment →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 1 — COMPANY PROFILE
+  ════════════════════════════════ -->
+  <div id="step-1" class="step">
+    <p class="step-kicker">Step 01 — Company Profile</p>
+    <h2 class="step-title">Tell us about your company.</h2>
+    <p class="step-intro">This context shapes the interpretation of your assessment — what a gap means for a 3-person pre-seed team is different from what it means for a 40-person Series B company.</p>
+
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:var(--purple)"></div><div class="card-title">Basics</div></div>
+      <div class="card-body">
+        <div class="field-grid">
+          <div class="field"><label>Your name</label><input type="text" id="founder-name" placeholder="e.g. Agnes Schmidt"></div>
+          <div class="field"><label>Company name</label><input type="text" id="company-name" placeholder="e.g. build.inside"></div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>When did you found it?</label>
+            <select id="founded-year">
+              <option value="">— Select —</option>
+              <option>2024–2025 (under 2 years)</option>
+              <option>2022–2023 (2–4 years)</option>
+              <option>2019–2021 (4–7 years)</option>
+              <option>Before 2019 (7+ years)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Team size</label>
+            <select id="team-size">
+              <option value="">— Select —</option>
+              <option>Solo founder</option>
+              <option>2–3 people</option>
+              <option>4–10 people</option>
+              <option>11–30 people</option>
+              <option>31–80 people</option>
+              <option>80+ people</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Investor / funding stage</label>
+            <select id="funding-stage">
+              <option value="">— Select —</option>
+              <option>Bootstrapped / self-funded</option>
+              <option>Pre-seed / friends & family</option>
+              <option>Seed stage</option>
+              <option>Series A</option>
+              <option>Series B+</option>
+              <option>Profitable / revenue-funded</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Industry / sector</label>
+            <input type="text" id="industry" placeholder="e.g. B2B SaaS, consumer, fintech...">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:var(--teal)"></div><div class="card-title">The problem you solve</div></div>
+      <div class="card-body">
+        <div class="field" style="margin-bottom:14px">
+          <label>What specific problem does your company solve?</label>
+          <textarea id="problem" placeholder="Describe in 1–2 sentences the core problem your customer has..."></textarea>
+        </div>
+        <div class="field">
+          <label>How do you solve it?</label>
+          <textarea id="solution" placeholder="Your product or service approach in 1–2 sentences..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:var(--coral)"></div><div class="card-title">Your current situation</div></div>
+      <div class="card-body">
+        <div class="field" style="margin-bottom:14px">
+          <label>What is the biggest challenge you are facing right now?</label>
+          <textarea id="challenge" placeholder="e.g. scaling the team, finding product-market fit, fundraising, burning out..."></textarea>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>How many hours per week do you typically work?</label>
+            <select id="work-hours">
+              <option value="">— Select —</option>
+              <option>Under 40h</option>
+              <option>40–50h</option>
+              <option>50–60h</option>
+              <option>60–70h</option>
+              <option>70h+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>How would you rate your current energy most days?</label>
+            <select id="energy-level">
+              <option value="">— Select —</option>
+              <option>Chronically depleted</option>
+              <option>Low but functional</option>
+              <option>Moderate — varies a lot</option>
+              <option>Generally good</option>
+              <option>Consistently high</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:4px">
+          <label>Anything else critical for your context? (optional)</label>
+          <textarea id="other-context" placeholder="Co-founder dynamics, personal situation, recent major change..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-secondary" onclick="goTo(0)">← Back</button>
+      <button class="btn-primary btn-accent" onclick="goTo(2)">Continue to assessment →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 2 — PHYSICAL
+  ════════════════════════════════ -->
+  <div id="step-2" class="step">
+    <p class="step-kicker">Step 02 — Area I</p>
+    <h2 class="step-title">Physical Optimization</h2>
+    <p class="step-intro">Rate yourself <strong>honestly</strong> — not where you want to be, but where you actually are today. 1 = significant gap / rarely true, 10 = genuinely strong / consistently true.</p>
+    <p class="section-note">Your thinking, work output, and leadership all depend on your physical energy.</p>
+
+    <div class="card" id="sliders-physical">
+      <div class="card-header"><div class="card-dot" style="background:var(--purple)"></div><div class="card-title">I. Physical Base</div></div>
+      <div class="card-body" id="physical-sliders"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-secondary" onclick="goTo(1)">← Back</button>
+      <button class="btn-primary btn-accent" onclick="goTo(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 3 — MENTAL
+  ════════════════════════════════ -->
+  <div id="step-3" class="step">
+    <p class="step-kicker">Step 03 — Area II</p>
+    <h2 class="step-title">Mental Performance</h2>
+    <p class="step-intro">Rate your actual cognitive and emotional processing quality — not your aspiration, your current reality.</p>
+    <p class="section-note">Cognitive processing quality — what the brain does.</p>
+
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:var(--teal)"></div><div class="card-title">II. Mental Capacity</div></div>
+      <div class="card-body" id="mental-sliders"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-secondary" onclick="goTo(2)">← Back</button>
+      <button class="btn-primary btn-accent" onclick="goTo(4)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 4 — WORK
+  ════════════════════════════════ -->
+  <div id="step-4" class="step">
+    <p class="step-kicker">Step 04 — Area III</p>
+    <h2 class="step-title">Work Performance</h2>
+    <p class="step-intro">How well-designed is your actual work — not how hard you work, but how effectively your effort converts into output that compounds.</p>
+    <p class="section-note">Work output quantity, quality, and directedness.</p>
+
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:var(--coral)"></div><div class="card-title">III. Work Efficiency</div></div>
+      <div class="card-body" id="work-sliders"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-secondary" onclick="goTo(3)">← Back</button>
+      <button class="btn-primary btn-accent" onclick="goTo(5)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 5 — LEADERSHIP
+  ════════════════════════════════ -->
+  <div id="step-5" class="step">
+    <p class="step-kicker">Step 05 — Area IV</p>
+    <h2 class="step-title">Leadership, Vision & Identity</h2>
+    <p class="step-intro">Rate the clarity and quality of who you are as a founder — the upstream variables that shape everything downstream.</p>
+    <p class="section-note">Leadership, Vision, and Identity Clarity.</p>
+
+    <div class="card">
+      <div class="card-header"><div class="card-dot" style="background:var(--gold)"></div><div class="card-title">IV. Leadership Quality</div></div>
+      <div class="card-body" id="leadership-sliders"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-secondary" onclick="goTo(4)">← Back</button>
+      <button class="btn-primary btn-accent" onclick="computeResults()">Generate my results →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       STEP 6 — RESULTS
+  ════════════════════════════════ -->
+  <div id="step-6" class="step">
+    <p class="step-kicker">Your Results</p>
+    <h2 class="step-title">Your performance profile.</h2>
+    <p class="step-intro">Based on your ratings across 30 disciplines. Your strengths are the assets to protect and leverage. Your gaps are the highest-return investments available to you right now.</p>
+
+    <div class="results-grid" id="results-grid"></div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><div class="card-title">All 30 disciplines — at a glance</div></div>
+      <div class="card-body">
+        <table class="overview-table" id="overview-table"></table>
+      </div>
+    </div>
+
+    <div class="profile-insight" id="business-insight">
+      <h3>What this likely means for your company</h3>
+      <div class="insight-list" id="insight-list"></div>
+    </div>
+
+    <div class="rec-block" id="rec-block"></div>
+
+    <div class="nav-guide" id="nav-guide"></div>
+
+    <div class="timeline-box" id="timeline-box"></div>
+
+    <div class="nav-row">
+      <button class="btn-primary btn-accent" onclick="downloadPDF()">⎙ Save as PDF</button>
+      <button class="btn-secondary" onclick="restart()">↺ Start over</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════
+// DATA
+// ══════════════════════════════════
+
+const DISCIPLINES = {
+  physical: [
+    { id:'sleep', name:'Sleep Recovery Quality', hint:'Morning recovery, sleep architecture, wake consistency' },
+    { id:'circadian', name:'Circadian Alignment', hint:'Wake consistency, morning light, peak window scheduling' },
+    { id:'fueling', name:'Performance Fueling', hint:'Caffeine timing, pre-work nutrition, blood glucose stability' },
+    { id:'fitness', name:'Aerobic & Strength Baseline', hint:'Weekly movement load, training consistency' },
+    { id:'recovery', name:'Recovery Stack', hint:'Breathwork, rest days, active recovery practices' },
+    { id:'substance', name:'Substance Management', hint:'Alcohol, caffeine, nicotine — timing and quantity' },
+    { id:'energy', name:'Overall Energy Level', hint:'Daily energy consistency across the week' },
+    { id:'dopamine', name:'Dopamine & Neurochemical Balance', hint:'Drive vs. satisfaction, sympathetic/parasympathetic balance' },
+  ],
+  mental: [
+    { id:'attention', name:'Sustained Attention Capacity', hint:'Longest uninterrupted focus block, session quality' },
+    { id:'activation', name:'Optimal Activation Regulation', hint:'Flow access, over/underactivation management' },
+    { id:'inhibition', name:'Impulse & Distraction Inhibition', hint:'Phone resistance, notification environment' },
+    { id:'switching', name:'Cognitive Switching Cost Management', hint:'Context switch recovery, communication batching' },
+    { id:'narrative', name:'Internal Narrative Quality', hint:'Performance-supporting vs. draining self-talk' },
+    { id:'simulation', name:'Mental Simulation & Clarity', hint:'Pre-event rehearsal, decision pre-play' },
+    { id:'acute_stress', name:'Acute Stress Response', hint:'Recovery speed from stress spikes, breathwork toolkit' },
+    { id:'chronic_load', name:'Chronic Load & Recovery Balance', hint:'Stress-recovery ratio, burnout prevention' },
+    { id:'hrv', name:'Nervous System Baseline', hint:'HRV trend, morning energy before caffeine' },
+    { id:'emotion_reg', name:'Emotional Regulation Under Pressure', hint:'Pause protocol, reactive decision prevention' },
+    { id:'dec_fatigue', name:'Decision Fatigue Awareness', hint:'Decision timing, elimination of low-stakes decisions' },
+    { id:'preperf', name:'Pre-Performance Activation Routine', hint:'Pre-work ritual, state calibration' },
+  ],
+  work: [
+    { id:'deep_work', name:'Deep Work Volume', hint:'Genuine uninterrupted focus hours per day' },
+    { id:'signal_noise', name:'Signal-to-Noise Ratio', hint:'% time on founder-irreplaceable tasks' },
+    { id:'leverage', name:'Leverage & Asymmetry of Effort', hint:'Time in highest-return activities' },
+    { id:'systems', name:'Systems Maturity', hint:'Recurring processes documented and delegated' },
+    { id:'delegation', name:'Delegation Effectiveness', hint:'Authority transfer, genuine ownership' },
+    { id:'metrics', name:'Metrics Literacy & Tracking', hint:'Right metrics, weekly review cadence' },
+    { id:'velocity', name:'Execution Velocity', hint:'Decision-to-test cycle time' },
+    { id:'meetings', name:'Meeting & Communication Efficiency', hint:'Output per meeting, async default' },
+    { id:'planning', name:'Planning & Prioritisation Quality', hint:'Weekly plan, non-negotiables clarity' },
+    { id:'energy_task', name:'Energy-Task Matching', hint:'High-cognitive tasks in peak window' },
+  ],
+  leadership: [
+    { id:'identity', name:'Personal Identity & Values Clarity', hint:'Non-negotiables articulated, behaviour-values alignment' },
+    { id:'life_sat', name:'Life Satisfaction & Fulfillment', hint:'Wheel-of-life balance, key domains' },
+    { id:'org_id', name:'Organisational Identity Clarity', hint:'Mission, values, culture — specific and lived' },
+    { id:'vision_gap', name:'Vision-Execution Gap', hint:'Honest current state vs. 3-year destination' },
+    { id:'dec_quality', name:'Decision-Making Quality', hint:'Reversibility framework, pre-mortem, decision log' },
+    { id:'narrative_com', name:'Communication & Narrative Ability', hint:'Investor story fluency, team alignment narrative' },
+    { id:'stakeholders', name:'Stakeholder Relationship Management', hint:'Proactive investor contact, relationship calendar' },
+    { id:'resilience', name:'Resilience & Adversity Response', hint:'Recovery speed, designed adversity protocol' },
+    { id:'purpose', name:'Purpose Clarity & Meaning', hint:'Why this, why now, why you — privately held' },
+  ]
+};
+
+const AREA_META = {
+  physical: { name: 'Physical Base', label: 'I. Physical Base', color: '#7F77DD', light: '#EEEDFE', dark: '#3C3489', desc: 'Your thinking, work output & leadership all depend on your physical energy.' },
+  mental:   { name: 'Mental Capacity', label: 'II. Mental Capacity', color: '#5DCAA5', light: '#E1F5EE', dark: '#085041', desc: 'Cognitive processing quality — what the brain does.' },
+  work:     { name: 'Work Efficiency', label: 'III. Work Efficiency', color: '#F0997B', light: '#FAECE7', dark: '#712B13', desc: 'Work output quantity, quality & directedness.' },
+  leadership: { name: 'Leadership Quality', label: 'IV. Leadership Quality', color: '#BA7517', light: '#FAEEDA', dark: '#633806', desc: 'Leadership, Vision & Identity Clarity.' },
+};
+
+const scores = {};
+let currentStep = 0;
+const totalSteps = 6;
+
+// ══════════════════════════════════
+// BUILD SLIDERS
+// ══════════════════════════════════
+function buildSliders(catKey, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  DISCIPLINES[catKey].forEach(disc => {
+    scores[disc.id] = 5;
+    container.innerHTML += `
+      <div class="skill-row">
+        <div class="skill-label">
+          <strong>${disc.name}</strong>
+          <span>${disc.hint}</span>
+        </div>
+        <input type="range" min="1" max="10" value="5" step="1" class="skill-slider"
+          id="sl-${disc.id}"
+          oninput="updateScore('${disc.id}', this.value)">
+        <div class="skill-val" id="sv-${disc.id}">5</div>
+      </div>`;
+  });
+}
+
+function updateScore(id, val) {
+  scores[id] = parseInt(val);
+  const el = document.getElementById(`sv-${id}`);
+  if (el) el.textContent = val;
+}
+
+// ══════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════
+function goTo(n) {
+  document.getElementById(`step-${currentStep}`).classList.remove('active');
+  currentStep = n;
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const labels = ['Introduction', 'Company Profile', 'Physical Base', 'Mental Capacity', 'Work Efficiency', 'Leadership Quality', 'Your Results'];
+  const pct = Math.round((currentStep / totalSteps) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = labels[currentStep] || '';
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+function restart() {
+  Object.keys(scores).forEach(k => { scores[k] = 5; });
+  document.querySelectorAll('.skill-slider').forEach(s => { s.value = 5; });
+  document.querySelectorAll('.skill-val').forEach(el => { el.textContent = '5'; });
+  goTo(0);
+}
+
+// ══════════════════════════════════
+// COMPUTE RESULTS
+// ══════════════════════════════════
+function getCatAvg(catKey) {
+  const discs = DISCIPLINES[catKey];
+  const sum = discs.reduce((a, d) => a + (scores[d.id] || 5), 0);
+  return Math.round((sum / discs.length) * 10) / 10;
+}
+
+function getLowest(catKey, n) {
+  return DISCIPLINES[catKey]
+    .map(d => ({ ...d, score: scores[d.id] || 5 }))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, n);
+}
+
+function getHighest(catKey, n) {
+  return DISCIPLINES[catKey]
+    .map(d => ({ ...d, score: scores[d.id] || 5 }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, n);
+}
+
+function computeResults() {
+  const avgs = {
+    physical: getCatAvg('physical'),
+    mental: getCatAvg('mental'),
+    work: getCatAvg('work'),
+    leadership: getCatAvg('leadership')
+  };
+
+  const sorted = Object.entries(avgs).sort((a,b) => a[1]-b[1]);
+  const focusCats = sorted.slice(0,2).map(e=>e[0]);
+  const strengthCats = sorted.slice(-2).map(e=>e[0]);
+
+  buildResultsGrid(avgs, focusCats, strengthCats);
+  buildOverviewTable(avgs);
+  buildBusinessInsight(avgs, focusCats, strengthCats);
+  buildRecommendation(focusCats, avgs);
+  buildNavGuide(focusCats);
+  buildTimeline(focusCats);
+
+  goTo(6);
+}
+
+// ══════════════════════════════════
+// RESULTS GRID
+// ══════════════════════════════════
+function buildResultsGrid(avgs, focusCats, strengthCats) {
+  const grid = document.getElementById('results-grid');
+  const sortedCats = Object.entries(avgs).sort((a,b)=>a[1]-b[1]);
+
+  grid.innerHTML = sortedCats.map(([catKey, avg]) => {
+    const meta = AREA_META[catKey];
+    const isFocus = focusCats.includes(catKey);
+    const isStrength = strengthCats.includes(catKey);
+    const cardClass = isFocus ? 'focus' : isStrength ? 'strength' : 'mid';
+    const tagClass = isFocus ? 'tag-focus' : isStrength ? 'tag-strength' : 'tag-mid';
+    const tagText = isFocus ? '⚡ Focus area' : isStrength ? '✓ Strength' : '↑ Developing';
+    const scoreClass = isFocus ? 'focus' : isStrength ? 'strength' : 'mid';
+    const lowest = getLowest(catKey, 3);
+
+    return `<div class="cat-result-card ${cardClass}">
+      <span class="cat-tag ${tagClass}">${tagText}</span>
+      <div class="cat-name">${meta.label}</div>
+      <div class="cat-score-num ${scoreClass}">${avg}</div>
+      <div class="cat-score-sub">avg / 10 across ${DISCIPLINES[catKey].length} disciplines</div>
+      <div class="mini-bars">
+        ${lowest.map(d => `
+        <div class="mini-bar-row">
+          <div class="mini-bar-name">${d.name}</div>
+          <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${d.score*10}%;background:${meta.color}"></div></div>
+          <div class="mini-bar-val">${d.score}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════
+// OVERVIEW TABLE
+// ══════════════════════════════════
+function buildOverviewTable(avgs) {
+  const table = document.getElementById('overview-table');
+  const catOrder = ['physical','mental','work','leadership'];
+
+  let html = `<thead><tr>
+    <th>Discipline</th>
+    <th>Area</th>
+    <th class="ot-bar-cell">Score</th>
+    <th style="text-align:right">Rating</th>
+    <th style="text-align:right">Status</th>
+  </tr></thead><tbody>`;
+
+  catOrder.forEach(catKey => {
+    const meta = AREA_META[catKey];
+    DISCIPLINES[catKey]
+      .map(d => ({ ...d, score: scores[d.id] || 5 }))
+      .sort((a,b)=>a.score-b.score)
+      .forEach(d => {
+        const status = d.score <= 4 ? 'status-low' : d.score <= 6 ? 'status-mid' : 'status-high';
+        const statusText = d.score <= 4 ? 'Gap' : d.score <= 6 ? 'Building' : 'Strength';
+        html += `<tr>
+          <td><div class="ot-name">${d.name}</div></td>
+          <td><div class="ot-cat">${meta.name}</div></td>
+          <td class="ot-bar-cell"><div class="ot-bar-track"><div class="ot-bar-fill" style="width:${d.score*10}%;background:${meta.color}"></div></div></td>
+          <td style="text-align:right"><span class="ot-score" style="color:${meta.color}">${d.score}</span></td>
+          <td style="text-align:right"><span class="ot-status ${status}">${statusText}</span></td>
+        </tr>`;
+      });
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// ══════════════════════════════════
+// BUSINESS INSIGHT
+// ══════════════════════════════════
+function buildBusinessInsight(avgs, focusCats, strengthCats) {
+  const stage = document.getElementById('funding-stage')?.value || '';
+  const teamSize = document.getElementById('team-size')?.value || '';
+  const workHours = document.getElementById('work-hours')?.value || '';
+  const challenge = document.getElementById('challenge')?.value || '';
+  const energy = document.getElementById('energy-level')?.value || '';
+
+  const list = document.getElementById('insight-list');
+  const insights = [];
+
+  // Strengths
+  strengthCats.forEach(cat => {
+    const meta = AREA_META[cat];
+    const top = getHighest(cat, 2);
+    insights.push({ type: 'strength', icon: '✓', text: `<strong>${meta.name} is a genuine asset.</strong> Your ${top.map(d=>d.name).join(' and ')} scores suggest this area is actively supporting your performance. Protect these inputs — they are the foundation your other capabilities run on.` });
+  });
+
+  // Focus area implications
+  focusCats.forEach(cat => {
+    const meta = AREA_META[cat];
+    const lowest = getLowest(cat, 2);
+
+    if (cat === 'physical') {
+      insights.push({ type: 'focus', icon: '→', text: `<strong>Physical Base is your highest-leverage gap.</strong> Gaps in ${lowest.map(d=>d.name).join(' and ')} mean your cognitive ceiling is being set by biology before any work begins. Every other performance area will improve measurably once the physical foundation is functioning — this is the upstream variable.` });
+    }
+    if (cat === 'mental') {
+      insights.push({ type: 'focus', icon: '→', text: `<strong>Mental Capacity gaps are costing you quality, not just speed.</strong> Low scores in ${lowest.map(d=>d.name).join(' and ')} mean your deepest strategic work is happening in sub-optimal cognitive conditions. This is the difference between a company that navigates by insight and one that navigates by urgency.` });
+    }
+    if (cat === 'work') {
+      insights.push({ type: 'focus', icon: '→', text: `<strong>Work Efficiency gaps mean effort is not converting to compounding output.</strong> Gaps in ${lowest.map(d=>d.name).join(' and ')} indicate the working day is producing activity without the strategic forward movement that builds lasting advantage. The fix is structural, not motivational.` });
+    }
+    if (cat === 'leadership') {
+      insights.push({ type: 'focus', icon: '→', text: `<strong>Leadership Quality gaps affect every layer of the organisation.</strong> Low scores in ${lowest.map(d=>d.name).join(' and ')} tend to produce culture drift, misaligned hiring, and the gradual erosion of the direction that the company was built toward. This is the upstream variable for everything the team does when you are not in the room.` });
+    }
+  });
+
+  // Stage-specific
+  if (stage.includes('Pre-seed') || stage.includes('Bootstrapped')) {
+    insights.push({ type: 'risk', icon: '⚠', text: `<strong>At your stage, founder performance IS company performance.</strong> There is no organisational buffer between your daily cognitive and emotional state and the company\'s output. Physical and mental foundations are not a personal priority — they are a business-critical input.` });
+  }
+  if (stage.includes('Series A') || stage.includes('Series B')) {
+    insights.push({ type: 'risk', icon: '⚠', text: `<strong>At Series A/B, leadership and systems gaps become organisational multipliers.</strong> What was a personal performance issue at seed becomes a cultural and structural issue at scale. The gaps in your profile are now being transmitted to the team through every decision, every communication, and every system that runs without you.` });
+  }
+  if (teamSize.includes('Solo') || teamSize.includes('2–3')) {
+    insights.push({ type: 'risk', icon: '⚠', text: `<strong>Small team means high personal leverage — in both directions.</strong> A strong physical and mental baseline at this stage produces compounding returns. A depleted one produces compounding costs that the team size does not yet buffer. Your individual performance ceiling is the company\'s ceiling right now.` });
+  }
+  if (workHours.includes('60–70') || workHours.includes('70h+')) {
+    insights.push({ type: 'risk', icon: '⚠', text: `<strong>Working 60+ hours weekly is a signal, not a strategy.</strong> This volume is typically a systems maturity and delegation gap expressed as hours — the work that should be running through a system or a team member is running through the founder instead. Addressing this structurally recovers both time and cognitive quality.` });
+  }
+
+  list.innerHTML = insights.map(ins => `
+    <div class="insight-item ${ins.type}-item">
+      <div class="insight-icon">${ins.icon}</div>
+      <div class="insight-text">${ins.text}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════
+// RECOMMENDATION
+// ══════════════════════════════════
+const REC_DATA = {
+  sleep: { area: 'I. Physical Base', class: 'physical', why: 'Sleep is the upstream variable for every other performance discipline. A morning recovery score below 7 means you are starting every decision, every conversation, and every creative problem with a cognitive deficit. Nothing in the other three areas produces its potential return without this foundation in place.', how: 'Start with two changes tonight: set your bedroom temperature to 17–19°C and set a hard work cutoff 90 minutes before sleep. Track your morning recovery score (1–10 before caffeine) every day for 14 days. The Sleep Recovery module in the Classroom gives you the full protocol — choose the section that matches your primary gap.' },
+  circadian: { area: 'I. Physical Base', class: 'physical', why: 'A misaligned circadian clock means your peak cognitive window is either arriving late, unpredictably, or not at all — and you are likely masking this with caffeine rather than accessing the natural alertness that a correctly set clock produces. This single change recovers hours of productive quality per week.', how: 'Begin with 10–15 minutes of outdoor morning light within 30 minutes of waking, every day for 7 days. Hold your wake time within 60 minutes across the full week. Complete the 5-day peak mapping exercise from the Circadian Alignment module to identify your personal performance window.' },
+  fueling: { area: 'I. Physical Base', class: 'physical', why: 'Your daily energy, focus stability, and afternoon crash pattern are primarily a fueling timing problem — not a dietary one. The caffeine-cortisol cycle and the post-lunch glucose crash together cost most founders 60–90 minutes of productive cognitive time per day. Fixing the timing costs nothing and produces immediate results.', how: 'Two changes immediately: delay first caffeine to 90 minutes after waking, and set a hard 1pm caffeine cutoff. Track morning energy (before caffeine, 1–10) and afternoon crash severity for 14 days. The Fueling module in the Classroom gives you the full optimised daily timing sequence.' },
+  fitness: { area: 'I. Physical Base', class: 'physical', why: 'Regular aerobic exercise is the most robustly evidence-backed intervention for BDNF — the neurochemical that directly supports learning, working memory, and stress resilience. Below 150 minutes per week, the cognitive benefits are minimal. Above it, they are measurable within 4–6 weeks.', how: 'Block 30 minutes of moderate aerobic activity (walking, running, cycling) for 5 days next week in your calendar — treated as non-negotiable. Add two 45-minute strength sessions. Morning timing leverages the post-exercise BDNF window for the day\'s deep work. See the Fitness module for the full protocol.' },
+  recovery: { area: 'I. Physical Base', class: 'physical', why: 'Without deliberate recovery practices, the stress of building accumulates without being cleared — producing the progressive cognitive and emotional depletion that eventually manifests as the poor decision-making, emotional reactivity, and flat motivation of chronic overload. Recovery is not rest from work. It is what makes sustained work possible.', how: 'Start with the physiological sigh protocol (double inhale through the nose → long slow exhale through the mouth, 5 cycles) used at the end of every workday. Add one protected genuine rest day per week — no strategic work. The Recovery Stack module explains the full toolkit.' },
+  substance: { area: 'I. Physical Base', class: 'physical', why: 'The most common silent performance drain in the founder population is substance timing rather than substance quantity. Alcohol within 3 hours of sleep suppresses REM measurably at 1–2 drinks. Early morning caffeine suppresses the natural cortisol peak. Neither requires abstinence — only timing adjustment.', how: 'Run the 14-day correlation audit: track caffeine first/last times and alcohol finish times alongside morning recovery score and afternoon focus. After 14 days, the correlation pattern makes the specific behavioral changes obvious from your own data. The Substance Management module gives you the full protocol.' },
+  energy: { area: 'I. Physical Base', class: 'physical', why: 'Chronic low or variable energy is always a symptom of upstream physical inputs being out of range — sleep, circadian alignment, fueling, or recovery. Until the pattern is mapped across the day and week, the intervention remains guesswork.', how: 'For 14 days, rate your energy 1–10 at three fixed points: on waking (before caffeine), at midday, and at 4–5pm. Note daily exercise (Y/N) and previous evening alcohol (Y/N). After 14 days, the pattern reveals the primary driver. The Energy Tracking module walks you through the interpretation.' },
+  dopamine: { area: 'I. Physical Base', class: 'physical', why: 'A founder operating almost entirely in dopamine-driven pursuit mode — without regular access to serotonin (contentment, present-moment satisfaction) and parasympathetic recovery — is running a one-dimensional neurochemical system. The cost is progressively higher achievement thresholds, growing dissatisfaction, difficulty resting, and a narrowing of the creative bandwidth that genuine strategic insight requires.', how: 'Two practices immediately: a 20-minute task-free, phone-free daily window (walking, sitting, cooking — anything with low information load), and a 3-minute specific written gratitude practice each evening. Protect one weekly meaningful connection outside the professional context. See the Neurochemical Balance module.' },
+  attention: { area: 'II. Mental Capacity', class: 'mental', why: 'Sustained attention is the cognitive prerequisite for every category of work that compounds for a founder — strategy, product thinking, key decisions, foundational writing. Below a 90-minute uninterrupted session quality, the depth required for genuine insight is not being reached. The gap is almost always environmental before it is attentional.', how: 'Tonight, put your phone charger in a different room. Tomorrow morning: phone in another room, all notifications off (not silenced — off), email client closed, single defined task, physical timer set. One 90-minute session with these conditions produces immediately visible quality improvement. The Sustained Attention module provides the full system.' },
+  activation: { area: 'II. Mental Capacity', class: 'mental', why: 'Most founders who rate their focus and deep work quality as low are not under-activated — they are chronically overactivated, running in a persistent state of mild sympathetic arousal that prevents the calm, spacious engagement that genuine depth requires. Flow is not a talent. It is a state you create the conditions for.', how: 'Design a 5-step pre-work ritual this week: clear (one sentence capturing the previous context), physical reset (3 breaths), calibration (rate activation 1–10, adjust up or down), intention (one sentence for the session), begin (a consistent anchor action). Perform it before every focused session for 3 weeks.' },
+  inhibition: { area: 'II. Mental Capacity', class: 'mental', why: 'The digital environment is specifically engineered to defeat inhibitory control. Attempting to manage it through willpower is structurally inefficient — the phone notification system is a variable reward delivery mechanism designed to produce checking behaviour. The effective intervention is environmental removal, not self-restraint.', how: 'Phone physically moved to another room for every focused session. Notifications off at the system level during work blocks. A small notebook beside the keyboard: every impulse during focused work gets written down and immediately returned to. Review the notebook after the session — most impulses prove non-urgent. See the Distraction Inhibition module.' },
+  switching: { area: 'II. Mental Capacity', class: 'mental', why: 'Research shows it takes an average of 23 minutes to return to full engagement after an interruption. 10 interruptions per day — conservative for most founders — costs 3+ hours of focused engagement through switching overhead alone. The fix is structural: a 3-minute transition ritual and communication batch windows.', how: 'Before every context switch: write one sentence capturing where you are in the current task and the next action. Stand and take 3 deliberate breaths. Write the intention for the next context. Set email and Slack to fixed windows (9am, 1pm, 5pm). Batch all meetings into afternoon blocks. See the Switching Cost Management module.' },
+  narrative: { area: 'II. Mental Capacity', class: 'mental', why: 'The internal narrative is the medium through which every other performance variable is filtered. A chronically performance-draining inner commentary consumes attentional resources, reduces persistence under difficulty, and impairs emotional regulation — regardless of how well the external circumstances are managed.', how: 'For 7 days: observe and write down every instance where your internal commentary produces a shift in mood, energy, or motivation — without changing anything. After 7 days, the pattern reveals the highest-frequency drain pattern. Design one specific, evidence-based replacement. Practice the substitution for 3 weeks. See the Internal Narrative module.' },
+  simulation: { area: 'II. Mental Capacity', class: 'mental', why: 'Mental simulation is the most underused performance preparation tool in the founder world. Applied before high-stakes events — investor conversations, board meetings, difficult team conversations, key decisions — it produces a preparation quality that no amount of content review alone provides, in 5 minutes per application.', how: '5 minutes before your next high-stakes event: sit, close your eyes, see the setting specifically, hear the likely exchanges, feel your physiological state, rehearse 2–3 challenging moments and your specific response. End seeing the outcome you are working toward. Use before every significant event for 2 weeks. See the Mental Simulation module.' },
+  acute_stress: { area: 'II. Mental Capacity', class: 'mental', why: 'The founders who handle pressure best are not those who experience less stress — they are those who return to baseline faster after each spike. A reliable in-the-moment toolkit, practiced before it is needed, compresses recovery from hours to minutes — and protects the quality of every decision made in the hours following a difficult event.', how: 'Practice the physiological sigh daily in low-stakes situations for 2 weeks before relying on it under pressure: double inhale through the nose, long slow exhale through the mouth, 5 cycles. Build a 10-minute recovery window after every high-stakes meeting. No irreversible decisions within 20 minutes of an unrecovered stress spike. See the Acute Stress module.' },
+  chronic_load: { area: 'II. Mental Capacity', class: 'mental', why: 'Burnout is not an event — it is the visible consequence of a stress-recovery ratio that has been negative for long enough that the physiological debt becomes too large to conceal. The protection is a weekly tracking habit that makes the ratio visible before the symptoms make it unavoidable.', how: 'Every Monday morning, write two numbers: stress input last week (1–10) and recovery quality last week (1–10). Watch the 8-week trend. Implement one full rest day per week — no strategic work, no content consumption. The Chronic Load module provides the full burnout prevention protocol.' },
+  hrv: { area: 'II. Mental Capacity', class: 'mental', why: 'The nervous system baseline is the account from which every cognitive and emotional demand draws. A declining 30-day HRV trend is the earliest available signal of accumulated physiological load — typically 4–6 weeks before subjective symptoms appear. Measuring it takes 60 seconds. Acting on the trend is where the value lies.', how: 'If you have a wearable, begin tracking the 7-day rolling HRV average and using it to adapt the day\'s demands: below average = reduce novel high-stakes tasks; above average = schedule most demanding work today. If no wearable, use the morning-before-caffeine energy rating as the proxy. See the Nervous System Baseline module.' },
+  emotion_reg: { area: 'II. Mental Capacity', class: 'mental', why: 'The worst decisions most founders have made were almost certainly made within hours of an unrecovered stress spike. The mandatory pause — three deliberate breaths before any response to an activating stimulus — takes 30 seconds and produces measurably better decisions within 2 weeks of consistent practice.', how: 'Practice the three-breath pause before every response — not only in activating situations — for 3 weeks. After any significant activation event, complete the 4-question debrief within 24 hours: what happened, what I contributed, what I did not contribute, what specifically I will do differently. See the Emotional Regulation module.' },
+  dec_fatigue: { area: 'II. Mental Capacity', class: 'mental', why: 'Each decision draws from a finite daily prefrontal resource pool. A founder making 80–100 small decisions before reaching the 3 significant ones that actually determine the company\'s trajectory that week is arriving at those decisions with a meaningfully depleted resource.', how: 'This week: move all decisions with consequences lasting 60+ days to before noon. Conduct a one-time decision elimination audit — list every recurring decision and identify which can be defaulted, delegated, or eliminated. Place the top three significant decisions on the calendar for tomorrow morning. See the Decision Fatigue module.' },
+  preperf: { area: 'II. Mental Capacity', class: 'mental', why: 'Without a pre-performance ritual, the quality of every focused session and high-stakes interaction is determined by whatever state the preceding event left you in — which is rarely the optimal state for the next demand. A consistent pre-work sequence conditions the nervous system to produce a reliable performance-ready state regardless of what preceded it.', how: 'This week: design a 5-step pre-work sequence (clear → reset → calibrate → intend → begin) and perform it before every focused session and significant meeting for 4 consecutive weeks. Consistency in the first 4 weeks builds the conditioned response. See the Pre-Performance Activation module for the complete design guide.' },
+  deep_work: { area: 'III. Work Efficiency', class: 'work', why: 'Deep work hours are the only category of working time that produces compounding output — the strategy, product thinking, and key decisions that shape the company\'s trajectory. The gap between a founder producing 3 genuine deep hours daily and one producing 1 fragmented hour compounds into a significant strategic advantage over a year.', how: 'Block one immovable 2-hour deep work session before 12pm every day next week. Phone in another room, notifications off, email closed. Treat it with the same non-negotiability as an investor meeting. Set the evening before: phone charger in another room, tomorrow\'s deep work task written on a card. See the Deep Work module.' },
+  signal_noise: { area: 'III. Work Efficiency', class: 'work', why: 'A significant fraction of most founder calendars fails the irreplaceability test — tasks that someone else could handle with appropriate guidance and authority. Every noise task done personally by the founder is consuming the same prefrontal resource that signal work requires.', how: 'This week: apply the "only I can do this" filter to every item on next week\'s calendar. Identify one recurring item that fails the test. Eliminate, delegate, or reduce its frequency. Repeat weekly for 12 weeks. Check email only at 9am, 1pm, and 5pm. See the Signal-to-Noise module for the full audit protocol.' },
+  leverage: { area: 'III. Work Efficiency', class: 'work', why: 'Not all founder work is equally leveraged. A 2-hour session on the highest-leverage activity available can produce more company trajectory change than 40 hours of execution. Systematically underinvesting in the specific activities with the highest asymmetric return is one of the most consistent and most correctable performance gaps available.', how: 'Today: write your 5 highest-leverage activities and your 5 lowest. Estimate how many hours each received last week. Schedule one protected "leverage hour" in tomorrow morning\'s calendar — reserved exclusively for the current highest-leverage activity. Set a 10-minute Monday morning practice of asking: what is the most asymmetric action available to me this week? See the Leverage module.' },
+  systems: { area: 'III. Work Efficiency', class: 'work', why: 'Every hour the founder spends executing a recurring operational task that a well-designed system could handle is an hour not invested in the work that requires the founder specifically. More significantly, a company whose critical processes depend on the founder\'s presence is not a company — it is a founder with employees.', how: 'This week: identify the single recurring founder-dependent task that is most ready to be systematised. Document it in 30 minutes (sufficient detail for a capable person to follow). Identify the owner. Hand it off with a 2-week trial period. One system per week compounded across a year = 50 systems built. See the Systems Maturity module.' },
+  delegation: { area: 'III. Work Efficiency', class: 'work', why: 'Most founders delegate tasks while retaining all decision authority — which produces a reporting layer without reducing cognitive load. Real delegation transfers ownership: the right to make the decisions the domain requires, not just the right to execute the tasks the founder describes.', how: 'Identify one domain this month for genuine authority transfer. Write the four-element handoff brief: outcome expected, standard it should meet, decisions the owner can make, reporting expectation. Have the conversation explicitly. Then remove yourself from the approval loop and replace approval responses with coaching questions. See the Delegation module.' },
+  metrics: { area: 'III. Work Efficiency', class: 'work', why: 'Without a weekly metrics review habit anchored to the 5 specific measures that most predict the company\'s trajectory, strategic drift accumulates invisibly. By the time it is visible through symptoms, it has typically been building for 12–18 months. Weekly measurement is the earliest available detection mechanism.', how: 'This week: name your 5 key metrics (specific, named, current value known — not categories, numbers). Schedule a 45-minute weekly review at a fixed time (same day, same time every week). End every review with: "Given what the numbers are saying, what is one thing we will do differently before next week?" See the Metrics module.' },
+  velocity: { area: 'III. Work Efficiency', class: 'work', why: 'The company that tests faster learns faster. The learning loop speed is a direct competitive advantage — the founder who consistently gets to first real-world feedback faster accumulates significantly more validated knowledge over 12 months than one who builds comprehensive implementations before testing.', how: 'Apply this question before every new initiative: "What is the smallest, fastest version of this that would tell us if the core premise is right?" Default to that version. Add "What are we testing this week?" as a standing question in your team rhythm. Log: what we expected, what happened, what changes. See the Execution Velocity module.' },
+  meetings: { area: 'III. Work Efficiency', class: 'work', why: 'The total weekly hour cost of meetings and reactive communication in most growth-stage companies is the single largest unexamined drain on founder and team cognitive capacity. A one-time meeting audit typically recovers 4–8 hours of weekly team time without reducing communication quality.', how: 'This week: add the intended output to every meeting invitation before it is accepted (one line: "we will decide X"). Conduct a 90-minute audit of all recurring meetings — eliminate or reduce any that do not produce a clear decision. Set the asynchronous default for information sharing. See the Meeting Efficiency module.' },
+  planning: { area: 'III. Work Efficiency', class: 'work', why: 'Without a consistent planning practice, the week is shaped by whoever requested the most recently — which is almost never aligned with the company\'s most important strategic needs. The weekly planning session is the mechanism that keeps the calendar as a reflection of chosen priorities rather than accumulated requests.', how: 'This week: implement a 45-minute weekly planning session (Sunday evening or Monday morning). Structure: 15 min retrospective (what happened, what didn\'t, why), 15 min priority identification (3 outcome-specified non-negotiables for the week), 15 min calendar review (do the priorities have protected time?). Write the 3 non-negotiables on a card visible all week. See the Planning module.' },
+  energy_task: { area: 'III. Work Efficiency', class: 'work', why: 'Research shows 20–40% performance differences between peak and trough periods for complex cognitive tasks. A founder who consistently does their deepest strategic work in their biological trough is systematically underperforming relative to their actual capability — not through lack of effort, but through scheduling.', how: 'Complete the 5-day energy mapping exercise: rate cognitive sharpness every 90 minutes from waking to evening for 5 days. After day 5, move your top 3 weekly high-cognitive tasks into the identified peak window. Protect it with the same non-negotiability as an external commitment. See the Energy-Task Matching module.' },
+  identity: { area: 'IV. Leadership Quality', class: 'leadership', why: 'Unclear personal identity means every decision that lacks an obvious right answer is made from external pressure, recent influence, or emotional state rather than from a stable internal reference point. Values drift is one of the most consistent failure modes in growing companies — it happens through individually justifiable decisions, invisibly, until the cumulative distance becomes a leadership crisis.', how: 'This week: invest 2 hours writing the private identity and values document — the honest version, not the investor narrative. Three parts: 5–7 specific values tested against actual past decisions, 5–10 genuine non-negotiables tested against situations where they held or bent, and the honest 10-year life design. Consult it before the next 3 significant decisions. See the Personal Identity module.' },
+  life_sat: { area: 'IV. Leadership Quality', class: 'leadership', why: 'The founder is the primary production resource of the company. Chronic life dissatisfaction produces measurable neurological changes — elevated cortisol, suppressed dopaminergic reward, reduced prefrontal capacity — that directly degrade the cognitive and emotional performance the company depends on. Addressing the whole person is an organisational performance decision.', how: 'This week: complete the wheel of life (rate 8 domains 1–10: physical health, close relationships, partnership, finances, professional fulfilment, personal growth, contribution, and recreation). Identify the lowest-rated domain that has been there longest. Design one specific weekly action for that domain for the next 90 days. See the Life Satisfaction module.' },
+  org_id: { area: 'IV. Leadership Quality', class: 'leadership', why: 'Without a clear, specific, lived organisational identity, the team makes decisions shaped by their own backgrounds rather than by a shared understanding of what the company stands for. Every person hired at this stage is being onboarded into an identity that is being formed by default rather than by design.', how: 'This week: write the organisational identity document in three specifically distinct sections — mission (what we exist to do, stated specifically enough to resolve decisions), values (5–7 specific behavioural principles with observable expressions), and culture (honest description of what it is actually like to work here). Test against the last 5 significant company decisions. See the Organisational Identity module.' },
+  vision_gap: { area: 'IV. Leadership Quality', class: 'leadership', why: 'The vision-execution gap is only manageable when it is honestly measured. Strategic drift is invisible when the gap is not regularly assessed — and by the time it is visible through symptoms, it has typically been accumulating for 12–18 months. The honest dual-focus (clear vision + accurate current state) is the cognitive architecture of effective strategic leadership.', how: 'This week: write two specific descriptions — the honest current state (where the company actually is, without optimism) and the specific 3-year vision (where it is intended to be). Map the explicit distance. Identify the 3 specific things that must be different at the end of this quarter for the company to be measurably closer to its destination. See the Vision-Execution Gap module.' },
+  dec_quality: { area: 'IV. Leadership Quality', class: 'leadership', why: 'High-stakes, irreversible decisions made through a poor process produce poor outcomes regardless of the decision-maker\'s intelligence. The systematic errors — confirmation bias, single-option generation, key assumption not identified — are partially correctable through deliberate process and are not corrected through intelligence or experience alone.', how: 'Start a decision log this week: for every significant decision, write the date, the decision, the alternatives considered, the key assumption, and the expected outcome at the time. Before any irreversible decision: classify reversibility, generate 3 alternatives, identify the key assumption, run a pre-mortem. Review the log quarterly. See the Decision Quality module.' },
+  narrative_com: { area: 'IV. Leadership Quality', class: 'leadership', why: 'The founder\'s ability to transmit the vision compellingly is the primary multiplier on every other capability. A company with an excellent strategy, product, and team whose founder cannot communicate it clearly and consistently is systematically underperforming its potential — because the people and capital required to realise it cannot sufficiently see it.', how: 'This week: write and practice the 2-minute company narrative in the problem-solution structure. Deliver it 5 times alone (audio recording helps), 5 times to a trusted colleague. Set the main-point-first rule for all significant written communication: the most important thing goes in the first two sentences. See the Communication & Narrative module.' },
+  stakeholders: { area: 'IV. Leadership Quality', class: 'leadership', why: 'Relationship capital — the access to capital, talent, and strategic opportunity that flows through relationships — accumulates through consistent, genuine, value-generating contact over time. The investor relationship managed reactively (contacted only during fundraises) develops a fundamentally different quality of trust than one maintained through honest, consistent between-round communication.', how: 'This week: build the contact calendar. List your top 10–15 relationships, assign a contact frequency to each, set calendar reminders for 12 months. For each: last time you provided genuine value rather than requested it? Implement the monthly 5-sentence investor update. See the Stakeholder Relationship Management module.' },
+  resilience: { area: 'IV. Leadership Quality', class: 'leadership', why: 'The founders who recover fastest from significant setbacks are not those with the most natural resilience — they are those with a designed, practiced adversity response protocol. The difference between recovering in 3 days versus 3 weeks is almost entirely a protocol difference rather than a character difference.', how: 'This week: write your personal adversity response protocol (designed in advance — not improvised when needed): what you do in the first 24 hours, the first week, and the debrief. The 5-question debrief, applied within 72 hours of any significant setback: what happened, what I contributed, what I did not, what I learned, what I will do differently. See the Resilience module.' },
+  purpose: { area: 'IV. Leadership Quality', class: 'leadership', why: 'Purpose is the answer to the question adversity asks. The founder with genuine, privately held purpose — not the investor narrative version but the honest personal account — has a motivational resource that does not depend on company performance. It is the primary buffer against burnout and the primary sustainer through the periods when the metrics are not enough.', how: 'This week: invest 2 hours writing the honest purpose document. The honest answer to: why this company (what would be worse if it did not exist), why now (what makes this moment specifically right), and why you (what specifically do you have that makes you the right person). Identify 2–3 specific weekly activities that reliably produce genuine meaning for you and protect them deliberately. See the Purpose Clarity module.' },
+};
+
+function buildRecommendation(focusCats, avgs) {
+  const block = document.getElementById('rec-block');
+
+  // Find the 2 lowest scoring individual disciplines across focus categories
+  const allDiscs = [];
+  focusCats.forEach(cat => {
+    DISCIPLINES[cat].forEach(d => {
+      allDiscs.push({ ...d, cat, score: scores[d.id] || 5 });
+    });
+  });
+  const sorted = allDiscs.sort((a,b) => a.score - b.score);
+  const top2 = [sorted[0]];
+  // Pick second from different category if possible
+  const second = sorted.find(d => d.id !== top2[0].id && (d.cat !== top2[0].cat || sorted.length < 4));
+  if (second) top2.push(second);
+
+  block.innerHTML = `
+    <div class="rec-kicker">Your personalised recommendation</div>
+    <div class="rec-title">Start here.<br>These two disciplines will make the <em>biggest difference.</em></div>
+    <div class="rec-body">Based on your profile, these are the highest-leverage disciplines to work on first. <strong>Not because everything else doesn't matter — it does. But because these two will produce the clearest upstream improvement across multiple other variables simultaneously.</strong> Address these first, then reassess.</div>
+    <div class="rec-areas">
+      ${top2.map((d, i) => {
+        const rec = REC_DATA[d.id];
+        if (!rec) return '';
+        const meta = AREA_META[d.cat];
+        return `<div class="rec-area">
+          <div class="rec-area-header">
+            <div class="rec-area-num">${i+1}</div>
+            <div>
+              <div class="rec-area-name">${d.name}</div>
+              <div class="rec-area-cat">${rec.area}</div>
+            </div>
+          </div>
+          <div class="rec-area-body"><strong>Why this first:</strong> ${rec.why}</div>
+          <div class="rec-area-body" style="margin-top:10px"><strong>How to begin:</strong> ${rec.how}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ══════════════════════════════════
+// NAVIGATION GUIDE
+// ══════════════════════════════════
+function buildNavGuide(focusCats) {
+  const guide = document.getElementById('nav-guide');
+  const allDiscs = [];
+  focusCats.forEach(cat => {
+    DISCIPLINES[cat].forEach(d => {
+      allDiscs.push({ ...d, cat, score: scores[d.id] || 5 });
+    });
+  });
+  const sorted = allDiscs.sort((a,b)=>a.score-b.score);
+  const top2 = [sorted[0]];
+  const second = sorted.find(d => d.id !== top2[0].id);
+  if (second) top2.push(second);
+
+  const areaNames = { physical: 'Physical Base', mental: 'Mental Capacity', work: 'Work Efficiency', leadership: 'Leadership Quality' };
+
+  guide.innerHTML = `
+    <h3>How to find and use these disciplines in the Classroom</h3>
+    <div class="nav-steps">
+      <div class="nav-step">
+        <div class="nav-step-num">1</div>
+        <div class="nav-step-content">
+          <div class="nav-step-title">Go to Classroom in the community</div>
+          <div class="nav-step-body">In the left sidebar, find <strong>Classroom</strong>. You will see four main course areas listed.</div>
+        </div>
+      </div>
+      ${top2.map((d, i) => {
+        const rec = REC_DATA[d.id];
+        const areaName = rec ? rec.area : areaNames[d.cat];
+        return `<div class="nav-step">
+          <div class="nav-step-num">${i+2}</div>
+          <div class="nav-step-content">
+            <div class="nav-step-title">Open: <strong>${areaName}</strong> → find <strong>${d.name}</strong></div>
+            <div class="nav-step-body">Inside this course, locate the <strong>${d.name}</strong> module. It contains an explanation guide (the mechanism and why it matters), a deep-dive knowledge page (the science and monastic wisdom), and a 14-day tracking form. <strong>Read the explanation guide first. Then complete the baseline assessment. Then start the 14-day tracking form.</strong></div>
+          </div>
+        </div>`;
+      }).join('')}
+      <div class="nav-step">
+        <div class="nav-step-num">${top2.length + 2}</div>
+        <div class="nav-step-content">
+          <div class="nav-step-title">Start the daily practice</div>
+          <div class="nav-step-body">Each module gives you a specific protocol with non-negotiable and flexible elements clearly identified. <strong>Commit to the non-negotiables for the first 14 days — nothing else.</strong> Do not add the nice-to-haves yet. Do not work on a second discipline until the first has been practiced consistently for 14 days.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════
+// TIMELINE
+// ══════════════════════════════════
+function buildTimeline(focusCats) {
+  const box = document.getElementById('timeline-box');
+  const allDiscs = [];
+  focusCats.forEach(cat => {
+    DISCIPLINES[cat].forEach(d => {
+      allDiscs.push({ ...d, cat, score: scores[d.id] || 5 });
+    });
+  });
+  const sorted = allDiscs.sort((a,b)=>a.score-b.score);
+  const disc1 = sorted[0];
+  const disc2 = sorted.find(d => d.id !== disc1.id);
+
+  box.innerHTML = `
+    <h3>Your practice timeline — before the next assessment</h3>
+    <div class="timeline-row">
+      <div class="timeline-week">Days 1–3</div>
+      <div class="timeline-text"><strong>Set up the environment.</strong> Complete the baseline assessment in the ${disc1.name} module. Set up the daily tracking form. Remove one major friction point from your environment (e.g., phone charger in another room, work cutoff alarm set, bedroom temperature adjusted).</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Days 4–14</div>
+      <div class="timeline-text"><strong>Apply the non-negotiables only.</strong> From the ${disc1.name} module protocol: the 2–3 non-negotiable habits only. Fill the daily tracking form every morning (2 minutes). Do not change anything else yet. The baseline data you collect now becomes the evidence of your progress at the 30-day mark.</div>
+    </div>
+    ${disc2 ? `<div class="timeline-row">
+      <div class="timeline-week">Days 15–21</div>
+      <div class="timeline-text"><strong>Add the second discipline.</strong> Once ${disc1.name} non-negotiables are running consistently (you are doing them ≥5 days out of 7), open the <strong>${disc2.name}</strong> module. Complete its baseline assessment. Add its non-negotiables alongside the first discipline's. You should now have 3–5 daily habits total — manageable without overwhelm.</div>
+    </div>` : ''}
+    <div class="timeline-row">
+      <div class="timeline-week">Days 22–30</div>
+      <div class="timeline-text"><strong>Consolidate and observe.</strong> Both disciplines running. Weekly reflection on what has shifted. Note what is easier, what is still effortful, and what visible changes have appeared in your energy, focus, decisions, or relationships. Write 3 specific observations in your tracking form.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Day 30</div>
+      <div class="timeline-text"><strong>Return to this assessment.</strong> Retake the full assessment. Your scores will have shifted — and so will what is now highest-leverage. The recommendation will be updated to reflect who you are now rather than who you were when you started. This is the loop that compounds. <strong>Minimum recommended practice period before reassessing: 30 days.</strong></div>
+    </div>`;
+}
+
+// ══════════════════════════════════
+// PDF — PRINT-TO-PDF
+// ══════════════════════════════════
+function downloadPDF() {
+  // Build a self-contained print window with all results
+  const founderName = document.getElementById('founder-name')?.value || 'Founder';
+  const companyName = document.getElementById('company-name')?.value || '';
+  const stage = document.getElementById('funding-stage')?.value || '';
+  const teamSize = document.getElementById('team-size')?.value || '';
+  const founded = document.getElementById('founded-year')?.value || '';
+  const industry = document.getElementById('industry')?.value || '';
+  const problem = document.getElementById('problem')?.value || '';
+  const solution = document.getElementById('solution')?.value || '';
+  const challenge = document.getElementById('challenge')?.value || '';
+  const workHours = document.getElementById('work-hours')?.value || '';
+  const energy = document.getElementById('energy-level')?.value || '';
+  const today = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+  const catAvgs = {
+    physical: getCatAvg('physical'),
+    mental: getCatAvg('mental'),
+    work: getCatAvg('work'),
+    leadership: getCatAvg('leadership')
+  };
+  const sortedCats = Object.entries(catAvgs).sort((a,b)=>a[1]-b[1]);
+  const focusCats = sortedCats.slice(0,2).map(e=>e[0]);
+  const strengthCats = sortedCats.slice(-2).map(e=>e[0]);
+
+  // Find top 2 recommendations
+  const allDiscs = [];
+  focusCats.forEach(cat => {
+    DISCIPLINES[cat].forEach(d => { allDiscs.push({ ...d, cat, score: scores[d.id] || 5 }); });
+  });
+  allDiscs.sort((a,b)=>a.score-b.score);
+  const rec1 = allDiscs[0];
+  const rec2 = allDiscs.find(d => d.id !== rec1?.id);
+
+  const catOrder = ['physical','mental','work','leadership'];
+  const catColors = { physical:'#7F77DD', mental:'#5DCAA5', work:'#F0997B', leadership:'#BA7517' };
+  const catDarks  = { physical:'#3C3489', mental:'#085041', work:'#712B13', leadership:'#633806' };
+  const catLights = { physical:'#EEEDFE', mental:'#E1F5EE', work:'#FAECE7', leadership:'#FAEEDA' };
+  const catLabels = { physical:'I. Physical Base', mental:'II. Mental Capacity', work:'III. Work Efficiency', leadership:'IV. Leadership Quality' };
+
+  // All disciplines rows HTML
+  let discRows = '';
+  catOrder.forEach(cat => {
+    const discs = DISCIPLINES[cat].map(d => ({ ...d, score: scores[d.id] || 5 })).sort((a,b)=>a.score-b.score);
+    const color = catColors[cat];
+    const dark = catDarks[cat];
+    const light = catLights[cat];
+    discRows += `<tr><td colspan="4" style="background:${light};padding:6px 10px;font-weight:700;font-size:10px;letter-spacing:0.12em;color:${dark};text-transform:uppercase;">${catLabels[cat]} — avg ${catAvgs[cat]}/10</td></tr>`;
+    discs.forEach(d => {
+      const status = d.score <= 4 ? 'Gap' : d.score <= 6 ? 'Building' : 'Strength';
+      const statusBg = d.score <= 4 ? '#FAECE7' : d.score <= 6 ? '#FAEEDA' : '#E1F5EE';
+      const statusCol = d.score <= 4 ? '#712B13' : d.score <= 6 ? '#633806' : '#085041';
+      const barW = Math.round(d.score * 10);
+      discRows += `<tr>
+        <td style="padding:5px 10px;font-size:10px;color:#1A1510;font-weight:600;">${d.name}</td>
+        <td style="padding:5px 10px;font-size:9px;color:#9A9080;">${catLabels[cat].split('.')[1]?.trim()}</td>
+        <td style="padding:5px 10px;width:120px;">
+          <div style="height:4px;background:#E2D9CC;border-radius:2px;">
+            <div style="height:4px;width:${barW}%;background:${color};border-radius:2px;"></div>
+          </div>
+        </td>
+        <td style="padding:5px 10px;text-align:center;">
+          <span style="font-weight:700;color:${color};font-size:12px;">${d.score}</span>
+          &nbsp;
+          <span style="font-size:8px;background:${statusBg};color:${statusCol};padding:2px 6px;border-radius:8px;">${status}</span>
+        </td>
+      </tr>`;
+    });
+  });
+
+  // Insight items
+  const insightEl = document.getElementById('insight-list');
+  const insightHTML = insightEl ? insightEl.innerHTML : '';
+
+  // Recs
+  const recHTML = (d, i) => {
+    if (!d) return '';
+    const rec = REC_DATA[d.id];
+    if (!rec) return '';
+    return `
+      <div style="margin-bottom:20px;padding:18px;background:#F9F6F1;border:1px solid #E2D9CC;border-radius:8px;page-break-inside:avoid;">
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;">
+          <span style="font-size:24px;font-weight:700;color:#7F77DD;font-family:Georgia,serif;line-height:1;">${i+1}</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#1A1510;">${d.name}</div>
+            <div style="font-size:9px;color:#9A9080;text-transform:uppercase;letter-spacing:0.1em;">${rec.area}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:8px;"><strong style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#7F77DD;">Why this first:</strong><br><span style="font-size:10px;color:#5A5040;line-height:1.7;">${rec.why}</span></div>
+        <div><strong style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#7F77DD;">How to begin:</strong><br><span style="font-size:10px;color:#5A5040;line-height:1.7;">${rec.how}</span></div>
+      </div>`;
+  };
+
+  // Timeline
+  const timelineItems = [
+    { w:'Days 1–3', b:`Set up the environment for <strong>${rec1?.name||'your primary discipline'}</strong>. Complete the baseline assessment in the Classroom module. Remove one major environmental friction point.` },
+    { w:'Days 4–14', b:`Apply only the non-negotiables from <strong>${rec1?.name||'the first discipline'}</strong>. Fill the daily tracking form each morning (2 min). Collect baseline data — do not change anything else.` },
+    { w:'Days 15–21', b: rec2 ? `Once first discipline non-negotiables are consistent (≥5/7 days), open the <strong>${rec2.name}</strong> module. Add its non-negotiables. You should have 3–5 daily habits total.` : `Consolidate the first discipline. Begin adding nice-to-haves from the protocol if non-negotiables are consistently applied.` },
+    { w:'Days 22–30', b:`Both disciplines running. Weekly reflection: what has shifted? Write 3 specific observations in your tracking form.` },
+    { w:'Day 30', b:`<strong>Return to the assessment.</strong> Retake the full evaluation. Your scores will have shifted — and so will what is now highest-leverage. Minimum practice period before reassessing: 30 days.` },
+  ];
+
+  const printHTML = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>build.inside — Assessment Report — ${founderName}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Karla',sans-serif; font-size:11px; color:#1A1510; background:white; line-height:1.6; }
+  @page { margin: 18mm 18mm 18mm 18mm; size: A4; }
+  .page-break { page-break-before: always; }
+  .avoid-break { page-break-inside: avoid; }
+  h1,h2,h3 { font-family:'Cormorant Garamond',serif; font-weight:600; }
+  .cover { background:#0E0E0E; color:#F7F4EE; padding:40px; min-height:180px; border-radius:8px; margin-bottom:24px; page-break-inside:avoid; }
+  .cover-brand { font-size:9px; font-weight:700; letter-spacing:0.28em; text-transform:uppercase; color:#7F77DD; margin-bottom:10px; }
+  .cover-title { font-size:36px; font-family:'Cormorant Garamond',serif; font-weight:600; line-height:1.05; margin-bottom:6px; }
+  .cover-sub { font-size:11px; color:rgba(247,244,238,0.55); margin-bottom:16px; }
+  .cover-meta { display:flex; gap:8px; flex-wrap:wrap; }
+  .cover-pill { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:3px 10px; font-size:9px; color:rgba(247,244,238,0.7); }
+  .scores-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:20px; }
+  .score-box { border:1px solid #E2D9CC; border-radius:6px; padding:12px; text-align:center; background:#F9F6F1; }
+  .score-label { font-size:8px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#9A9080; margin-bottom:4px; }
+  .score-num { font-size:26px; font-family:'Cormorant Garamond',serif; font-weight:600; line-height:1; margin-bottom:2px; }
+  .section-head { font-size:8px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#9A9080; margin:20px 0 10px; padding:8px 10px; background:#F0EBE1; border-radius:4px; }
+  table { width:100%; border-collapse:collapse; }
+  td,th { vertical-align:middle; }
+  .footer { margin-top:24px; padding-top:12px; border-top:1px solid #E2D9CC; font-size:8px; color:#9A9080; display:flex; justify-content:space-between; }
+  .insight-item { padding:8px 12px; border-radius:6px; margin-bottom:6px; font-size:10px; line-height:1.6; }
+  .insight-strength { background:#E1F5EE; }
+  .insight-focus { background:#EEEDFE; }
+  .insight-risk { background:#FAECE7; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover avoid-break">
+  <div class="cover-brand">build.inside — Founder Performance Assessment</div>
+  <h1 class="cover-title">${founderName}${companyName ? ' — ' + companyName : ''}</h1>
+  <div class="cover-sub">${today}</div>
+  <div class="cover-meta">
+    ${[stage,teamSize,founded,industry].filter(Boolean).map(p=>`<span class="cover-pill">${p}</span>`).join('')}
+  </div>
+</div>
+
+<!-- SCORES OVERVIEW -->
+<div class="scores-row avoid-break">
+  ${sortedCats.map(([cat,avg])=>{
+    const isFocus = focusCats.includes(cat);
+    const isStrength = strengthCats.includes(cat);
+    const tag = isFocus ? '⚡ Focus area' : isStrength ? '✓ Strength' : '↑ Developing';
+    return `<div class="score-box">
+      <div class="score-label">${catLabels[cat]}</div>
+      <div class="score-num" style="color:${catColors[cat]}">${avg}</div>
+      <div style="font-size:8px;color:#9A9080;">/10</div>
+      <div style="margin-top:4px;font-size:8px;font-weight:700;color:${catColors[cat]};">${tag}</div>
+    </div>`;
+  }).join('')}
+</div>
+
+${problem || challenge ? `
+<div class="section-head">Company Profile</div>
+<div class="avoid-break" style="margin-bottom:12px;">
+  ${problem ? `<div style="margin-bottom:8px;"><strong style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#9A9080;">Problem solved:</strong><br>${problem}</div>` : ''}
+  ${solution ? `<div style="margin-bottom:8px;"><strong style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#9A9080;">Solution:</strong><br>${solution}</div>` : ''}
+  ${challenge ? `<div><strong style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#9A9080;">Current challenge:</strong><br>${challenge}</div>` : ''}
+</div>` : ''}
+
+<!-- ALL DISCIPLINES TABLE -->
+<div class="section-head">All 30 Disciplines — Full Overview</div>
+<table class="avoid-break">
+  <thead>
+    <tr style="background:#F0EBE1;">
+      <th style="padding:5px 10px;text-align:left;font-size:9px;color:#9A9080;text-transform:uppercase;letter-spacing:0.1em;">Discipline</th>
+      <th style="padding:5px 10px;text-align:left;font-size:9px;color:#9A9080;text-transform:uppercase;letter-spacing:0.1em;">Area</th>
+      <th style="padding:5px 10px;width:120px;font-size:9px;color:#9A9080;text-transform:uppercase;letter-spacing:0.1em;">Score</th>
+      <th style="padding:5px 10px;text-align:center;font-size:9px;color:#9A9080;text-transform:uppercase;letter-spacing:0.1em;">Rating</th>
+    </tr>
+  </thead>
+  <tbody>${discRows}</tbody>
+</table>
+
+<!-- BUSINESS INSIGHTS -->
+<div class="page-break"></div>
+<div class="section-head">What This Likely Means For Your Company</div>
+<div id="insight-copy" style="margin-bottom:16px;">${insightHTML.replace(/class="insight-item strength-item"/g, 'class="insight-item insight-strength"').replace(/class="insight-item focus-item"/g,'class="insight-item insight-focus"').replace(/class="insight-item risk-item"/g,'class="insight-item insight-risk"')}</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="section-head">Your Personalised Recommendation — Start Here</div>
+<div style="background:#0E0E0E;padding:20px;border-radius:8px;margin-bottom:16px;page-break-inside:avoid;">
+  <div style="font-size:8px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#7F77DD;margin-bottom:8px;">Highest-leverage disciplines to work on first</div>
+  <div style="font-size:18px;font-family:'Cormorant Garamond',serif;font-weight:600;color:#F7F4EE;margin-bottom:6px;">These two disciplines will make the biggest difference.</div>
+  <div style="font-size:10px;color:rgba(247,244,238,0.6);line-height:1.7;">Based on your profile, these produce the clearest upstream improvement across multiple other variables simultaneously. Address these first, then reassess at 30 days.</div>
+</div>
+${recHTML(rec1, 0)}
+${recHTML(rec2, 1)}
+
+<!-- NAVIGATION GUIDE -->
+<div class="section-head">How To Find These Modules In The Classroom</div>
+<div class="avoid-break" style="border:1px solid #E2D9CC;border-radius:8px;padding:16px;margin-bottom:16px;">
+  ${[rec1, rec2].filter(Boolean).map((d, i) => {
+    const rec = REC_DATA[d.id];
+    if (!rec) return '';
+    return `<div style="margin-bottom:${i===0?12:0}px;">
+      <strong style="font-size:10px;color:#1A1510;">Step ${i+2}:</strong>
+      <span style="font-size:10px;color:#5A5040;"> Classroom → <strong>${rec.area}</strong> → find <strong>${d.name}</strong></span>
+      <br><span style="font-size:9px;color:#9A9080;">Read the explanation guide first. Complete the baseline assessment. Start the 14-day tracking form.</span>
+    </div>`;
+  }).join('')}
+</div>
+
+<!-- PRACTICE TIMELINE -->
+<div class="section-head">Your 30-Day Practice Plan</div>
+<div class="avoid-break">
+  ${timelineItems.map(item => `
+  <div style="display:flex;gap:14px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #F0EBE1;">
+    <div style="flex-shrink:0;width:65px;font-size:9px;font-weight:700;color:#7F77DD;text-transform:uppercase;letter-spacing:0.08em;padding-top:1px;">${item.w}</div>
+    <div style="font-size:10px;color:#5A5040;line-height:1.7;">${item.b}</div>
+  </div>`).join('')}
+</div>
+
+<div class="footer">
+  <span>build.inside — Not for a broken mind. For high performers to get even better.</span>
+  <span>${founderName}${companyName ? ' · ' + companyName : ''} · ${today}</span>
+</div>
+
+</body>
+</html>`;
+
+  const printWin = window.open('', '_blank', 'width=900,height=700');
+  if (!printWin) {
+    alert('Please allow pop-ups for this page, then click "Save as PDF" again.');
+    return;
+  }
+  printWin.document.write(printHTML);
+  printWin.document.close();
+  printWin.focus();
+  setTimeout(() => {
+    printWin.print();
+  }, 800);
+}
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+buildSliders('physical', 'physical-sliders');
+buildSliders('mental', 'mental-sliders');
+buildSliders('work', 'work-sliders');
+buildSliders('leadership', 'leadership-sliders');
+updateProgress();
+</script>
+</body>
+</html>
