@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>build.inside — Founder Performance Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F9F6F1;
+  --surface: #F0EBE1;
+  --card: #FFFFFF;
+  --border: #E2D9CC;
+  --border-mid: #C8BFB0;
+  --ink: #0E0E0E;
+  --text: #1A1510;
+  --dim: #5A5040;
+  --faint: #9A9080;
+  --purple: #7F77DD;
+  --purple-light: #EEEDFE;
+  --purple-dark: #3C3489;
+  --teal: #5DCAA5;
+  --teal-light: #E1F5EE;
+  --teal-dark: #085041;
+  --coral: #F0997B;
+  --coral-light: #FAECE7;
+  --coral-dark: #712B13;
+  --gold: #BA7517;
+  --gold-light: #FAEEDA;
+  --gold-dark: #633806;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Karla', sans-serif; font-size: 15px; line-height: 1.7; min-height: 100vh; }
+
+.page { max-width: 780px; margin: 0 auto; padding: 0 28px 80px; }
+
+/* HEADER */
+.site-header { background: var(--ink); margin: 0 -28px; padding: 48px 56px 44px; margin-bottom: 48px; position: relative; overflow: hidden; }
+.site-header::before { content:''; position:absolute; top:-80px; right:-80px; width:360px; height:360px; border-radius:50%; background:radial-gradient(circle, rgba(127,119,221,0.14) 0%, transparent 68%); pointer-events:none; }
+.brand { font-size:10px; font-weight:700; letter-spacing:0.28em; text-transform:uppercase; color:var(--purple); margin-bottom:14px; }
+.site-header h1 { font-family:'Cormorant Garamond',serif; font-size:50px; font-weight:600; line-height:1.0; color:#F7F4EE; margin-bottom:14px; }
+.site-header h1 em { font-style:italic; color:var(--coral); }
+.header-sub { font-size:14px; color:rgba(247,244,238,0.55); max-width:480px; line-height:1.75; }
+.header-meta { display:flex; gap:10px; margin-top:22px; flex-wrap:wrap; }
+.hm-pill { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); border-radius:20px; padding:4px 13px; font-size:11px; color:rgba(247,244,238,0.65); font-weight:500; }
+
+/* PROGRESS */
+.progress-wrap { margin-bottom:32px; }
+.progress-label { font-size:10px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--faint); margin-bottom:7px; display:flex; justify-content:space-between; }
+.progress-track { height:3px; background:var(--border); border-radius:2px; }
+.progress-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--purple),var(--teal)); transition:width 0.5s ease; }
+
+/* STEPS */
+.step { display:none; }
+.step.active { display:block; }
+.step-kicker { font-size:10px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--faint); margin-bottom:10px; }
+.step-title { font-family:'Cormorant Garamond',serif; font-size:34px; font-weight:600; color:var(--text); line-height:1.1; margin-bottom:10px; }
+.step-intro { font-size:14px; color:var(--dim); line-height:1.8; margin-bottom:28px; max-width:620px; }
+.step-intro strong { color:var(--text); font-weight:600; }
+
+/* CARDS */
+.card { background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:20px; overflow:hidden; }
+.card-header { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 22px; display:flex; align-items:center; gap:12px; }
+.card-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.card-title { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:600; color:var(--text); flex:1; }
+.card-body { padding:20px 24px; }
+
+/* FORM FIELDS */
+.field-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.field { display:flex; flex-direction:column; gap:5px; }
+.field label { font-size:10px; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--faint); }
+.field input, .field select, .field textarea { background:#FDFAF6; border:1.5px solid var(--border); border-radius:5px; color:var(--text); font-family:'Karla',sans-serif; font-size:14px; padding:9px 12px; width:100%; transition:border-color 0.12s; }
+.field input:focus, .field select:focus, .field textarea:focus { outline:none; border-color:var(--purple); }
+.field textarea { resize:vertical; min-height:68px; }
+.field select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239A9080'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 11px center; }
+
+/* QUESTION BLOCKS */
+.q-block { margin-bottom:26px; padding-bottom:26px; border-bottom:1px solid var(--border); }
+.q-block:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.q-discipline-tag { font-size:9px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; padding:2px 10px; border-radius:10px; display:inline-block; margin-bottom:8px; }
+.q-text { font-size:14px; font-weight:600; color:var(--text); margin-bottom:14px; line-height:1.5; }
+.q-scale { display:flex; flex-direction:column; gap:6px; }
+.q-scale-row { display:flex; gap:4px; align-items:center; }
+.q-scale-btn { display:none; }
+.q-scale-btn + label { display:flex; align-items:center; justify-content:center; width:38px; height:38px; border:1.5px solid var(--border); border-radius:5px; cursor:pointer; font-size:13px; font-weight:600; color:var(--dim); background:var(--card); transition:all 0.1s; flex-shrink:0; }
+.q-scale-btn + label:hover { border-color:var(--border-mid); background:var(--surface); }
+.q-scale-btn:checked + label { color:white; font-weight:700; }
+.q-scale-labels { display:flex; justify-content:space-between; padding:0 2px; }
+.q-scale-label-text { font-size:10px; color:var(--faint); font-style:italic; }
+.q-not-answered { background:var(--coral-light); border:1px solid rgba(240,153,123,0.3); border-radius:5px; padding:6px 10px; font-size:11px; color:var(--coral-dark); display:none; margin-top:6px; }
+
+/* NAV */
+.nav-row { display:flex; gap:12px; align-items:center; margin-top:28px; flex-wrap:wrap; }
+.btn-primary { background:var(--ink); color:#F7F4EE; border:none; border-radius:5px; font-family:'Karla',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; padding:12px 26px; cursor:pointer; transition:opacity 0.15s; }
+.btn-primary:hover { opacity:0.82; }
+.btn-accent { background:var(--purple); }
+.btn-teal { background:var(--teal); color:#0A3028; }
+.btn-secondary { background:transparent; border:1.5px solid var(--border); color:var(--dim); border-radius:5px; font-family:'Karla',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; padding:12px 20px; cursor:pointer; transition:all 0.12s; }
+.btn-secondary:hover { border-color:var(--ink); color:var(--ink); }
+
+/* RESULTS */
+.ranked-list { display:flex; flex-direction:column; gap:6px; margin-bottom:24px; }
+.rank-item { display:flex; align-items:center; gap:12px; padding:11px 16px; border-radius:8px; border:1px solid transparent; transition:all 0.12s; }
+.rank-item:hover { background:var(--surface); }
+.rank-num { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:600; color:var(--faint); width:24px; flex-shrink:0; text-align:right; }
+.rank-name { flex:1; font-size:13px; font-weight:600; color:var(--text); }
+.rank-area-tag { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:2px 8px; border-radius:8px; flex-shrink:0; }
+.rank-bar-wrap { width:140px; flex-shrink:0; }
+.rank-bar-track { height:5px; background:rgba(0,0,0,0.07); border-radius:3px; }
+.rank-bar-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
+.rank-score { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; width:30px; text-align:right; flex-shrink:0; }
+.rank-status { font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:2px 8px; border-radius:8px; flex-shrink:0; }
+
+.cat-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
+.cat-sum-card { border-radius:10px; padding:18px 20px; border:1px solid transparent; }
+.cat-sum-label { font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:4px; }
+.cat-sum-name { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:600; margin-bottom:6px; }
+.cat-sum-score { font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:600; line-height:1; margin-bottom:2px; }
+.cat-sum-sub { font-size:10px; margin-bottom:10px; }
+.cat-sum-bar { height:4px; border-radius:2px; background:rgba(0,0,0,0.1); margin-bottom:10px; }
+.cat-sum-bar-fill { height:100%; border-radius:2px; }
+.cat-sum-highlights { display:flex; flex-direction:column; gap:3px; }
+.cat-sum-hi { font-size:11px; }
+
+.insight-box { border-radius:8px; padding:14px 18px; margin-bottom:10px; }
+.insight-box p { font-size:13px; line-height:1.7; }
+.insight-box p strong { font-weight:600; }
+
+.rec-dark { background:var(--ink); border-radius:10px; padding:28px 30px; margin-bottom:20px; position:relative; overflow:hidden; }
+.rec-dark::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle,rgba(127,119,221,0.18) 0%,transparent 70%); }
+.rec-kicker { font-size:10px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:var(--purple); margin-bottom:10px; }
+.rec-title { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:600; color:#F7F4EE; margin-bottom:12px; line-height:1.1; }
+.rec-title em { font-style:italic; color:var(--coral); }
+.rec-body { font-size:13px; color:rgba(247,244,238,0.62); line-height:1.8; }
+.rec-body strong { color:#F7F4EE; font-weight:600; }
+
+/* ROUTINE BUILDER */
+.disc-select-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
+.disc-sel-btn { background:var(--card); border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; cursor:pointer; text-align:left; transition:all 0.12s; }
+.disc-sel-btn:hover { border-color:var(--border-mid); background:var(--surface); }
+.disc-sel-btn.selected { border-color:var(--purple); background:var(--purple-light); }
+.disc-sel-name { font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px; }
+.disc-sel-area { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
+.disc-sel-score { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; float:right; margin-top:-18px; }
+
+.divider { height:1px; background:var(--border); margin:22px 0; }
+.section-note { font-size:12px; color:var(--faint); font-style:italic; margin-bottom:14px; }
+
+/* INTRO */
+.intro-hero { padding:10px 0 36px; }
+.intro-big { font-family:'Cormorant Garamond',serif; font-size:44px; font-weight:600; color:var(--text); line-height:1.1; margin-bottom:14px; }
+.intro-big em { font-style:italic; color:var(--purple); }
+.intro-feats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px; }
+.intro-feat { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 14px; text-align:center; }
+.intro-feat-icon { font-size:18px; margin-bottom:7px; }
+.intro-feat-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.intro-feat-text { font-size:10px; color:var(--faint); line-height:1.5; }
+.quote-box { background:var(--ink); border-radius:8px; padding:18px 22px; text-align:center; margin-bottom:26px; }
+.quote-box p { font-family:'Cormorant Garamond',serif; font-size:19px; font-style:italic; color:rgba(247,244,238,0.8); line-height:1.5; }
+.quote-box span { font-size:10px; color:rgba(247,244,238,0.3); letter-spacing:0.14em; text-transform:uppercase; display:block; margin-top:7px; }
+
+/* AREA LEGEND */
+.area-legend { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:var(--dim); }
+.legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="site-header">
+  <p class="brand">build.inside</p>
+  <h1>Founder Performance<br><em>Assessment</em></h1>
+  <p class="header-sub">60 questions about your real behaviour and daily experience — mapped to 30 performance disciplines. Takes about 14 minutes.</p>
+  <div class="header-meta">
+    <span class="hm-pill">60 targeted questions</span>
+    <span class="hm-pill">30 disciplines ranked</span>
+    <span class="hm-pill">2 PDF downloads</span>
+    <span class="hm-pill">~14 minutes</span>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span id="progress-text">Introduction</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+</div>
+
+<!-- ══ STEP 0 — INTRO ══ -->
+<div id="step-0" class="step active">
+  <div class="intro-hero">
+    <p class="step-kicker">build.inside — Founder Self-Assessment</p>
+    <h2 class="intro-big">See yourself<br>as you actually <em>are.</em></h2>
+    <p class="step-intro">This is not a self-rating quiz. Every question describes a real behaviour or experience. Your answers map to 30 specific performance disciplines — ranked from your strongest to your biggest leverage opportunity.</p>
+    <div class="intro-feats">
+      <div class="intro-feat"><div class="intro-feat-icon">◎</div><div class="intro-feat-title">Behaviour-based</div><div class="intro-feat-text">No abstract self-rating — every question describes something concrete you experience</div></div>
+      <div class="intro-feat"><div class="intro-feat-icon">◉</div><div class="intro-feat-title">30 disciplines ranked</div><div class="intro-feat-text">Strengths to gaps, colour-coded across 4 performance areas</div></div>
+      <div class="intro-feat"><div class="intro-feat-icon">→</div><div class="intro-feat-title">Your routine PDF</div><div class="intro-feat-text">Choose one discipline — get a concrete daily practice plan to download</div></div>
+    </div>
+    <div class="quote-box">
+      <p>"Not for a broken mind. For high performers to get even better."</p>
+      <span>build.inside</span>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-primary btn-accent" onclick="goTo(1)">Begin →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 1 — COMPANY PROFILE ══ -->
+<div id="step-1" class="step">
+  <p class="step-kicker">Step 01 — Your Company</p>
+  <h2 class="step-title">A little context first.</h2>
+  <p class="step-intro">Your stage and situation shape what your gaps mean. A gap at pre-seed means something different than the same gap at Series B.</p>
+
+  <div class="card">
+    <div class="card-header"><div class="card-dot" style="background:var(--purple)"></div><div class="card-title">Basics</div></div>
+    <div class="card-body">
+      <div class="field-grid">
+        <div class="field"><label>Your name</label><input type="text" id="founder-name" placeholder="e.g. Agnes Schmidt"></div>
+        <div class="field"><label>Company name</label><input type="text" id="company-name" placeholder="e.g. build.inside"></div>
+      </div>
+      <div class="field-grid">
+        <div class="field"><label>Founded</label><select id="founded-year"><option value="">—</option><option>2024–2025 (under 2 years)</option><option>2022–2023 (2–4 years)</option><option>2019–2021 (4–7 years)</option><option>Before 2019 (7+ years)</option></select></div>
+        <div class="field"><label>Team size</label><select id="team-size"><option value="">—</option><option>Solo founder</option><option>2–3 people</option><option>4–10 people</option><option>11–30 people</option><option>31–80 people</option><option>80+ people</option></select></div>
+      </div>
+      <div class="field-grid">
+        <div class="field"><label>Funding stage</label><select id="funding-stage"><option value="">—</option><option>Bootstrapped / self-funded</option><option>Pre-seed / friends & family</option><option>Seed stage</option><option>Series A</option><option>Series B+</option><option>Profitable / revenue-funded</option></select></div>
+        <div class="field"><label>Industry</label><input type="text" id="industry" placeholder="e.g. B2B SaaS, fintech, consumer…"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-dot" style="background:var(--teal)"></div><div class="card-title">Your situation</div></div>
+    <div class="card-body">
+      <div class="field" style="margin-bottom:14px"><label>What problem does your company solve?</label><textarea id="problem" placeholder="In 1–2 sentences…"></textarea></div>
+      <div class="field" style="margin-bottom:14px"><label>Biggest challenge right now</label><textarea id="challenge" placeholder="e.g. scaling team, PMF, fundraising, burning out…"></textarea></div>
+      <div class="field-grid">
+        <div class="field"><label>Typical weekly hours</label><select id="work-hours"><option value="">—</option><option>Under 40h</option><option>40–50h</option><option>50–60h</option><option>60–70h</option><option>70h+</option></select></div>
+        <div class="field"><label>Current energy most days</label><select id="energy-level"><option value="">—</option><option>Chronically depleted</option><option>Low but functional</option><option>Moderate — varies a lot</option><option>Generally good</option><option>Consistently high</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-secondary" onclick="goTo(0)">← Back</button>
+    <button class="btn-primary btn-accent" onclick="goTo(2)">Start assessment →</button>
+  </div>
+</div>
+
+<!-- ══ STEPS 2–5: QUESTIONS ══ -->
+<div id="step-2" class="step">
+  <p class="step-kicker">Step 02 — Area I · Physical Base</p>
+  <h2 class="step-title">Your body & energy inputs.</h2>
+  <p class="step-intro">Rate each statement based on your <strong>actual experience over the last 2–4 weeks</strong> — not your ideal, and not your best day. 1 = almost never true · 10 = consistently and reliably true.</p>
+  <div class="card"><div class="card-header"><div class="card-dot" style="background:var(--purple)"></div><div class="card-title">I. Physical Base</div></div><div class="card-body" id="q-physical"></div></div>
+  <div class="nav-row"><button class="btn-secondary" onclick="goTo(1)">← Back</button><button class="btn-primary btn-accent" onclick="nextStep(2,3)">Continue →</button></div>
+</div>
+
+<div id="step-3" class="step">
+  <p class="step-kicker">Step 03 — Area II · Mental Capacity</p>
+  <h2 class="step-title">How your mind actually works.</h2>
+  <p class="step-intro">Rate each statement based on your <strong>actual experience over the last 2–4 weeks.</strong> 1 = almost never true · 10 = consistently and reliably true.</p>
+  <div class="card"><div class="card-header"><div class="card-dot" style="background:var(--teal)"></div><div class="card-title">II. Mental Capacity</div></div><div class="card-body" id="q-mental"></div></div>
+  <div class="nav-row"><button class="btn-secondary" onclick="goTo(2)">← Back</button><button class="btn-primary btn-accent" onclick="nextStep(3,4)">Continue →</button></div>
+</div>
+
+<div id="step-4" class="step">
+  <p class="step-kicker">Step 04 — Area III · Work Efficiency</p>
+  <h2 class="step-title">How your work actually gets done.</h2>
+  <p class="step-intro">Rate each statement based on your <strong>actual experience over the last 2–4 weeks.</strong> 1 = almost never true · 10 = consistently and reliably true.</p>
+  <div class="card"><div class="card-header"><div class="card-dot" style="background:var(--coral)"></div><div class="card-title">III. Work Efficiency</div></div><div class="card-body" id="q-work"></div></div>
+  <div class="nav-row"><button class="btn-secondary" onclick="goTo(3)">← Back</button><button class="btn-primary btn-accent" onclick="nextStep(4,5)">Continue →</button></div>
+</div>
+
+<div id="step-5" class="step">
+  <p class="step-kicker">Step 05 — Area IV · Leadership & Vision</p>
+  <h2 class="step-title">Who you are as a founder.</h2>
+  <p class="step-intro">Rate each statement based on your <strong>actual experience over the last 2–4 weeks.</strong> 1 = almost never true · 10 = consistently and reliably true.</p>
+  <div class="card"><div class="card-header"><div class="card-dot" style="background:var(--gold)"></div><div class="card-title">IV. Leadership Quality</div></div><div class="card-body" id="q-leadership"></div></div>
+  <div class="nav-row"><button class="btn-secondary" onclick="goTo(4)">← Back</button><button class="btn-primary btn-accent" onclick="computeResults()">See my results →</button></div>
+</div>
+
+<!-- ══ STEP 6 — RESULTS ══ -->
+<div id="step-6" class="step">
+  <p class="step-kicker">Your Results</p>
+  <h2 class="step-title">Your performance profile.</h2>
+  <p class="step-intro">All 30 disciplines ranked — strongest to biggest gap. Four colours mark the four areas. Your strengths are the foundation to protect. Your gaps are where the highest return on attention lives.</p>
+
+  <div class="area-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>I. Physical Base</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>II. Mental Capacity</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div>III. Work Efficiency</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>IV. Leadership Quality</div>
+  </div>
+
+  <div class="cat-summary-grid" id="cat-summary"></div>
+  <div class="ranked-list" id="ranked-list"></div>
+  <div id="insight-section"></div>
+  <div id="rec-section"></div>
+
+  <div class="nav-row">
+    <button class="btn-primary btn-accent" onclick="downloadProfilePDF()">⎙ Save full profile PDF</button>
+    <button class="btn-primary btn-teal" onclick="goTo(7)">Build my routine →</button>
+    <button class="btn-secondary" onclick="restart()">↺ Start over</button>
+  </div>
+</div>
+
+<!-- ══ STEP 7 — ROUTINE BUILDER ══ -->
+<div id="step-7" class="step">
+  <p class="step-kicker">Step 06 — Routine Builder</p>
+  <h2 class="step-title">Choose one discipline to work on.</h2>
+  <p class="step-intro"><strong>Start with one. Only one.</strong> The assessment will show you your biggest gaps — but what matters most is that the area you choose feels relevant and motivating to you right now. You can follow the recommendation or choose differently. Both are valid. A practice you are motivated to do beats the objectively optimal one you won't.</p>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Select the discipline you want to build a routine for</div></div>
+    <div class="card-body">
+      <p class="section-note">Your results are shown below — ranked from gap (top) to strength (bottom). Click to select.</p>
+      <div class="disc-select-grid" id="disc-select-grid"></div>
+    </div>
+  </div>
+
+  <div id="routine-preview" style="display:none">
+    <div class="rec-dark" id="routine-preview-content"></div>
+    <div class="nav-row">
+      <button class="btn-primary btn-teal" onclick="downloadRoutinePDF()">⎙ Download my routine plan</button>
+      <button class="btn-secondary" onclick="goTo(6)">← Back to results</button>
+    </div>
+  </div>
+
+  <div class="nav-row" id="routine-nav-before" style="margin-top:0">
+    <button class="btn-secondary" onclick="goTo(6)">← Back to results</button>
+  </div>
+</div>
+
+</div><!-- .page -->
+
+<script>
+// ════════════════════════════════════════════
+// DATA — 60 BEHAVIOURAL QUESTIONS
+// ════════════════════════════════════════════
+
+const QUESTIONS = {
+  physical: [
+    // sleep
+    { disc:'sleep', q:'I wake up feeling genuinely recovered — not just functional, but rested and ready to think.', lo:'Groggy / depleted most mornings', hi:'Consistently well-recovered' },
+    { disc:'sleep', q:'Within 1–2 hours of waking (before caffeine kicks in), I can focus clearly and think through complex problems.', lo:'Foggy / still need caffeine to think', hi:'Sharp and focused early on' },
+    // circadian
+    { disc:'circadian', q:'I get natural light (outdoor or bright window) within 30 minutes of waking on most days.', lo:'Dark mornings / screens first', hi:'Consistent morning light' },
+    { disc:'circadian', q:'My most cognitively demanding work happens during the hours when I naturally feel sharpest — not at whatever time is left over.', lo:'Deep work happens reactively', hi:'Peak hours protected for best work' },
+    // fueling
+    { disc:'fueling', q:'I avoid a significant afternoon energy crash that interrupts my focus or requires extra caffeine to overcome.', lo:'Regular afternoon crash', hi:'Stable energy through afternoon' },
+    { disc:'fueling', q:'My first coffee or caffeine happens at least 60–90 minutes after waking, and I stop caffeine before 2pm.', lo:'Coffee immediately on waking / late caffeine', hi:'Caffeine well-timed both ends' },
+    // fitness
+    { disc:'fitness', q:'I exercise at least 150 minutes per week at moderate intensity (aerobic) — consistently, not just when the calendar allows.', lo:'Rarely / inconsistently', hi:'Consistent 150+ min/week' },
+    { disc:'fitness', q:'I include both cardiovascular training and strength training in my regular routine.', lo:'Only one or neither', hi:'Both consistently' },
+    // recovery
+    { disc:'recovery', q:'I have at least one full day per week where I do no strategic work — no problem-solving, no Slack, genuinely off.', lo:'Work 7 days / no real rest day', hi:'Consistent genuine rest day' },
+    { disc:'recovery', q:'I use breathwork, cold/heat exposure, or deliberate stillness as active recovery tools — not just passive rest.', lo:'No deliberate recovery practices', hi:'Regular active recovery toolkit' },
+    // substance
+    { disc:'substance', q:'On evenings when I drink alcohol, I finish at least 3 hours before sleep — and I can see how it affects my next-morning recovery.', lo:'Drink close to sleep / no tracking', hi:'3h+ gap, aware of the impact' },
+    { disc:'substance', q:'My total daily caffeine is under 400mg and I do not rely on it to mask low energy or maintain basic function.', lo:'Caffeine masking exhaustion', hi:'Caffeine enhances genuine alertness' },
+    // energy trend
+    { disc:'energy', q:'My energy across the week is predictable and relatively consistent — not a few good days followed by a crash.', lo:'Highly variable / unreliable', hi:'Consistently predictable' },
+    { disc:'energy', q:'When I look at my last two weeks, my overall energy levels have been adequate for the demands my role places on me.', lo:'Consistently running low', hi:'Energy matching the demands' },
+    // dopamine
+    { disc:'dopamine', q:'I can sit without a task, phone, or agenda for 20 minutes and experience this as genuinely restful rather than uncomfortable.', lo:'Stillness feels uncomfortable / wasteful', hi:'Can genuinely rest without agenda' },
+    { disc:'dopamine', q:'When I reach a significant goal or milestone, I take real time to feel satisfied before immediately moving to the next thing.', lo:'Achievement satisfaction lasts hours at most', hi:'Genuine satisfaction before next pursuit' },
+  ],
+  mental: [
+    // attention
+    { disc:'attention', q:'On a typical working day, I complete at least one 90-minute block of genuinely uninterrupted, single-task focused work.', lo:'Rarely get 90 uninterrupted minutes', hi:'Consistent 90-min+ deep sessions' },
+    { disc:'attention', q:'During focused work sessions, my phone is in a different room and all notifications are completely off — not just silenced.', lo:'Phone nearby / notifications on silent', hi:'Phone away, notifications off' },
+    // activation
+    { disc:'activation', q:'I experience genuine flow — absorbed, effortless work where time compresses — at least 2–3 times per week.', lo:'Flow is rare or accidental', hi:'Flow several times per week' },
+    { disc:'activation', q:'I have a consistent pre-work ritual (same sequence of actions) that I use before focused sessions to prepare my mind.', lo:'I start work directly from whatever I was doing', hi:'Consistent ritual every session' },
+    // inhibition
+    { disc:'inhibition', q:'When I sit down to work, I typically go 20+ minutes before I voluntarily check my phone or switch to an unrelated task.', lo:'Check phone within 10 minutes', hi:'20+ minutes consistently' },
+    { disc:'inhibition', q:'I batch email and messages into fixed windows (2–3 times per day) rather than responding continuously throughout the day.', lo:'Check continuously / reactively', hi:'Fixed batched windows only' },
+    // switching
+    { disc:'switching', q:'After meetings or difficult calls, I take a deliberate transition before jumping to the next task — not back-to-back switching.', lo:'Back-to-back with no transition', hi:'Deliberate transition every time' },
+    { disc:'switching', q:'My meetings are predominantly in the afternoon, leaving morning blocks free for focused cognitive work.', lo:'Meetings distributed throughout the day', hi:'Meetings batched in afternoon' },
+    // self-talk
+    { disc:'narrative', q:'Under pressure — a failed pitch, a critical setback, a bad week — my internal commentary stays focused on what I can control and what I can do next.', lo:'Internal commentary becomes draining / catastrophising', hi:'Stays forward-focused under pressure' },
+    { disc:'narrative', q:'I deliberately notice and correct recurring negative self-narratives (e.g. "I\'m not good enough for this stage") rather than letting them run unexamined.', lo:'Run on autopilot / unexamined', hi:'Actively noticed and corrected' },
+    // simulation
+    { disc:'simulation', q:'Before important meetings, pitches, or difficult conversations, I spend at least 5 minutes specifically imagining how they will unfold — including the challenging moments.', lo:'Go in without deliberate mental prep', hi:'Specific mental simulation every time' },
+    { disc:'simulation', q:'Before significant decisions, I mentally walk through the most likely consequences of each option — not just analysing, but vividly imagining what each path would actually feel like.', lo:'Decide primarily from analysis or gut alone', hi:'Simulation + analysis combined' },
+    // acute stress
+    { disc:'acute_stress', q:'After a stressful event (difficult call, bad news, conflict), I return to clear-headed functional decision-making within 20–30 minutes.', lo:'Recovery takes hours', hi:'Back to baseline within 20–30 min' },
+    { disc:'acute_stress', q:'I have a specific, practiced technique I use in the moment when I feel my stress response spiking — and it reliably works.', lo:'No practiced technique / improvise', hi:'Specific practiced toolkit' },
+    // chronic load
+    { disc:'chronic_load', q:'Over the last month, my weekly recovery (sleep, rest, genuine downtime) has roughly kept pace with my stress and workload input.', lo:'Significantly behind on recovery', hi:'Roughly balanced' },
+    { disc:'chronic_load', q:'I have not experienced the following for more than a few days: flat motivation, inability to enjoy things I normally enjoy, disproportionate irritability.', lo:'These are ongoing / regular', hi:'Mostly absent over the last month' },
+    // HRV / nervous system
+    { disc:'hrv', q:'My body\'s baseline stress indicators — resting heart rate, morning energy, tension levels — have been stable or improving over the last month.', lo:'Declining / worsening trend', hi:'Stable or improving' },
+    { disc:'hrv', q:'I adapt my work intensity on days when I feel physiologically depleted rather than pushing through at the same intensity regardless.', lo:'Push through regardless', hi:'Adapt to what the body has available' },
+    // emotion reg
+    { disc:'emotion_reg', q:'In the last month, I have not sent a message, made a decision, or had a conversation I later regretted because I was in an emotionally activated state when I did it.', lo:'Reactive messages / decisions regularly', hi:'Very rarely or not at all' },
+    { disc:'emotion_reg', q:'When I notice I am emotionally activated, I pause deliberately before responding — in writing, in conversation, and in decisions.', lo:'Respond immediately / reactively', hi:'Consistent pause before responding' },
+    // decision fatigue
+    { disc:'dec_fatigue', q:'My most important decisions of the day happen in the morning — not in the afternoon or evening after the day\'s decision load has accumulated.', lo:'Important decisions happen whenever', hi:'High-stakes decisions consistently AM' },
+    { disc:'dec_fatigue', q:'I have eliminated or automated a significant number of recurring small decisions so they don\'t occupy my cognitive resources every day.', lo:'Make the same small decisions repeatedly', hi:'Most recurring decisions defaulted/automated' },
+    // pre-perf
+    { disc:'preperf', q:'My performance quality in focused sessions and high-stakes meetings is consistent — not dependent on whether it happens to be a good day.', lo:'Highly variable — good days vs bad days', hi:'Consistent quality regardless of day' },
+    { disc:'preperf', q:'Before I sit down to work, I explicitly set an intention for the session — what specifically I will produce and how long it will last.', lo:'Open task list / no defined session intention', hi:'Specific intention set every session' },
+  ],
+  work: [
+    // deep work
+    { disc:'deep_work', q:'Most days I produce at least 2 hours of genuine, uninterrupted, cognitively demanding work — not meetings, not email, actual deep thinking or creation.', lo:'Rarely get 2 real deep hours', hi:'2+ genuine deep hours most days' },
+    { disc:'deep_work', q:'I have a standing morning calendar block for deep work that is treated as non-negotiable — meetings and calls happen around it, not inside it.', lo:'No protected morning deep work block', hi:'Standing protected morning block' },
+    // signal noise
+    { disc:'signal_noise', q:'Most of what I do during a typical week genuinely requires me specifically — it would lose something irreplaceable if I were not the one doing it.', lo:'A lot of my work could be done by someone else', hi:'Mostly founder-irreplaceable work' },
+    { disc:'signal_noise', q:'I review my calendar weekly and actively remove or delegate items that don\'t need to be mine.', lo:'Calendar accumulates without review', hi:'Weekly audit — remove what isn\'t mine' },
+    // leverage
+    { disc:'leverage', q:'I have a clear picture of the 3–5 activities in my week that produce the most asymmetric return — and I protect time for them deliberately.', lo:'No explicit leverage map', hi:'Top activities named and protected' },
+    { disc:'leverage', q:'My highest-leverage activities — the ones that most determine the company\'s trajectory — receive the most protected, highest-quality time in my week.', lo:'High-leverage gets leftover time', hi:'Leverage gets prime time' },
+    // systems
+    { disc:'systems', q:'Most of the recurring operational processes in my company are documented and run by someone other than me — I am not the system.', lo:'Most recurring processes require me', hi:'Most run without me' },
+    { disc:'systems', q:'If I was completely unreachable for two weeks, the company\'s core operations would continue without significant degradation.', lo:'Company would struggle significantly', hi:'Operations continue reliably' },
+    // delegation
+    { disc:'delegation', q:'When I delegate something, I transfer the decision-making authority alongside the task — not just the execution while retaining all approvals.', lo:'Delegate tasks but keep all decisions', hi:'Transfer authority with the task' },
+    { disc:'delegation', q:'The number of decisions requiring my explicit approval per week has been declining as the team develops.', lo:'Approval requests staying flat or growing', hi:'Declining — team owns more' },
+    // metrics
+    { disc:'metrics', q:'I review the 5–7 metrics that most predict the company\'s health every week, at a fixed time, and the review produces a specific action or decision.', lo:'Review metrics irregularly or reactively', hi:'Weekly fixed review → specific action' },
+    { disc:'metrics', q:'I can immediately name the current values of the 3–4 leading indicators most predictive of the company\'s next 90-day trajectory.', lo:'Could not name them right now', hi:'Know them without looking' },
+    // velocity
+    { disc:'velocity', q:'When we decide something is worth trying, we test it in the real world within 1–2 weeks — not months of planning before any external contact.', lo:'Takes months from decision to first test', hi:'Real-world test within 1–2 weeks' },
+    { disc:'velocity', q:'Before starting any new initiative, I explicitly ask: "What is the smallest, fastest version that would tell us if this is right?" and we default to that.', lo:'Default to comprehensive implementation', hi:'Smallest test asked every time' },
+    // meetings
+    { disc:'meetings', q:'Every meeting I call has a specific intended output stated on the invitation — "we will decide X" — not just a topic.', lo:'Meetings without pre-stated output', hi:'Specific output on every invite' },
+    { disc:'meetings', q:'In the last month, I have eliminated or converted to async at least one recurring meeting that was not producing decisions.', lo:'No meetings removed or converted', hi:'Regular audit — removed at least one' },
+    // planning
+    { disc:'planning', q:'Each week starts with a written plan — 3 specific outcomes that must happen this week — not just a task list or whatever the inbox dictates.', lo:'Week begins reactively / no written plan', hi:'3 specific non-negotiables every Monday' },
+    { disc:'planning', q:'At the end of most weeks, I have completed the 2–3 things I identified as most important at the start of the week.', lo:'Important things often not done', hi:'Non-negotiables completed most weeks' },
+    // energy-task
+    { disc:'energy_task', q:'My most cognitively demanding tasks — strategy, product decisions, critical writing — happen in the hours when I am naturally sharpest.', lo:'These happen whenever time is available', hi:'Consistently matched to peak window' },
+    { disc:'energy_task', q:'I have completed the 5-day exercise of rating my focus every 90 minutes to map my personal daily performance curve — and my calendar reflects what I found.', lo:'Never done this / calendar not designed around energy', hi:'Done it — calendar reflects personal peak' },
+  ],
+  leadership: [
+    // identity
+    { disc:'identity', q:'I have written down my genuine personal values — tested against real past decisions, not just aspirational — and I consult them when making difficult choices.', lo:'Values not written / untested', hi:'Written, tested, actively consulted' },
+    { disc:'identity', q:'My identity is distinct from the company\'s performance — a bad quarter or failed raise challenges the company, not my fundamental sense of who I am.', lo:'Company performance = personal worth', hi:'Stable identity independent of results' },
+    // life satisfaction
+    { disc:'life_sat', q:'My life outside the company — relationships, health, enjoyment, personal growth — is receiving adequate investment, not being systematically sacrificed.', lo:'Life outside company severely depleted', hi:'Core domains adequately maintained' },
+    { disc:'life_sat', q:'When I picture my life in 10 years, I have a specific, honest vision — not just a company outcome, but a genuine picture of the whole life I am building.', lo:'No specific life design / only company metrics', hi:'Clear specific honest 10-year design' },
+    // org identity
+    { disc:'org_id', q:'My team can articulate, without prompting, what the company genuinely values and why — not from a poster, but from lived experience of how decisions are made.', lo:'Team would give inconsistent answers', hi:'Team articulates values accurately' },
+    { disc:'org_id', q:'The company\'s stated values are visibly present in the decisions we actually make under pressure — including difficult trade-offs.', lo:'Values are aspirational, not operational', hi:'Values resolve real decisions' },
+    // vision gap
+    { disc:'vision_gap', q:'I have written down — honestly, not optimistically — the current state of the company and the specific gap between where it is and where it needs to be in 3 years.', lo:'Gap not explicitly mapped / optimistic framing', hi:'Honestly mapped gap, specific and current' },
+    { disc:'vision_gap', q:'This quarter\'s top priorities are explicitly and causally connected to the 3-year vision — not just to operational urgency.', lo:'Priorities driven by urgency, not vision', hi:'Explicit causal link to 3-year destination' },
+    // decision quality
+    { disc:'dec_quality', q:'Before any significant, irreversible decision, I explicitly name the key assumption being made — the belief that, if wrong, would change the decision.', lo:'Key assumption rarely named explicitly', hi:'Key assumption named every time' },
+    { disc:'dec_quality', q:'I maintain a log of significant decisions — including the reasoning, alternatives, and expected outcome at the time — that I review quarterly to improve my decision-making.', lo:'No decision log', hi:'Active decision log reviewed quarterly' },
+    // narrative
+    { disc:'narrative_com', q:'I can tell the company\'s story — problem, solution, why now, why us — in 2 minutes in a way that consistently produces engagement, not just polite attention.', lo:'Story lands inconsistently / needs work', hi:'Consistently produces engagement' },
+    { disc:'narrative_com', q:'The team narrative — why what we are building matters and how today\'s work connects to the destination — is renewed with the team at least quarterly.', lo:'Told once / not regularly renewed', hi:'Quarterly renewal + ongoing connection' },
+    // stakeholders
+    { disc:'stakeholders', q:'I proactively contact my top 10 investor and advisor relationships between fundraising rounds — not only when I need something.', lo:'Contact investors primarily when raising', hi:'Consistent proactive between-round contact' },
+    { disc:'stakeholders', q:'I have a system (calendar reminders, contact log) that ensures consistent proactive outreach to my most important relationships.', lo:'No system — happens on memory or impulse', hi:'System running — consistent calendar reminders' },
+    // resilience
+    { disc:'resilience', q:'After a significant setback — failed raise, key departure, product failure — I return to full functional decision-making quality within a few days.', lo:'Recovery takes weeks / decisions compromised', hi:'Full function recovered within days' },
+    { disc:'resilience', q:'I have a designed adversity response protocol — specific things I do in the first 24 hours and first week after a significant setback.', lo:'No designed protocol / improvised', hi:'Specific designed protocol I know and use' },
+    // purpose
+    { disc:'purpose', q:'I have a written, privately held answer to: why this company, why now, why me — that holds under pressure and is distinct from the investor pitch version.', lo:'No written private version / only the pitch', hi:'Written honest private version exists' },
+    { disc:'purpose', q:'Most weeks, I experience genuine moments of meaning in the work — not just satisfaction at completing tasks, but a felt sense that what I am doing matters.', lo:'Meaning rarely felt / mostly going through motions', hi:'Genuine meaning felt most weeks' },
+  ]
+};
+
+// ════════════════════════════════════════════
+// DISCIPLINE METADATA
+// ════════════════════════════════════════════
+const DISC_META = {
+  sleep:        { name:'Sleep Recovery Quality',           area:'physical', areaName:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+  circadian:    { name:'Circadian Alignment',              area:'physical', areaName:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+  fueling:      { name:'Performance Fueling',              area:'physical', areaName:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+  fitness:      { name:'Aerobic & Strength Baseline',      area:'physical', areaName:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+  recovery:     { name:'Recovery Stack',                   area:'physical', areaName:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+  substance:    { name:'Substance Management',             area:'physical', areaName:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+  energy:       { name:'Overall Energy Level',             area:'physical', areaName:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+  dopamine:     { name:'Neurochemical Balance',            area:'physical', areaName:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+  attention:    { name:'Sustained Attention',              area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  activation:   { name:'Optimal Activation & Flow',        area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  inhibition:   { name:'Distraction Inhibition',           area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  switching:    { name:'Switching Cost Management',        area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  narrative:    { name:'Internal Narrative Quality',       area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  simulation:   { name:'Mental Simulation & Clarity',      area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  acute_stress: { name:'Acute Stress Response',            area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  chronic_load: { name:'Chronic Load Balance',             area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  hrv:          { name:'Nervous System Baseline',          area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  emotion_reg:  { name:'Emotional Regulation',             area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  dec_fatigue:  { name:'Decision Fatigue Awareness',       area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  preperf:      { name:'Pre-Performance Routine',          area:'mental',   areaName:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+  deep_work:    { name:'Deep Work Volume',                 area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  signal_noise: { name:'Signal-to-Noise Ratio',            area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  leverage:     { name:'Leverage & Asymmetry',             area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  systems:      { name:'Systems Maturity',                 area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  delegation:   { name:'Delegation Effectiveness',         area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  metrics:      { name:'Metrics Literacy & Tracking',      area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  velocity:     { name:'Execution Velocity',               area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  meetings:     { name:'Meeting & Comm Efficiency',        area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  planning:     { name:'Planning & Prioritisation',        area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  energy_task:  { name:'Energy-Task Matching',             area:'work',     areaName:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+  identity:     { name:'Personal Identity & Values',       area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  life_sat:     { name:'Life Satisfaction & Fulfillment',  area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  org_id:       { name:'Organisational Identity',          area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  vision_gap:   { name:'Vision-Execution Gap',             area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  dec_quality:  { name:'Decision-Making Quality',          area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  narrative_com:{ name:'Communication & Narrative',        area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  stakeholders: { name:'Stakeholder Relationships',        area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  resilience:   { name:'Resilience & Adversity Response',  area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  purpose:      { name:'Purpose Clarity & Meaning',        area:'leadership',areaName:'IV. Leadership',      color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+};
+
+// ════════════════════════════════════════════
+// ROUTINE DATA — concrete practices per discipline
+// ════════════════════════════════════════════
+const ROUTINES = {
+  sleep: {
+    why: 'Sleep is the upstream variable for every other performance discipline. A morning recovery score below 7 means you are starting every decision with a cognitive deficit. Nothing else in this framework produces its full return without this foundation.',
+    nonneg: ['Set one consistent wake time — same 7 days a week, maximum 1 hour variation on weekends', 'Bedroom temperature: 17–19°C with full blackout', 'Hard work cutoff 90 minutes before sleep — alarm set, non-negotiable', 'No alcohol within 3 hours of sleep'],
+    daily: ['Morning: rate recovery 1–10 before first caffeine (track in the 14-day form)', 'Evening: 5-minute brain dump — every open loop, worry, and tomorrow\'s top 3 written in a notebook (pen only)', 'At bedtime: physiological sigh × 5 (double inhale through nose → long exhale through mouth)'],
+    weekly: ['Sunday evening: hold the same wind-down as Thursday — this protects Monday performance', 'Check weekly average recovery score — is the trend moving?'],
+    timeline: '14 days to see clear improvement in morning recovery scores. 6 weeks for architectural sleep improvement to consolidate.',
+    reassess: '30 days.'
+  },
+  circadian: {
+    why: 'A misaligned circadian clock degrades the morning cortisol peak that drives natural alertness — meaning you are relying on caffeine for what the biology would provide for free if the clock were correctly set.',
+    nonneg: ['10–15 minutes of outdoor light (or 10,000 lux light box) within 30 minutes of waking — every day including weekends', 'No phone for the first 30 minutes after waking', 'Weekend wake time within 60 minutes of weekday wake time', 'Dim warm lighting from 90 minutes before sleep — no overhead LEDs'],
+    daily: ['Morning: outdoor walk or light exposure — before phone, before coffee', 'Complete the 5-day peak mapping: rate focus/sharpness every 90 minutes from waking to 9pm for 5 days', 'After mapping: move top 3 cognitive tasks into identified peak window'],
+    weekly: ['Monday: compare Monday morning feel vs Wednesday — is the gap closing?', 'Review whether deep work is consistently landing in the peak window'],
+    timeline: '5–7 days for measurable morning alertness improvement. 3 weeks for full clock re-anchoring.',
+    reassess: '30 days.'
+  },
+  fueling: {
+    why: 'Most founder fueling problems are timing problems, not dietary ones. The caffeine-cortisol cycle and afternoon glucose crash together cost 60–90 minutes of productive cognitive time per day — and both are fixable without changing what you eat.',
+    nonneg: ['First caffeine: at least 90 minutes after waking', 'Last caffeine: hard cutoff at 1pm', 'Post-lunch: 10–15 minute walk after eating', '500ml water immediately on waking — before anything else'],
+    daily: ['Morning: rate energy 1–10 before first caffeine', 'Afternoon: note crash severity 1–5 (target below 2 within 7 days)', 'Lunch: reduce carbohydrate portion by ~50%, replace with protein + vegetables'],
+    weekly: ['Review: is the afternoon crash severity declining week-on-week?', 'Check: is caffeine staying within the 200–400mg daily range?'],
+    timeline: 'Crash reduction measurable within 3–5 days. Caffeine recalibration takes 7–10 days.',
+    reassess: '30 days.'
+  },
+  fitness: {
+    why: 'Regular aerobic exercise is the most robustly evidence-backed intervention for BDNF — the neurochemical that supports learning, working memory, and stress resilience. Below 150 minutes per week, the cognitive benefits are minimal.',
+    nonneg: ['150+ minutes moderate aerobic activity per week — calendar blocked as non-negotiable', 'Minimum 2 strength sessions per week with compound movements', 'Exercise sessions scheduled in calendar — same days, same time each week'],
+    daily: ['Morning aerobic (30 min, conversational pace) on non-strength days', 'Rate cognitive sharpness 90 minutes after morning exercise vs days without — note the difference'],
+    weekly: ['Protect training schedule during high-pressure weeks — this is when it matters most', 'Strength sessions: mid-day or end of day (not immediately before deep work)'],
+    timeline: '4–6 weeks for measurable cognitive benefit. Mood and stress buffer effects appear sooner.',
+    reassess: '45 days.'
+  },
+  recovery: {
+    why: 'In elite performance, recovery is training. The prefrontal cortex does not have a visible fatigue signal — decision quality degrades invisibly without deliberate recovery, and the founder who never genuinely stops is accumulating cognitive debt with no repayment mechanism.',
+    nonneg: ['One full rest day per week — no strategic work, no content consumption, no problem-solving', 'Physiological sigh protocol at the end of every workday (5 cycles × double inhale + long exhale)', 'Two 10–15 minute task-free, phone-free windows daily'],
+    daily: ['End of workday: physiological sigh × 5 before closing everything', 'Morning: rate resting energy before coffee — this is your recovery readout', 'Task-free window: walk, sit, cook — no podcast, no planning'],
+    weekly: ['Rest day: protected as firmly as a board meeting', 'Weekly stress-to-recovery rating: rate stress input 1–10 and recovery quality 1–10'],
+    timeline: 'Subjective improvement in next-day energy within 1–2 weeks. HRV improvement at 3–4 weeks.',
+    reassess: '30 days.'
+  },
+  substance: {
+    why: 'The most common silent performance drain in the founder population is substance timing rather than quantity. Alcohol within 3 hours of sleep suppresses REM measurably at 1–2 drinks. Early caffeine suppresses the natural cortisol peak. Neither requires abstinence — only timing.',
+    nonneg: ['Run the 14-day correlation audit first: track caffeine times and alcohol finish times alongside morning recovery and afternoon focus', 'Alcohol: finish at least 3 hours before sleep on any drinking occasion', 'Caffeine: first intake 90 min post-waking, last intake by 1pm'],
+    daily: ['Log: first caffeine time, last caffeine time, alcohol finish time (if applicable)', 'Morning: rate recovery 1–10 — correlate with previous evening', 'After 14 days: identify the pattern that most predicts your lowest recovery days'],
+    weekly: ['Review the 14-day correlation data — what pattern is clearest?', 'Note: has the afternoon caffeine need reduced since the morning delay?'],
+    timeline: 'Pattern visibility within 14 days. Behavioral change driven by personal data typically lasts.',
+    reassess: '30 days.'
+  },
+  energy: {
+    why: 'Overall energy is a lagging indicator — it reflects the sum of every upstream physical variable. Tracking it daily for 14 days reveals the specific pattern that is driving depletion, which makes the targeted intervention obvious.',
+    nonneg: ['Rate energy 1–10 at three fixed points daily for 14 days: on waking (before caffeine), at noon, at 4–5pm', 'Note each day: exercise Y/N · alcohol previous evening Y/N', 'After 14 days: identify the primary pattern (consistently low / afternoon crash / variable)'],
+    daily: ['Three energy ratings — 30 seconds each, at fixed times', 'Two binary notes: exercise today? Alcohol yesterday?', 'End of week: look at the 5-day average, not individual days'],
+    weekly: ['Compare energy pattern across the week — is Monday lower? Does Friday afternoon crash?', 'Identify the single upstream variable most correlated with your lowest energy days'],
+    timeline: '14 days to see the pattern. Intervention targeting the pattern: 3–4 weeks for measurable improvement.',
+    reassess: '30 days.'
+  },
+  dopamine: {
+    why: 'A founder operating entirely in dopamine-driven pursuit mode — without regular serotonin and parasympathetic recovery — progressively raises their achievement threshold, narrows creative bandwidth, and loses the capacity for genuine present-moment satisfaction.',
+    nonneg: ['One 20-minute task-free, phone-free window daily — walking, sitting, cooking, anything with low information load', '3-minute specific written gratitude practice daily: not general, specific', 'After any significant achievement: a minimum 24-hour pause before initiating the next pursuit'],
+    daily: ['Task-free window: no podcast, no planning, no phone — genuinely present', 'Evening: write 2–3 specific things that produced genuine satisfaction today (not accomplishment — satisfaction)', 'Post-achievement: write 3–5 sentences specifically describing what you achieved and what it demonstrates'],
+    weekly: ['One meaningful in-person social connection outside the professional context', 'Notice: can you sit still for 10 minutes without discomfort? Rate weekly'],
+    timeline: '5–7 days for initial neurochemical shifts. 3 weeks for meaningful baseline change.',
+    reassess: '30 days.'
+  },
+  attention: {
+    why: 'Sustained attention is the cognitive prerequisite for every category of founder work that compounds. The gap is almost always environmental before it is attentional — the phone and notification environment is doing the damage, not a lack of focus capacity.',
+    nonneg: ['Phone physically in another room for every focused session — not silenced, not face-down, away', 'All notifications off at system level during focused work (not silenced — off)', 'Email client closed (not minimised) during deep work blocks', 'Single defined task + physical timer before every session'],
+    daily: ['Before every session: phone away, notifications off, single task written, timer set', 'Capture-and-continue: small notebook beside keyboard — every impulse written, then immediately return to task', 'After session: review capture list (most will prove non-urgent)'],
+    weekly: ['Track longest uninterrupted session this week — target: 90 min by week 2, 2h by week 4', 'Count distraction check-ins per session — target: reducing week over week'],
+    timeline: 'Session quality improvement from day 1. 90-minute capacity built over 3–4 weeks.',
+    reassess: '30 days.'
+  },
+  activation: {
+    why: 'Most founders who rate their focus quality as low are not under-activated — they are chronically overactivated, running in sympathetic dominance that prevents the calm, spacious engagement that flow requires. Flow is not luck. It is a state you create the conditions for.',
+    nonneg: ['Design a 5-step pre-work ritual (clear → reset → calibrate → intend → begin) and perform it before every focused session', 'Two structured 10–15 minute downshift windows daily: mid-morning and mid-afternoon', 'No phone for first 30 minutes of day — protect the natural cortisol peak'],
+    daily: ['Pre-work ritual: always, before every focused session — 5 minutes maximum', 'Mid-morning: 10-min genuine downshift (breathwork, walk, stillness — nothing digital)', 'Evening: rate your daily peak activation level 1–10 — was there a window of calm focus?'],
+    weekly: ['Count genuine flow sessions this week — target 3+', 'Are the two daily downshift windows holding under pressure?'],
+    timeline: 'Pre-work ritual begins producing conditioned response at 2–3 weeks. Flow frequency improvement at 4 weeks.',
+    reassess: '30 days.'
+  },
+  inhibition: {
+    why: 'The digital environment is engineered to defeat inhibitory control. The effective intervention is environmental removal — not willpower. Phone in another room removes the anticipatory attention cost that phone presence imposes, even when no notification arrives.',
+    nonneg: ['Phone in another room for every focused session — non-negotiable', 'All social media apps removed from work devices or browser-blocked during work hours', 'Communication (email, Slack, messages) checked at fixed windows only: 9am, 1pm, 5pm'],
+    daily: ['Before every work session: phone physically moved, notifications off at system level', 'Capture-and-continue notebook: write impulse, return — never act on impulse mid-session', 'Track: how long before first voluntary distraction per session'],
+    weekly: ['Review batch communication compliance: were all messages handled in windows only?', 'Identify the most common trigger for distraction — what task or emotional state precedes checking?'],
+    timeline: 'Immediate improvement in session quality from day 1. Checking reflex reduction takes 3–4 weeks.',
+    reassess: '30 days.'
+  },
+  switching: {
+    why: 'Research shows it takes an average of 23 minutes to return to full engagement after an interruption. Ten interruptions per day consumes 3+ hours in switching overhead. The fix is structural — a 3-minute transition ritual and batched meeting schedules.',
+    nonneg: ['3-minute transition ritual before every major context switch: write current status + next action → stand + 3 breaths → write intention for next context', 'All meetings batched into one afternoon block — mornings protected', 'Communication at fixed windows only: 9am, 1pm, 5pm'],
+    daily: ['Before every context switch: write where you are + next action (60 sec)', 'Physical reset between switches: stand, move, 3 deliberate breaths', 'Track number of unplanned context switches today'],
+    weekly: ['Review: did meetings stay in the afternoon block?', 'Count total estimated switching overhead this week — is it declining?'],
+    timeline: '3-minute ritual produces immediate cost reduction per switch. Structural meeting changes produce full benefit within 2 weeks.',
+    reassess: '30 days.'
+  },
+  narrative: {
+    why: 'The internal narrative is the medium through which every other performance variable is filtered. A chronically performance-draining inner commentary consumes attentional resources, reduces persistence under difficulty, and impairs emotional regulation — regardless of external circumstances.',
+    nonneg: ['7-day observation log: write down every instance where internal commentary shifts mood or motivation — without changing anything yet', 'After 7 days: identify highest-frequency drain pattern and design one specific, evidence-based replacement', 'Practice the replacement for 3 consecutive weeks — every time the drain pattern is noticed'],
+    daily: ['Observation log: note triggering event + specific thought + direction of effect (up/down)', 'Evening evidence log: 2–3 specific pieces of evidence that support the performance-supporting version', 'When drain pattern fires: write replacement + return immediately to task'],
+    weekly: ['Review 7 days of log — what is the most frequent or highest-impact drain pattern?', 'Week 3 onward: is the replacement becoming more automatic?'],
+    timeline: 'Pattern visibility within 7 days. Replacement conditioning takes 3 weeks of consistent practice.',
+    reassess: '30 days.'
+  },
+  simulation: {
+    why: 'Mental simulation is the most underused performance preparation tool in the founder world. Five minutes before a high-stakes event — specifically imagining the setting, the exchanges, the challenging moments, your responses — produces preparation quality that content review alone cannot.',
+    nonneg: ['5-minute pre-event simulation before every high-stakes event: meeting, pitch, difficult conversation, significant decision', 'Post-event review within 24 hours: what happened, what could be better, what specifically to do differently', 'Decision pre-play before any decision with 90+ day consequences'],
+    daily: ['Before high-stakes event: sit, close eyes, see the setting specifically, rehearse 2–3 challenging moments', 'After: within 24h write the 2–3 specific adjustments for next time', 'Decision pre-play: imagine outcome of each option in sensory detail before deciding'],
+    weekly: ['Count: how many high-stakes events received pre-simulation this week?', 'Review post-event debrief notes — is the quality of pre-simulation improving?'],
+    timeline: 'Immediate preparation quality improvement from first application. Skill deepens over 4–6 weeks.',
+    reassess: '30 days.'
+  },
+  acute_stress: {
+    why: 'The founders who handle pressure best are not those who experience less stress — they return to baseline faster. A reliable in-the-moment toolkit, practiced before it is needed, compresses recovery from hours to minutes and protects the quality of every decision made post-stress.',
+    nonneg: ['Practice physiological sigh daily in low-stakes situations for 2 weeks before relying on it under pressure', '10-minute recovery window after any high-stakes meeting or difficult call', 'No irreversible decisions within 20 minutes of an unrecovered stress spike'],
+    daily: ['Physiological sigh: 5 cycles (double inhale → long exhale) — practiced once daily in routine conditions', 'After high-stakes meetings: 10-minute walk or breath practice before next engagement', 'Before any significant decision: rate current activation 1–10. Above 7 → wait 20 minutes'],
+    weekly: ['Track: how many times this week did stress recovery take more than 30 minutes?', 'Review: did the 10-min buffer hold after difficult events?'],
+    timeline: '2 weeks of low-stakes practice to establish automaticity. Recovery speed improvement visible within the first week of use.',
+    reassess: '30 days.'
+  },
+  chronic_load: {
+    why: 'Burnout is not a single event — it is the visible consequence of a stress-recovery ratio that has been negative for long enough that the debt becomes too large to conceal. The protection is a weekly tracking habit that makes the ratio visible before the symptoms become unavoidable.',
+    nonneg: ['Weekly Monday morning entry: stress input rating 1–10 + recovery quality rating 1–10', 'One full genuine rest day per week — no strategic work, low information load', 'Act on any declining 3-week HRV or energy trend before subjective symptoms appear'],
+    daily: ['Morning energy before caffeine: 1–10 (proxy for recovery quality)', 'Evening: note whether today\'s stress input was higher or lower than recovery investment', 'Protect physical baseline during high-pressure periods — sleep, movement, nutrition'],
+    weekly: ['Monday: write both numbers — stress input and recovery quality for last week', 'Review 8-week trend — is the ratio positive or negative?', 'Rest day: protected regardless of company state'],
+    timeline: 'Early warning system operational within 2 weeks. Meaningful recovery balance improvement at 4–6 weeks.',
+    reassess: '45 days.'
+  },
+  hrv: {
+    why: 'The nervous system baseline is the account from which every cognitive demand draws. A declining 30-day HRV trend appears 4–6 weeks before subjective symptoms — which means it is the earliest available prevention signal for burnout and performance degradation.',
+    nonneg: ['Daily morning measurement before rising (wearable or HRV4Training app)', 'Decision rule: below 7-day average → reduce novel high-stakes demands, increase recovery', 'Monthly 30-day trend review — not single days, directional trend'],
+    daily: ['Measure HRV at same time each morning before rising', 'Note: is today above or below 7-day rolling average?', 'Adapt: if significantly below → defer high-stakes decisions where possible, add recovery practice'],
+    weekly: ['Review 7-day rolling average — direction of trend?', 'If declining 3+ consecutive weeks: treat as burnout early-warning, increase recovery investment immediately'],
+    timeline: 'Data pattern visible within 2 weeks. Physiological improvement from consistent training/recovery at 4–8 weeks.',
+    reassess: '45 days.'
+  },
+  emotion_reg: {
+    why: 'The worst decisions most founders have made were almost certainly made within hours of an unrecovered stress spike. The three-breath pause takes 30 seconds and produces measurably better decisions within 2 weeks of consistent daily practice.',
+    nonneg: ['Three-breath pause practiced daily in low-stakes situations for 3 weeks — not just in activating ones', '5-question post-activation debrief within 24 hours of any significant reactive event', 'No final commitment to irreversible decisions made within 48 hours of significant emotional activation'],
+    daily: ['Three deliberate breaths before every response — email, verbal, decision — for 3 weeks', 'Rate activation level before entering each important meeting (1–10)', 'Post-activation debrief when triggered: what happened, what I contributed, what I\'d do differently'],
+    weekly: ['Count: reactive messages or decisions this week that I wished I\'d handled differently', 'Review: is the three-breath pause becoming automatic?'],
+    timeline: '3-week daily practice to establish the pause as automatic. Decision quality improvement measurable within 2 weeks.',
+    reassess: '30 days.'
+  },
+  dec_fatigue: {
+    why: 'Each decision draws from a finite daily prefrontal resource. A founder making 80–100 small decisions before reaching the 3 significant ones that determine the company\'s trajectory arrives at those decisions in a state of meaningful depletion.',
+    nonneg: ['All decisions with 60+ day consequences scheduled before noon', 'One-time decision elimination audit: list every recurring decision — default, delegate, or eliminate 20', 'No high-stakes decisions in the 2 hours after a significant emotional event'],
+    daily: ['Morning: move all significant decisions to before noon in today\'s calendar', 'Before any decision: reversible or irreversible? → determines process speed', 'Note one decision eliminated, defaulted, or delegated today'],
+    weekly: ['Audit: which recurring small decisions did I make this week that shouldn\'t be mine?', 'Decision log: what significant decisions were made — at what time? Identify afternoon/evening pattern'],
+    timeline: 'Immediate improvement from morning scheduling rule. Decision load reduction builds over 4 weeks of audit practice.',
+    reassess: '30 days.'
+  },
+  preperf: {
+    why: 'Without a pre-performance ritual, the quality of every focused session and high-stakes meeting is determined by whatever state the preceding event left you in. A consistent sequence, practiced daily, conditions the nervous system to produce a reliable performance-ready state within 2–3 weeks.',
+    nonneg: ['Design a written 5-step pre-work sequence (clear → reset → calibrate → intend → begin) and perform it before every focused session and significant meeting', 'Perform the ritual consistently for 4 weeks without exception — consistency is what builds the conditioned response', 'Session must have a defined task, defined duration, and a physical timer running'],
+    daily: ['Pre-work ritual: every session, every time — 5 minutes', 'Post-session: did the ritual produce a noticeable state shift? Note yes/no', 'Refine after week 4 based on which steps actually produce the state shift'],
+    weekly: ['Count: how many sessions began with the full ritual this week?', 'Rate: is the ritual producing more consistent session quality compared to without it?'],
+    timeline: 'Conditioned response builds over 2–3 weeks of consistent use. Performance consistency improvement visible at 4 weeks.',
+    reassess: '30 days.'
+  },
+  deep_work: {
+    why: 'Deep work hours are the only category of working time that produces compounding output. A founder producing 3 genuine deep hours daily has a structural advantage over one producing 1 fragmented hour — not through harder work, but through the compounding quality that depth enables.',
+    nonneg: ['One immovable 2-hour deep work block before noon — standing calendar commitment, non-negotiable', 'Phone in another room, notifications off, email closed for the full block', 'End-of-day shutdown ritual: open loops captured, tomorrow\'s deep work task written on a physical card'],
+    daily: ['Before session: define the specific task and what done looks like', 'During: capture-and-continue notebook for all impulses', 'After: note actual depth quality 1–10 and what would have made it deeper'],
+    weekly: ['Total genuine deep work hours this week — target 15+', 'Did the morning block hold every day? If not — what interrupted it?'],
+    timeline: 'Immediate quality improvement from environmental setup. 90-minute capacity building takes 3–4 weeks.',
+    reassess: '30 days.'
+  },
+  signal_noise: {
+    why: 'Every noise task done personally by the founder consumes the same prefrontal resource that signal work requires. A significant fraction of most founder calendars fails the irreplaceability test — and has never been examined.',
+    nonneg: ['Apply the "only I can do this" filter to every new commitment before accepting it', 'Weekly 30-minute calendar audit: identify one item that fails the irreplaceability test, eliminate or delegate it', 'Check email and messages at fixed windows only — not continuously'],
+    daily: ['Before accepting any new task: "Would the company lose something irreplaceable if someone else did this?"', 'Tag each completed task S (signal) or N (noise) — at end of day note the ratio', 'Defer all noise tasks to end of day or fixed communication windows'],
+    weekly: ['One calendar item removed, delegated, or reduced in frequency', 'Review S/N ratio for the week — target: 60%+ signal'],
+    timeline: 'First structural improvement within the first week. Compounding signal-time recovery over 8 weeks.',
+    reassess: '30 days.'
+  },
+  leverage: {
+    why: 'Not all founder work is equally leveraged. A 2-hour session on the highest-leverage activity can produce more company trajectory change than 40 hours of execution. Systematically underinvesting in asymmetric activities is one of the most correctable performance gaps available.',
+    nonneg: ['Write the leverage map: 5 highest-leverage activities + 5 lowest — updated quarterly', 'Monday morning 10-minute practice: "What is the single most asymmetric action available to me this week?" — schedule it before the week fills', 'One protected "leverage hour" per day in the morning peak window'],
+    daily: ['Morning: leverage hour — reserved for the current highest-leverage activity', 'Before new commitments: "Is this higher leverage than what I am currently doing in this slot?"', 'End of day: did the leverage hour happen? If not — what displaced it?'],
+    weekly: ['Monday: asymmetric opportunity question — written answer, scheduled in calendar', 'Review: how many hours did the top 5 leverage activities receive this week vs the bottom 5?'],
+    timeline: 'Immediate asymmetric effort shift. Measurable trajectory improvement requires 6–8 weeks of consistent reallocation.',
+    reassess: '45 days.'
+  },
+  systems: {
+    why: 'A company whose critical processes depend on the founder\'s presence is not a company — it is a founder with employees. Every system handed off permanently reduces operational cognitive load and extends the ceiling of what the company can achieve.',
+    nonneg: ['One system documented and handed off per week — 30 minutes to document, named owner, defined trial period', 'Holiday test review every 6 months: what would break if I was unreachable for 2 weeks?', 'Quality standards written for top domains — founder reviews outputs periodically, not individually'],
+    daily: ['Note: what recurring task did I personally execute today that a system could handle?', 'For any task done more than twice: "Is it time to document this?"', 'Protect documentation time — 30 minutes per week is sufficient'],
+    weekly: ['One system documented: write the process clearly enough for a capable person to follow', 'Check: is the previous week\'s handoff running without questions?'],
+    timeline: '1 system/week for 8 weeks = 8 permanent reductions in founder operational load. Each one compounds.',
+    reassess: '45 days.'
+  },
+  delegation: {
+    why: 'Most founders delegate tasks while retaining all decision authority — producing a reporting layer without reducing cognitive load. Real delegation transfers ownership: the right to make the decisions the domain requires, not just to execute what the founder describes.',
+    nonneg: ['One genuine authority transfer per month — with explicit four-element brief: outcome, standard, authority boundaries, reporting expectation', 'Replace approval responses with coaching questions: "What do you think the right call is, and why?"', 'No rescue at first difficulty — coaching question instead'],
+    daily: ['When team brings a decision that belongs in their authority: ask, don\'t answer', 'Note approval requests received — which could have been owned by the team?', 'After any delegation: explicitly confirm authority transfer in writing'],
+    weekly: ['Count explicit approval requests from team — is it declining?', 'Review: did any rescue behaviours occur this week?'],
+    timeline: '4 weeks to establish coaching response pattern. Measurable decision autonomy improvement at 2–3 months.',
+    reassess: '45 days.'
+  },
+  metrics: {
+    why: 'Without a consistent weekly metrics review anchored to the 5 specific measures that most predict the company\'s trajectory, strategic drift accumulates invisibly. Weekly measurement is the earliest available detection mechanism for problems that take months to become visible.',
+    nonneg: ['Name your 5 key metrics — specific, named, current values known (not categories — numbers)', 'Weekly review: fixed day, fixed time, 45 minutes — never skipped', 'End of every review: "Given what the numbers say, what is one thing we will do differently before next week?"'],
+    daily: ['Check the 3 leading indicators — not for reaction, for awareness', 'Note anomalies: anything significantly above or below expected trend', 'Keep the 5 metrics on a visible card or at the top of the weekly review doc'],
+    weekly: ['45-minute metrics review at fixed time — same day, same time each week', 'One action or adjustment identified from the review', 'Quarterly: are these still the right 5 metrics for this stage?'],
+    timeline: 'Review habit established within 4 weeks. Early warning value appears within 6–8 weeks of consistent tracking.',
+    reassess: '30 days.'
+  },
+  velocity: {
+    why: 'The company that tests faster learns faster. The learning loop speed is a direct competitive advantage. A founder who consistently gets to first real-world feedback faster accumulates significantly more validated knowledge than one who builds comprehensive implementations before testing.',
+    nonneg: ['Before every new initiative: "What is the smallest, fastest version that would tell us if the core premise is right?" — default to that version', '"What are we testing this week?" as a standing weekly question in the team rhythm', 'Learning extraction within 24 hours of any significant test: what we expected, what happened, what changes'],
+    daily: ['Before any project begins: write the minimum viable test version', 'After any real-world contact: extract the learning in 3 sentences', 'Review "parking lot": decisions made but not yet tested'],
+    weekly: ['What did we test this week? What did we learn?', 'Decision-to-test time: how long from last week\'s significant decision to first test?'],
+    timeline: 'Cycle time improvement immediate from "smallest test" question. Compounding learning advantage at 8+ weeks.',
+    reassess: '30 days.'
+  },
+  meetings: {
+    why: 'The total weekly hour cost of meetings and reactive communication is the single largest unexamined drain on founder and team cognitive capacity. A one-time meeting audit typically recovers 4–8 hours of weekly team time without reducing communication quality.',
+    nonneg: ['Every meeting invitation includes a specific intended output: "We will decide X by the end of this meeting"', 'Asynchronous default for all information sharing — meetings reserved for decisions, conflicts, and relationship', 'Quarterly recurring meeting audit: eliminate or reduce one meeting per quarter'],
+    daily: ['Before calling any meeting: "What specific decision will this produce?" — if unclear, make it async', 'Before accepting any meeting: "Is my presence necessary for the output?" — if not, decline or send a delegate', 'Communication: email + Slack at 9am, 1pm, 5pm only'],
+    weekly: ['Meeting output audit: did each meeting this week produce a specific decision or commitment?', 'Review: was any meeting held synchronously that could have been async?'],
+    timeline: 'Immediate time recovery from the one-time audit. Communication batch windows establish within 2 weeks.',
+    reassess: '30 days.'
+  },
+  planning: {
+    why: 'Without a consistent weekly planning practice, the week is shaped by whoever requested most recently — which is almost never aligned with what the company most needs to move this week. The 45-minute planning session is the connective tissue between strategy and daily action.',
+    nonneg: ['45-minute weekly planning session at a fixed anchor time (Sunday evening or Monday morning) — never skipped', 'Three outcome-specified non-negotiables for the week — written on a physical card, visible all week', 'End of each week: 15-minute retrospective (what completed, what didn\'t, why)'],
+    daily: ['Morning: which of the 3 non-negotiables does today advance?', 'Any time a new request arrives: does it displace a non-negotiable? If yes — make it conscious, not default', 'Evening: one sentence — did today move the needle on what matters most this week?'],
+    weekly: ['Sunday/Monday: 45-min planning session — retrospective + 3 non-negotiables + calendar review', 'Friday: how many of the 3 non-negotiables were completed?'],
+    timeline: 'Week-1 improvement in direction clarity. Plan completion rate improves over 4–6 weeks of consistent practice.',
+    reassess: '30 days.'
+  },
+  energy_task: {
+    why: 'Research shows 20–40% performance differences between peak and trough periods for complex cognitive tasks. A founder who consistently does their deepest strategic work in their biological trough is systematically underperforming relative to their actual capability — not through lack of effort, but through scheduling.',
+    nonneg: ['Complete the 5-day energy mapping exercise: rate focus/sharpness every 90 minutes from waking to evening', 'After mapping: move all high-cognitive tasks into the identified peak window — calendar restructure', 'Protect the peak window with the same non-negotiability as external investor commitments'],
+    daily: ['Morning: note current energy/sharpness level and the task type planned for this hour — do they match?', 'Trough period: schedule email, admin, routine calls — preserve peak for strategy and deep work', 'After each focused session: rate depth quality 1–10'],
+    weekly: ['Review: did deep work consistently land in the peak window this week?', 'Review: was the trough used for low-cognitive tasks as intended?'],
+    timeline: 'Mapping complete in 5 days. Calendar restructure immediate. Output quality improvement visible within the first restructured week.',
+    reassess: '30 days.'
+  },
+  identity: {
+    why: 'Unclear personal identity means every decision without an obvious right answer is made from external pressure, recent influence, or emotional state — rather than from a stable internal reference point. The values document is not self-help. It is decision-making infrastructure.',
+    nonneg: ['Write the private identity and values document — 2 hours, three parts: tested values, genuine non-negotiables, honest 10-year life design', 'Test every significant decision against the document before making it', 'Quarterly review: does the document still reflect who I actually am?'],
+    daily: ['When facing a difficult decision: consult the values document first', 'Evening: notice — did today\'s actions reflect the values I stated? One honest sentence', 'Ignatian Examen: 5 minutes — where was genuine energy (consolation) and where was depletion (desolation) today?'],
+    weekly: ['One significant decision reviewed against stated values — was there alignment or drift?', 'Note: is my sense of self stable across the week, or does it swing with company performance?'],
+    timeline: '2-hour initial document investment. Decision infrastructure fully operational within 2–3 weeks of consistent use.',
+    reassess: '45 days.'
+  },
+  life_sat: {
+    why: 'The founder is the primary production resource of the company. Chronic life dissatisfaction produces measurable neurological changes that directly degrade cognitive and emotional performance. A founder whose life is in significant distress carries that state into every team interaction.',
+    nonneg: ['Complete the wheel of life: rate 8 domains 1–10 (health, relationships, partnership, finances, professional fulfilment, growth, contribution, recreation)', 'Identify the lowest-rated domain that has been there longest — design one specific weekly action for it, for 90 days', 'One weekly non-negotiable relationship anchor — same person, same protected time'],
+    daily: ['Ignatian Examen: 5 minutes daily — consolation (genuine energy) and desolation (flatness/depletion)', 'Note one genuine pleasure today — not accomplishment, actual enjoyment', 'Morning: rate life satisfaction overall 1–10 alongside energy'],
+    weekly: ['Protected relationship anchor: held? Quality of presence?', 'Domain investment: was the single action for the lowest-rated domain taken?'],
+    timeline: 'Domain-specific improvement in 4–8 weeks of consistent investment. Overall life satisfaction shift at 3+ months.',
+    reassess: '45 days.'
+  },
+  org_id: {
+    why: 'Without a clear, specific, lived organisational identity, team members make decisions shaped by their own backgrounds rather than by a shared understanding of what the company stands for. Every person hired at this stage is being onboarded into an identity formed by default rather than design.',
+    nonneg: ['Write the three-section organisational identity document: mission (specific enough to resolve decisions), values (5–7 with observable behavioural expressions), culture (honest description, not aspiration)', 'Explicit values discussion with every new hire', 'Quarterly values-in-decision review: did our significant decisions reflect our stated values?'],
+    daily: ['When making a significant decision: "Which stated company value does this reflect?"', 'Note one instance of values-aligned and one values-conflicted behaviour in the team this week', 'For any hiring decision: "Does this person\'s working style reflect the culture we described?"'],
+    weekly: ['Review 3 significant company decisions this week against stated values', 'Team communication: did the narrative connect this week\'s work to the mission?'],
+    timeline: 'Document written in 3–4 hours. Team alignment measurable within 4–6 weeks of consistent use.',
+    reassess: '45 days.'
+  },
+  vision_gap: {
+    why: 'Strategic drift is invisible when the gap is not regularly measured. By the time it is visible through symptoms, it has typically been accumulating for 12–18 months. The honest dual-focus — clear vision + accurate current state — is the cognitive architecture of effective strategic leadership.',
+    nonneg: ['Write the gap map: honest current state (no optimism) + specific 3-year vision + explicit distance between them', 'Quarterly: 3 specific things that must be different at the end of this quarter for the company to be measurably closer to the destination', 'Weekly planning anchored to quarterly gap priorities — explicit causal link'],
+    daily: ['Before beginning any major project: "Does this close the gap to the 3-year destination, or maintain current operations?"', 'Monday: are this week\'s 3 non-negotiables causally connected to the quarterly gap priorities?', 'Note one example this week of reactive urgency displacing strategic necessity'],
+    weekly: ['Are this week\'s priorities explicitly connected to the quarterly gap priorities?', 'Quarterly review: is the gap closing? If not — what specifically is blocking it?'],
+    timeline: 'Gap map written in 3 hours. Strategic alignment improvement visible within 4–6 weeks of consistent quarterly priority connection.',
+    reassess: '45 days.'
+  },
+  dec_quality: {
+    why: 'High-stakes, irreversible decisions made through a poor process produce poor outcomes regardless of intelligence. The systematic errors — confirmation bias, single-option generation, key assumption not identified — are partially correctable through deliberate process that 15 minutes per significant decision provides.',
+    nonneg: ['Reversibility classification before every significant decision — reversible: fast; irreversible: full process', '3-alternative minimum before any irreversible decision', 'Key assumption explicitly named, pre-mortem run, decision logged — for every high-stakes irreversible decision'],
+    daily: ['Decision log entry for every significant decision: date, decision, alternatives, key assumption, expected outcome', 'Before responding to any significant situation under emotional activation: 24-hour waiting period', 'Rate confidence level for each significant decision — is it calibrated to the actual uncertainty?'],
+    weekly: ['Review decisions made this week — which were reversible? Which irreversible? Did the process match?', 'Quarterly: review decision log — what patterns appear in decisions that proved wrong?'],
+    timeline: 'Immediate improvement in high-stakes decisions from first application. Pattern learning requires 3+ months of logged decisions.',
+    reassess: '45 days.'
+  },
+  narrative_com: {
+    why: 'The founder\'s ability to transmit the vision compellingly is the primary multiplier on every other capability. A company with an excellent strategy and product whose founder cannot communicate it clearly is systematically underperforming its potential.',
+    nonneg: ['Write and practice the 2-minute company narrative in problem-solution structure — 20 deliberate repetitions to fluency', 'Main-point-first rule for all significant written communication: most important statement in the first two sentences', 'Team alignment narrative renewed at least quarterly — explicit connection of current work to destination'],
+    daily: ['Before any important email or document: move the main point to the first two sentences', 'Before any pitch, investor conversation, or team narrative moment: 5-minute mental simulation', 'Note: did any communication today land clearly? What made it work?'],
+    weekly: ['Practice the 2-minute narrative 3× — aloud, alone or with trusted colleague', 'Review one piece of written communication from this week against the main-point-first rule'],
+    timeline: '20-repetition fluency target: 2–3 weeks. Team alignment improvement measurable at 6 weeks of quarterly renewal.',
+    reassess: '30 days.'
+  },
+  stakeholders: {
+    why: 'Relationship capital accumulates through consistent, genuine, value-generating contact over time and depletes through absence. The investor relationship managed reactively — contacted only during fundraises — develops a fundamentally different quality of trust than one maintained through honest consistent between-round communication.',
+    nonneg: ['Build the contact calendar this week: list top 10–15 relationships, assign frequency, set 12 months of calendar reminders', 'Monthly 5-sentence investor update — consistent, honest, proactive', 'Value-to-request ratio: more value-providing contact than value-requesting contact across each quarter'],
+    daily: ['When a reminder fires: execute the contact — even a 3-sentence personal note counts', 'Note: did I provide genuine value to a key relationship today (introduction, insight, acknowledgement)?', 'After any meeting with a key stakeholder: note one follow-through action within 48 hours'],
+    weekly: ['Contact calendar check: any reminders this week? Were they acted on?', 'Monthly investor update: is it drafted and sent?'],
+    timeline: 'System operational within 30 minutes of setup. Relationship quality improvement visible at 3–6 months of consistent contact.',
+    reassess: '45 days.'
+  },
+  resilience: {
+    why: 'The founders who recover fastest from significant setbacks are not those with the most natural resilience — they are those with a designed, practiced adversity response. The difference between recovering in 3 days versus 3 weeks is almost entirely a protocol difference, not a character one.',
+    nonneg: ['Write the personal adversity response protocol before the next significant setback: first 24 hours, first week, debrief', '5-question debrief within 72 hours of any significant setback: what happened, what I contributed, what I didn\'t, what I learned, what I\'ll do differently', 'Specific support contact in first 24 hours after any major adversity — in person or voice call'],
+    daily: ['Maintain physical baseline during adversity: sleep, movement, nutrition — non-negotiable even when hard', 'Note: is any current situation being bypassed rather than processed?', 'Post-setback: has the debrief been completed within 72 hours?'],
+    weekly: ['Check: is the adversity protocol document written and accessible?', 'Review any setbacks this week — was there a designed response or an improvised one?'],
+    timeline: 'Protocol design: 1 hour. Recovery speed improvement visible from first deliberate protocol application.',
+    reassess: '30 days.'
+  },
+  purpose: {
+    why: 'Purpose is the answer to the question adversity asks. A founder with a genuine, privately held answer to why this company — not the investor narrative version but the honest personal account — has a motivational resource that does not depend on company performance.',
+    nonneg: ['Write the honest purpose document: why this company (what would be worse if it didn\'t exist), why now, why you — including the genuine doubts', 'Identify 2–3 specific weekly activities that reliably produce genuine meaning for you — protect them deliberately', 'Monthly 10-minute purpose review: does the document still hold?'],
+    daily: ['Ignatian Examen: 5 minutes — where did genuine meaning (consolation) appear today?', 'Note: was any of today\'s work genuinely connected to what I care about most?', 'When making a significant decision: does this align with the purpose document?'],
+    weekly: ['The 2–3 meaning-producing activities: did they happen?', 'Monthly: reread the purpose document — does it still hold? What has shifted?'],
+    timeline: '2-hour initial document investment. Meaning density improvement within 2–3 weeks of consistent protected meaning-activities.',
+    reassess: '30 days.'
+  },
+};
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+const answers = {}; // qKey → value
+let currentStep = 0;
+let selectedRoutineDisc = null;
+
+// ════════════════════════════════════════════
+// BUILD QUESTIONS
+// ════════════════════════════════════════════
+function buildQuestions(catKey, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+
+  const qs = QUESTIONS[catKey];
+  qs.forEach((q, i) => {
+    const meta = DISC_META[q.disc];
+    const qKey = `${catKey}_${i}`;
+    const color = meta.color;
+    const light = meta.light;
+    const dark = meta.dark;
+
+    container.innerHTML += `
+    <div class="q-block">
+      <span class="q-discipline-tag" style="background:${light};color:${dark};">${meta.name}</span>
+      <div class="q-text">${q.q}</div>
+      <div class="q-scale">
+        <div class="q-scale-row">
+          ${[1,2,3,4,5,6,7,8,9,10].map(v => `
+            <input type="radio" name="q_${qKey}" id="q_${qKey}_${v}" class="q-scale-btn" value="${v}"
+              onchange="recordAnswer('${qKey}', ${v})">
+            <label for="q_${qKey}_${v}" style="--chk-bg:${color};"
+              class="q-scale-num"
+              onclick="">${v}</label>
+          `).join('')}
+        </div>
+        <div class="q-scale-labels">
+          <span class="q-scale-label-text">1 — ${q.lo}</span>
+          <span class="q-scale-label-text">${q.hi} — 10</span>
+        </div>
+        <div class="q-not-answered" id="warn_${qKey}">Please select a rating before continuing.</div>
+      </div>
+    </div>`;
+  });
+
+  // Style checked labels via CSS injection
+  if (!document.getElementById('radio-check-style')) {
+    const style = document.createElement('style');
+    style.id = 'radio-check-style';
+    style.textContent = `.q-scale-btn:checked + label { background: var(--purple); border-color: var(--purple); color: white; }`;
+    document.head.appendChild(style);
+  }
+}
+
+function recordAnswer(qKey, val) {
+  answers[qKey] = val;
+  const warn = document.getElementById(`warn_${qKey}`);
+  if (warn) warn.style.display = 'none';
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function goTo(n) {
+  document.getElementById(`step-${currentStep}`).classList.remove('active');
+  currentStep = n;
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep(from, to) {
+  const catKeys = { 2:'physical', 3:'mental', 4:'work', 5:'leadership' };
+  const cat = catKeys[from];
+  if (cat) {
+    const qs = QUESTIONS[cat];
+    let allAnswered = true;
+    qs.forEach((q, i) => {
+      const qKey = `${cat}_${i}`;
+      if (!answers[qKey]) {
+        allAnswered = false;
+        const warn = document.getElementById(`warn_${qKey}`);
+        if (warn) warn.style.display = 'block';
+        warn?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+    if (!allAnswered) return;
+  }
+  goTo(to);
+}
+
+function updateProgress() {
+  const labels = ['Introduction','Company Profile','Physical Base','Mental Capacity','Work Efficiency','Leadership & Vision','Your Results','Routine Builder'];
+  const pct = Math.round((currentStep / 7) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = labels[currentStep] || '';
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+function restart() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  selectedRoutineDisc = null;
+  document.querySelectorAll('.q-scale-btn').forEach(r => r.checked = false);
+  goTo(0);
+}
+
+// ════════════════════════════════════════════
+// SCORE COMPUTATION
+// ════════════════════════════════════════════
+function getDiscScore(discId) {
+  // Find all questions for this disc across all categories
+  let total = 0, count = 0;
+  ['physical','mental','work','leadership'].forEach(cat => {
+    QUESTIONS[cat].forEach((q, i) => {
+      if (q.disc === discId) {
+        const v = answers[`${cat}_${i}`];
+        if (v) { total += v; count++; }
+      }
+    });
+  });
+  return count > 0 ? Math.round((total / count) * 10) / 10 : 5;
+}
+
+function getCatAvg(catArea) {
+  const discs = Object.keys(DISC_META).filter(k => DISC_META[k].area === catArea);
+  const scores = discs.map(d => getDiscScore(d));
+  return Math.round((scores.reduce((a,b)=>a+b,0) / scores.length) * 10) / 10;
+}
+
+function getAllDiscsSorted() {
+  const discs = Object.keys(DISC_META);
+  return discs.map(id => ({ id, score: getDiscScore(id), ...DISC_META[id] })).sort((a,b) => b.score - a.score);
+}
+
+// ════════════════════════════════════════════
+// COMPUTE AND RENDER RESULTS
+// ════════════════════════════════════════════
+function computeResults() {
+  // Validate last step
+  const qs = QUESTIONS['leadership'];
+  let allAnswered = true;
+  qs.forEach((q, i) => {
+    const qKey = `leadership_${i}`;
+    if (!answers[qKey]) {
+      allAnswered = false;
+      const warn = document.getElementById(`warn_${qKey}`);
+      if (warn) warn.style.display = 'block';
+      warn?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+  if (!allAnswered) return;
+
+  const sorted = getAllDiscsSorted();
+  const catAreas = ['physical','mental','work','leadership'];
+  const catAvgs = {};
+  catAreas.forEach(a => catAvgs[a] = getCatAvg(a));
+
+  // Category summary cards
+  const summaryEl = document.getElementById('cat-summary');
+  const catMeta = {
+    physical:   { label:'I. Physical Base',     color:'#7F77DD', light:'#EEEDFE', dark:'#3C3489' },
+    mental:     { label:'II. Mental Capacity',  color:'#5DCAA5', light:'#E1F5EE', dark:'#085041' },
+    work:       { label:'III. Work Efficiency', color:'#F0997B', light:'#FAECE7', dark:'#712B13' },
+    leadership: { label:'IV. Leadership',       color:'#BA7517', light:'#FAEEDA', dark:'#633806' },
+  };
+  summaryEl.innerHTML = Object.entries(catAvgs).sort((a,b)=>b[1]-a[1]).map(([area, avg]) => {
+    const m = catMeta[area];
+    const topDiscs = sorted.filter(d=>d.area===area).slice(0,2);
+    const botDiscs = sorted.filter(d=>d.area===area).slice(-2).reverse();
+    return `<div class="cat-sum-card" style="background:${m.light};border-color:${m.color}30;">
+      <div class="cat-sum-label" style="color:${m.dark};">${m.label}</div>
+      <div class="cat-sum-name" style="color:${m.dark};">${avg <= 4 ? 'Focus area' : avg <= 6.5 ? 'Developing' : 'Strength'}</div>
+      <div class="cat-sum-score" style="color:${m.color};">${avg}</div>
+      <div class="cat-sum-sub" style="color:${m.dark};">out of 10</div>
+      <div class="cat-sum-bar"><div class="cat-sum-bar-fill" style="width:${avg*10}%;background:${m.color};"></div></div>
+      <div class="cat-sum-highlights">
+        <div class="cat-sum-hi" style="color:${m.dark};"><span style="opacity:0.6">Best: </span>${topDiscs[0]?.name} (${topDiscs[0]?.score})</div>
+        <div class="cat-sum-hi" style="color:${m.dark};"><span style="opacity:0.6">Gap: </span>${botDiscs[0]?.name} (${botDiscs[0]?.score})</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Ranked list
+  const rankedEl = document.getElementById('ranked-list');
+  rankedEl.innerHTML = sorted.map((d, i) => {
+    const status = d.score <= 4 ? 'Gap' : d.score <= 6.5 ? 'Building' : 'Strength';
+    const statusBg = d.score <= 4 ? '#FAECE7' : d.score <= 6.5 ? '#FAEEDA' : '#E1F5EE';
+    const statusCol = d.score <= 4 ? '#712B13' : d.score <= 6.5 ? '#633806' : '#085041';
+    return `<div class="rank-item" style="background:${i===0||i===1?d.light+'80':''};">
+      <div class="rank-num" style="color:${d.score<=4?d.color:i<3?d.color:'#C8BFB0'}">${i+1}</div>
+      <div>
+        <div class="rank-name">${d.name}</div>
+        <div style="font-size:10px;color:${d.dark};font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">${d.areaName}</div>
+      </div>
+      <span class="rank-area-tag" style="background:${d.light};color:${d.dark};">${d.areaName.split('.')[0]}.</span>
+      <div class="rank-bar-wrap">
+        <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${d.score*10}%;background:${d.color};"></div></div>
+      </div>
+      <div class="rank-score" style="color:${d.color};">${d.score}</div>
+      <span class="rank-status" style="background:${statusBg};color:${statusCol};">${status}</span>
+    </div>`;
+  }).join('');
+
+  // Insights
+  const stage = document.getElementById('funding-stage')?.value || '';
+  const teamSize = document.getElementById('team-size')?.value || '';
+  const workHours = document.getElementById('work-hours')?.value || '';
+  const bottomDiscs = sorted.slice(-3);
+  const topDiscs = sorted.slice(0,3);
+  const insightEl = document.getElementById('insight-section');
+  let insightHTML = `<div style="margin-bottom:20px;">
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:12px;color:var(--text);">What this profile suggests about your company</h3>`;
+
+  insightHTML += `<div class="insight-box" style="background:var(--teal-light);border:1px solid rgba(93,202,165,0.2);">
+    <p>✓ <strong>Your strongest disciplines — ${topDiscs.map(d=>d.name).join(', ')} — are actively supporting your performance.</strong> These are assets. Protect the practices behind them during high-pressure periods, because these are the first things founders sacrifice when the calendar fills.</p>
+  </div>`;
+
+  insightHTML += `<div class="insight-box" style="background:var(--purple-light);border:1px solid rgba(127,119,221,0.2);">
+    <p>→ <strong>Your lowest-scoring disciplines — ${bottomDiscs.map(d=>d.name).join(', ')} — are your highest-return investment targets.</strong> Each gap here is not just a personal performance issue. It is an organisational constraint: your thinking quality, decision quality, team culture, and execution capacity are all downstream of these inputs.</p>
+  </div>`;
+
+  if (stage.includes('Pre-seed') || stage.includes('Seed') || stage.includes('Bootstrap')) {
+    insightHTML += `<div class="insight-box" style="background:var(--coral-light);border:1px solid rgba(240,153,123,0.25);">
+      <p>⚠ <strong>At your stage, there is no organisational buffer between your daily state and the company's output.</strong> Physical and mental foundations are not a personal priority — they are the primary production infrastructure. A gap in ${bottomDiscs[0]?.name} at this stage costs the company more than at any later stage, because the multiplier effect of the founder is at its highest.</p>
+    </div>`;
+  }
+  if (stage.includes('Series A') || stage.includes('Series B')) {
+    insightHTML += `<div class="insight-box" style="background:var(--coral-light);border:1px solid rgba(240,153,123,0.25);">
+      <p>⚠ <strong>At Series A/B, your profile gaps become organisational gaps.</strong> Leadership, systems, and delegation weaknesses that were personal performance issues at seed become cultural and structural constraints at scale. What you don't address in yourself now gets transmitted into the team architecture.</p>
+    </div>`;
+  }
+  if (workHours && (workHours.includes('60–70') || workHours.includes('70h+'))) {
+    insightHTML += `<div class="insight-box" style="background:var(--gold-light);border:1px solid rgba(186,117,23,0.2);">
+      <p>⚠ <strong>Working 60+ hours weekly is a systems and delegation signal, not a dedication signal.</strong> Work that should be running through a system or a team member is running through you. The hours are a symptom of structural gaps in your work efficiency profile.</p>
+    </div>`;
+  }
+
+  insightHTML += '</div>';
+  insightEl.innerHTML = insightHTML;
+
+  // Recommendation
+  const rec1 = sorted[sorted.length - 1];
+  const rec2 = sorted[sorted.length - 2];
+  const recEl = document.getElementById('rec-section');
+  recEl.innerHTML = `<div class="rec-dark">
+    <div class="rec-kicker">Highest-leverage starting points</div>
+    <div class="rec-title">Start with one of <em>these two.</em></div>
+    <div class="rec-body">
+      <strong>${rec1.name} (${rec1.score}/10)</strong> and <strong>${rec2.name} (${rec2.score}/10)</strong> are your two lowest-scoring disciplines — and therefore your highest-return investment targets. But the right one to start with is the one that feels most relevant and motivating to you right now. That personal resonance is what determines whether you actually follow through.
+      <br><br>
+      Click "Build my routine →" to choose the one you will work on and get a concrete 30-day practice plan to download.
+    </div>
+  </div>`;
+
+  // Build routine disc selector
+  buildDiscSelector(sorted);
+
+  goTo(6);
+}
+
+// ════════════════════════════════════════════
+// ROUTINE BUILDER
+// ════════════════════════════════════════════
+function buildDiscSelector(sorted) {
+  const grid = document.getElementById('disc-select-grid');
+  // Show all 30 sorted gap→strength
+  const reversed = [...sorted].reverse(); // gap first
+  grid.innerHTML = reversed.map(d => `
+    <button class="disc-sel-btn" id="dsel_${d.id}" onclick="selectRoutineDisc('${d.id}')">
+      <div class="disc-sel-name">${d.name}</div>
+      <div class="disc-sel-area" style="color:${d.dark};">${d.areaName}</div>
+      <div class="disc-sel-score" style="color:${d.color};">${d.score}</div>
+    </button>`).join('');
+}
+
+function selectRoutineDisc(discId) {
+  selectedRoutineDisc = discId;
+  document.querySelectorAll('.disc-sel-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`dsel_${discId}`)?.classList.add('selected');
+
+  const meta = DISC_META[discId];
+  const routine = ROUTINES[discId];
+  if (!routine) return;
+
+  const preview = document.getElementById('routine-preview');
+  const content = document.getElementById('routine-preview-content');
+  const navBefore = document.getElementById('routine-nav-before');
+
+  content.innerHTML = `
+    <div class="rec-kicker">Your routine plan — ${meta.areaName}</div>
+    <div class="rec-title" style="margin-bottom:16px;">${meta.name}<br><em>30-day practice plan</em></div>
+    <div class="rec-body" style="margin-bottom:18px;">${routine.why}</div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--purple);margin-bottom:8px;">NON-NEGOTIABLES — the minimum effective dose</div>
+      ${routine.nonneg.map(n => `<div style="display:flex;gap:10px;margin-bottom:7px;"><span style="color:var(--purple);flex-shrink:0;">→</span><span style="font-size:13px;color:rgba(247,244,238,0.72);line-height:1.65;">${n}</span></div>`).join('')}
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;">DAILY ACTIONS</div>
+      ${routine.daily.map(d => `<div style="display:flex;gap:10px;margin-bottom:7px;"><span style="color:var(--teal);flex-shrink:0;">•</span><span style="font-size:13px;color:rgba(247,244,238,0.72);line-height:1.65;">${d}</span></div>`).join('')}
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--coral);margin-bottom:8px;">WEEKLY REVIEW</div>
+      ${routine.weekly.map(w => `<div style="display:flex;gap:10px;margin-bottom:7px;"><span style="color:var(--coral);flex-shrink:0;">◎</span><span style="font-size:13px;color:rgba(247,244,238,0.72);line-height:1.65;">${w}</span></div>`).join('')}
+    </div>
+
+    <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:14px 18px;margin-top:4px;">
+      <span style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(247,244,238,0.4);">Expected timeline: </span>
+      <span style="font-size:12px;color:rgba(247,244,238,0.7);">${routine.timeline}</span>
+      <br style="margin-bottom:4px;">
+      <span style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(247,244,238,0.4);">Reassess after: </span>
+      <span style="font-size:12px;color:rgba(247,244,238,0.7);">${routine.reassess}</span>
+    </div>`;
+
+  preview.style.display = 'block';
+  navBefore.style.display = 'none';
+  preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ════════════════════════════════════════════
+// PDF 1 — FULL PROFILE
+// ════════════════════════════════════════════
+function downloadProfilePDF() {
+  const founderName = document.getElementById('founder-name')?.value || 'Founder';
+  const companyName = document.getElementById('company-name')?.value || '';
+  const stage = document.getElementById('funding-stage')?.value || '';
+  const teamSize = document.getElementById('team-size')?.value || '';
+  const founded = document.getElementById('founded-year')?.value || '';
+  const industry = document.getElementById('industry')?.value || '';
+  const problem = document.getElementById('problem')?.value || '';
+  const challenge = document.getElementById('challenge')?.value || '';
+  const today = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+  const sorted = getAllDiscsSorted();
+  const catAreas = ['physical','mental','work','leadership'];
+  const catLabels = { physical:'I. Physical Base', mental:'II. Mental Capacity', work:'III. Work Efficiency', leadership:'IV. Leadership Quality' };
+  const catColors = { physical:'#7F77DD', mental:'#5DCAA5', work:'#F0997B', leadership:'#BA7517' };
+  const catLights = { physical:'#EEEDFE', mental:'#E1F5EE', work:'#FAECE7', leadership:'#FAEEDA' };
+  const catDarks  = { physical:'#3C3489', mental:'#085041', work:'#712B13', leadership:'#633806' };
+
+  const catAvgs = {};
+  catAreas.forEach(a => catAvgs[a] = getCatAvg(a));
+
+  const rankRows = sorted.map((d,i) => {
+    const status = d.score <= 4 ? 'Gap' : d.score <= 6.5 ? 'Building' : 'Strength';
+    const statusBg = d.score <= 4 ? '#FAECE7' : d.score <= 6.5 ? '#FAEEDA' : '#E1F5EE';
+    const statusCol = d.score <= 4 ? '#712B13' : d.score <= 6.5 ? '#633806' : '#085041';
+    const barW = Math.round(d.score * 10);
+    return `<tr style="${i % 2 === 0 ? 'background:#FDFAF6;' : ''}">
+      <td style="padding:5px 8px;font-size:10px;font-weight:700;color:#9A9080;text-align:right;width:24px;">${i+1}</td>
+      <td style="padding:5px 8px;font-size:10px;font-weight:600;color:#1A1510;">${d.name}</td>
+      <td style="padding:5px 8px;"><span style="font-size:8px;background:${d.light};color:${d.dark};padding:2px 7px;border-radius:8px;font-weight:700;">${d.areaName.split('.')[0]}.</span></td>
+      <td style="padding:5px 8px;width:110px;"><div style="height:4px;background:#E2D9CC;border-radius:2px;"><div style="height:4px;width:${barW}%;background:${d.color};border-radius:2px;"></div></div></td>
+      <td style="padding:5px 8px;text-align:right;font-weight:700;color:${d.color};font-size:12px;">${d.score}</td>
+      <td style="padding:5px 8px;"><span style="font-size:8px;background:${statusBg};color:${statusCol};padding:2px 7px;border-radius:8px;">${status}</span></td>
+    </tr>`;
+  }).join('');
+
+  const catSummaryHTML = catAreas.map(a => {
+    const avg = catAvgs[a];
+    const barW = Math.round(avg * 10);
+    const topD = sorted.filter(d=>d.area===a)[0];
+    const botD = sorted.filter(d=>d.area===a).slice(-1)[0];
+    return `<div style="background:${catLights[a]};border:1px solid ${catColors[a]}30;border-radius:6px;padding:12px;text-align:center;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${catDarks[a]};margin-bottom:4px;">${catLabels[a]}</div>
+      <div style="font-size:28px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;color:${catColors[a]};line-height:1;">${avg}</div>
+      <div style="font-size:8px;color:${catDarks[a]};margin-bottom:6px;">/10</div>
+      <div style="height:3px;background:rgba(0,0,0,0.1);border-radius:2px;margin-bottom:6px;"><div style="height:3px;width:${barW}%;background:${catColors[a]};border-radius:2px;"></div></div>
+      <div style="font-size:9px;color:${catDarks[a]};"><span style="opacity:0.6">Best: </span>${topD?.name}</div>
+      <div style="font-size:9px;color:${catDarks[a]};"><span style="opacity:0.6">Gap: </span>${botD?.name}</div>
+    </div>`;
+  }).join('');
+
+  const rec1 = sorted[sorted.length - 1];
+  const rec2 = sorted[sorted.length - 2];
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>build.inside Assessment — ${founderName}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Karla',sans-serif;font-size:11px;color:#1A1510;background:white;line-height:1.6;}
+    @page{margin:16mm;size:A4;}
+    .pb{page-break-before:always;}
+    .nb{page-break-inside:avoid;}
+  </style>
+  </head><body>
+  <!-- COVER -->
+  <div style="background:#0E0E0E;padding:36px;border-radius:8px;margin-bottom:20px;" class="nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#7F77DD;margin-bottom:10px;">BUILD.INSIDE — FOUNDER PERFORMANCE ASSESSMENT</div>
+    <div style="font-size:34px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;color:#F7F4EE;line-height:1.05;margin-bottom:8px;">${founderName}${companyName?` — ${companyName}`:''}</div>
+    <div style="font-size:10px;color:rgba(247,244,238,0.45);margin-bottom:16px;">${today} · ${[stage,teamSize,founded,industry].filter(Boolean).join(' · ')}</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      ${catAreas.map(a=>`<div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:5px;padding:10px;text-align:center;">
+        <div style="font-size:7px;color:rgba(247,244,238,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">${catLabels[a]}</div>
+        <div style="font-size:22px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;color:${catColors[a]};">${catAvgs[a]}</div>
+        <div style="font-size:7px;color:rgba(247,244,238,0.3);">/10</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- AREA SUMMARIES -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;" class="nb">${catSummaryHTML}</div>
+
+  ${problem||challenge?`<div style="background:#F0EBE1;border-radius:6px;padding:12px;margin-bottom:16px;" class="nb">
+    ${problem?`<div style="margin-bottom:6px;"><strong style="font-size:8px;text-transform:uppercase;letter-spacing:0.1em;color:#9A9080;">Problem: </strong><span style="font-size:10px;color:#5A5040;">${problem}</span></div>`:''}
+    ${challenge?`<div><strong style="font-size:8px;text-transform:uppercase;letter-spacing:0.1em;color:#9A9080;">Current challenge: </strong><span style="font-size:10px;color:#5A5040;">${challenge}</span></div>`:''}
+  </div>`:''}
+
+  <!-- RANKED TABLE -->
+  <div style="font-size:7px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#9A9080;margin-bottom:8px;padding:6px 8px;background:#F0EBE1;border-radius:4px;">ALL 30 DISCIPLINES — RANKED STRENGTH TO GAP</div>
+  <div style="margin-bottom:4px;display:flex;gap:12px;flex-wrap:wrap;">
+    ${catAreas.map(a=>`<span style="font-size:8px;display:flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:${catColors[a]};display:inline-block;"></span>${catLabels[a]}</span>`).join('')}
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:20px;"><tbody>${rankRows}</tbody></table>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="pb" style="background:#0E0E0E;padding:24px;border-radius:8px;margin-bottom:16px;" class="nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#7F77DD;margin-bottom:8px;">HIGHEST-LEVERAGE STARTING POINTS</div>
+    <div style="font-size:20px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;color:#F7F4EE;margin-bottom:12px;">Start with one of these two disciplines.</div>
+    ${[rec1,rec2].filter(Boolean).map((d,i)=>{
+      const routine = ROUTINES[d.id];
+      if(!routine) return '';
+      return `<div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">
+          <span style="font-size:20px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;color:#7F77DD;">${i+1}</span>
+          <div><div style="font-size:12px;font-weight:700;color:#F7F4EE;">${d.name}</div><div style="font-size:8px;color:#6A6A6A;text-transform:uppercase;letter-spacing:0.1em;">${d.areaName}</div></div>
+        </div>
+        <div style="font-size:9px;color:rgba(247,244,238,0.6);line-height:1.7;">${routine.why}</div>
+      </div>`;
+    }).join('')}
+    <div style="font-size:10px;color:rgba(247,244,238,0.45);margin-top:8px;">Choose the one that feels most motivating to you. Download the Routine Plan PDF for your chosen discipline from the Routine Builder.</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="padding-top:10px;border-top:1px solid #E2D9CC;font-size:8px;color:#9A9080;display:flex;justify-content:space-between;">
+    <span>build.inside — Not for a broken mind. For high performers to get even better.</span>
+    <span>${founderName}${companyName?' · '+companyName:''} · ${today}</span>
+  </div>
+  </body></html>`;
+
+  const w = window.open('', '_blank', 'width=900,height=700');
+  if (!w) { alert('Please allow pop-ups, then try again.'); return; }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 800);
+}
+
+// ════════════════════════════════════════════
+// PDF 2 — ROUTINE PLAN
+// ════════════════════════════════════════════
+function downloadRoutinePDF() {
+  if (!selectedRoutineDisc) { alert('Please select a discipline first.'); return; }
+  const discId = selectedRoutineDisc;
+  const meta = DISC_META[discId];
+  const routine = ROUTINES[discId];
+  if (!routine) { alert('Routine data not found.'); return; }
+
+  const founderName = document.getElementById('founder-name')?.value || 'Founder';
+  const companyName = document.getElementById('company-name')?.value || '';
+  const today = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  const score = getDiscScore(discId);
+
+  const weekDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const trackRows = Array.from({length:4}, (_,week) =>
+    `<tr><td style="padding:5px 8px;font-size:9px;font-weight:700;color:#9A9080;white-space:nowrap;">Week ${week+1}</td>
+    ${weekDays.map(d=>`<td style="padding:5px;text-align:center;border:1px solid #E2D9CC;width:36px;"><div style="width:14px;height:14px;border:1px solid #C8BFB0;border-radius:3px;margin:0 auto;"></div></td>`).join('')}
+    <td style="padding:5px 8px;font-size:9px;color:#9A9080;">Notes</td></tr>`
+  ).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>build.inside — Routine Plan — ${meta.name}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Karla',sans-serif;font-size:11px;color:#1A1510;background:white;line-height:1.65;}
+    @page{margin:16mm;size:A4;}
+    .pb{page-break-before:always;}
+    .nb{page-break-inside:avoid;}
+  </style></head><body>
+
+  <!-- HEADER -->
+  <div style="background:#0E0E0E;padding:32px;border-radius:8px;margin-bottom:20px;" class="nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.26em;text-transform:uppercase;color:${meta.color};margin-bottom:8px;">BUILD.INSIDE — 30-DAY ROUTINE PLAN · ${meta.areaName}</div>
+    <div style="font-size:30px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;color:#F7F4EE;line-height:1.05;margin-bottom:6px;">${meta.name}</div>
+    <div style="font-size:10px;color:rgba(247,244,238,0.45);margin-bottom:14px;">${founderName}${companyName?' · '+companyName:''} · ${today}</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:4px 12px;font-size:9px;color:rgba(247,244,238,0.65);">Current score: ${score}/10</span>
+      <span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:4px 12px;font-size:9px;color:rgba(247,244,238,0.65);">${meta.areaName}</span>
+      <span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:4px 12px;font-size:9px;color:rgba(247,244,238,0.65);">Reassess after: ${routine.reassess}</span>
+    </div>
+  </div>
+
+  <!-- WHY -->
+  <div style="background:${meta.light};border:1px solid ${meta.color}30;border-radius:7px;padding:14px 16px;margin-bottom:16px;" class="nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:${meta.dark};margin-bottom:6px;">WHY THIS DISCIPLINE</div>
+    <div style="font-size:10px;color:${meta.dark};line-height:1.75;">${routine.why}</div>
+  </div>
+
+  <!-- NON-NEGOTIABLES -->
+  <div style="margin-bottom:16px;" class="nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${meta.dark};margin-bottom:8px;padding:6px 8px;background:${meta.light};border-radius:4px;">NON-NEGOTIABLES — The minimum effective dose. Start here. Nothing else until these are consistent.</div>
+    ${routine.nonneg.map((n,i)=>`<div style="display:flex;gap:12px;padding:8px 10px;background:${i%2===0?meta.light+'60':'#FDFAF6'};border-radius:5px;margin-bottom:4px;">
+      <span style="color:${meta.color};font-weight:700;flex-shrink:0;">→</span>
+      <span style="font-size:10px;color:#1A1510;line-height:1.65;">${n}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- DAILY ACTIONS -->
+  <div style="margin-bottom:16px;" class="nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#085041;margin-bottom:8px;padding:6px 8px;background:#E1F5EE;border-radius:4px;">DAILY ACTIONS — Do these every day. Track in the habit grid below.</div>
+    ${routine.daily.map((d,i)=>`<div style="display:flex;gap:12px;padding:7px 10px;background:${i%2===0?'#E1F5EE60':'#FDFAF6'};border-radius:5px;margin-bottom:4px;">
+      <span style="color:#5DCAA5;font-weight:700;flex-shrink:0;">•</span>
+      <span style="font-size:10px;color:#1A1510;line-height:1.65;">${d}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- WEEKLY ACTIONS -->
+  <div style="margin-bottom:16px;" class="nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#712B13;margin-bottom:8px;padding:6px 8px;background:#FAECE7;border-radius:4px;">WEEKLY REVIEW — Once per week, same time. Takes 10 minutes.</div>
+    ${routine.weekly.map((w,i)=>`<div style="display:flex;gap:12px;padding:7px 10px;background:${i%2===0?'#FAECE760':'#FDFAF6'};border-radius:5px;margin-bottom:4px;">
+      <span style="color:#F0997B;font-weight:700;flex-shrink:0;">◎</span>
+      <span style="font-size:10px;color:#1A1510;line-height:1.65;">${w}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- HABIT TRACKER -->
+  <div class="pb nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#9A9080;margin-bottom:10px;padding:6px 8px;background:#F0EBE1;border-radius:4px;">30-DAY HABIT TRACKER — Tick each day you complete the non-negotiables. Aim for ≥5/7 days per week.</div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+      <thead><tr>
+        <th style="padding:5px 8px;text-align:left;font-size:8px;color:#9A9080;background:#F0EBE1;"></th>
+        ${weekDays.map(d=>`<th style="padding:5px 4px;font-size:8px;color:#9A9080;background:#F0EBE1;text-align:center;">${d}</th>`).join('')}
+        <th style="padding:5px 8px;font-size:8px;color:#9A9080;background:#F0EBE1;"></th>
+      </tr></thead>
+      <tbody>${trackRows}</tbody>
+    </table>
+
+    <!-- WEEKLY REFLECTION PROMPTS -->
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9A9080;margin-bottom:8px;margin-top:16px;">WEEKLY REFLECTION — Fill at end of each week</div>
+    ${[1,2,3,4].map(w=>`<div style="margin-bottom:14px;padding:10px;background:#FDFAF6;border:1px solid #E2D9CC;border-radius:6px;">
+      <div style="font-size:9px;font-weight:700;color:#9A9080;margin-bottom:6px;">WEEK ${w}</div>
+      <div style="font-size:9px;color:#9A9080;margin-bottom:4px;">What changed this week?</div>
+      <div style="height:18px;border-bottom:1px solid #E2D9CC;margin-bottom:8px;"></div>
+      <div style="font-size:9px;color:#9A9080;margin-bottom:4px;">What was hardest to maintain?</div>
+      <div style="height:18px;border-bottom:1px solid #E2D9CC;margin-bottom:8px;"></div>
+      <div style="font-size:9px;color:#9A9080;margin-bottom:4px;">Adjustment for next week:</div>
+      <div style="height:18px;border-bottom:1px solid #E2D9CC;"></div>
+    </div>`).join('')}
+  </div>
+
+  <!-- TIMELINE + REASSESSMENT -->
+  <div style="background:#0E0E0E;padding:18px;border-radius:7px;margin-bottom:14px;" class="nb">
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${meta.color};margin-bottom:6px;">WHAT TO EXPECT</div>
+    <div style="font-size:10px;color:rgba(247,244,238,0.7);line-height:1.7;margin-bottom:8px;">${routine.timeline}</div>
+    <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(247,244,238,0.4);margin-bottom:4px;">RETURN TO THE ASSESSMENT AFTER:</div>
+    <div style="font-size:12px;color:#F7F4EE;font-weight:600;">${routine.reassess}</div>
+    <div style="font-size:9px;color:rgba(247,244,238,0.45);margin-top:6px;">Your scores will have shifted. So will what is highest-leverage next. One discipline, practiced well, for one month — then reassess and choose again.</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="padding-top:10px;border-top:1px solid #E2D9CC;font-size:8px;color:#9A9080;display:flex;justify-content:space-between;">
+    <span>build.inside — Not for a broken mind. For high performers to get even better.</span>
+    <span>${founderName}${companyName?' · '+companyName:''} · ${today}</span>
+  </div>
+  </body></html>`;
+
+  const w = window.open('', '_blank', 'width=900,height=700');
+  if (!w) { alert('Please allow pop-ups, then try again.'); return; }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 800);
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+buildQuestions('physical', 'q-physical');
+buildQuestions('mental',   'q-mental');
+buildQuestions('work',     'q-work');
+buildQuestions('leadership','q-leadership');
+updateProgress();
+</script>
+</body>
+</html>
